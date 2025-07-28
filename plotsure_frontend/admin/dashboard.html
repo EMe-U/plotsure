@@ -445,11 +445,11 @@
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Title*</label>
-                                    <input type="text" name="title" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter listing title">
+                                    <input type="text" id="listingTitle" name="title" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter listing title">
                                 </div>
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Land Type*</label>
-                                    <select name="land_type" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;">
+                                    <select id="landType" name="land_type" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;">
                                         <option value="">Select land type</option>
                                         <option value="residential">Residential</option>
                                         <option value="commercial">Commercial</option>
@@ -461,7 +461,7 @@
                             </div>
                             <div style="margin-top:1rem;">
                                 <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Description*</label>
-                                <textarea name="description" required rows="4" style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s; resize:vertical;" placeholder="Describe the land, features, and any important details"></textarea>
+                                <textarea id="listingDescription" name="description" required rows="4" style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s; resize:vertical;" placeholder="Describe the land, features, and any important details"></textarea>
                             </div>
                         </div>
 
@@ -471,21 +471,21 @@
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">District*</label>
-                                    <input type="text" name="district" value="Bugesera" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;">
+                                    <input type="text" id="district" name="district" value="Bugesera" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;">
                                 </div>
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Sector*</label>
-                                    <input type="text" name="sector" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter sector">
+                                    <input type="text" id="sector" name="sector" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter sector">
                                 </div>
                             </div>
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Cell*</label>
-                                    <input type="text" name="cell" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter cell">
+                                    <input type="text" id="cell" name="cell" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter cell">
                                 </div>
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Village*</label>
-                                    <input type="text" name="village" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter village">
+                                    <input type="text" id="village" name="village" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter village">
                                 </div>
                             </div>
                         </div>
@@ -496,11 +496,11 @@
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Land Size*</label>
-                                    <input type="number" name="land_size_value" min="1" step="0.01" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter size">
+                                    <input type="number" id="landSizeValue" name="land_size_value" min="1" step="0.01" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter size">
                                 </div>
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Unit*</label>
-                                    <select name="land_size_unit" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;">
+                                    <select id="landSizeUnit" name="land_size_unit" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;">
                                         <option value="sqm">Square Meters</option>
                                         <option value="hectares">Hectares</option>
                                         <option value="acres">Acres</option>
@@ -510,11 +510,11 @@
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Price*</label>
-                                    <input type="number" name="price_amount" min="0" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter price">
+                                    <input type="number" id="priceAmount" name="price_amount" min="0" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter price">
                                 </div>
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Currency*</label>
-                                    <select name="price_currency" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;">
+                                    <select id="priceCurrency" name="price_currency" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;">
                                         <option value="RWF">RWF</option>
                                         <option value="USD">USD</option>
                                     </select>
@@ -522,7 +522,7 @@
                             </div>
                             <div style="margin-top:1rem;">
                                 <label style="display:flex; align-items:center; gap:0.5rem; font-weight:600; color:#374151;">
-                                    <input type="checkbox" name="price_negotiable" style="width:18px; height:18px;">
+                                    <input type="checkbox" id="priceNegotiable" name="price_negotiable" style="width:18px; height:18px;">
                                     Price is negotiable
                                 </label>
                             </div>
@@ -534,16 +534,16 @@
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Landowner Name*</label>
-                                    <input type="text" name="landowner_name" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter landowner name">
+                                    <input type="text" id="landownerName" name="landowner_name" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter landowner name">
                                 </div>
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Landowner Phone*</label>
-                                    <input type="tel" name="landowner_phone" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter phone number">
+                                    <input type="tel" id="landownerPhone" name="landowner_phone" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter phone number">
                                 </div>
                             </div>
                             <div style="margin-top:1rem;">
                                 <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Landowner ID Number*</label>
-                                <input type="text" name="landowner_id_number" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter ID number">
+                                <input type="text" id="landownerIdNumber" name="landowner_id_number" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter ID number">
                             </div>
                         </div>
 
@@ -554,7 +554,7 @@
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Documents</label>
                                     <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
-                                        <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,image/*" style="display:none;" onchange="previewFiles(this, 'documentsPreview')">
+                                        <input type="file" id="documents" name="documents" multiple accept=".pdf,.doc,.docx,image/*" style="display:none;" onchange="previewFiles(this, 'documentsPreview')">
                                         <span>📄 Upload Documents</span>
                                     </label>
                                     <div id="documentsPreview" style="margin-top:0.5rem;"></div>
@@ -562,7 +562,7 @@
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Images</label>
                                     <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
-                                        <input type="file" name="images" multiple accept="image/*" style="display:none;" onchange="previewFiles(this, 'imagesPreview')">
+                                        <input type="file" id="images" name="images" multiple accept="image/*" style="display:none;" onchange="previewFiles(this, 'imagesPreview')">
                                         <span>🖼️ Upload Images</span>
                                     </label>
                                     <div id="imagesPreview" style="margin-top:0.5rem;"></div>
@@ -570,7 +570,7 @@
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Videos</label>
                                     <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
-                                        <input type="file" name="videos" multiple accept="video/*" style="display:none;" onchange="previewFiles(this, 'videosPreview')">
+                                        <input type="file" id="videos" name="videos" multiple accept="video/*" style="display:none;" onchange="previewFiles(this, 'videosPreview')">
                                         <span>🎥 Upload Videos</span>
                                     </label>
                                     <div id="videosPreview" style="margin-top:0.5rem;"></div>
