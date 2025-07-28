@@ -105,6 +105,44 @@ const listingsAPI = {
         }
     },
     
+    async update(id, formData, files = null) {
+        const form = new FormData();
+        
+        // Add form data
+        Object.keys(formData).forEach(key => {
+            form.append(key, formData[key]);
+        });
+        
+        // Add files if present
+        if (files) {
+            if (files.documents) {
+                Array.from(files.documents).forEach(file => {
+                    form.append('documents', file);
+                });
+            }
+            if (files.images) {
+                Array.from(files.images).forEach(file => {
+                    form.append('images', file);
+                });
+            }
+            if (files.videos) {
+                Array.from(files.videos).forEach(file => {
+                    form.append('videos', file);
+                });
+            }
+        }
+        
+        try {
+            const response = await authFetch(`/api/listings/${id}`, {
+                method: 'PUT',
+                body: form
+            });
+            return await response.json();
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
     async getStats() {
         try {
             const response = await authFetch('/api/listings/stats');
@@ -1137,6 +1175,45 @@ document.addEventListener('DOMContentLoaded', function() {
     renderInquiries();
     renderContacts();
     renderProfile();
+
+    // Add event listener for edit form submission
+    const editForm = document.getElementById('editListingForm');
+    if (editForm) {
+        editForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const formData = new FormData(editForm);
+            const listingId = formData.get('id');
+            
+            // Convert FormData to object
+            const updateData = {};
+            for (let [key, value] of formData.entries()) {
+                if (key !== 'id') {
+                    updateData[key] = value;
+                }
+            }
+            
+            try {
+                const result = await listingsAPI.update(listingId, updateData);
+                
+                if (result.success) {
+                    showMessage('Listing updated successfully!', 'success');
+                    hideModal('editListingModal');
+                    dashboardManager.loadListings();
+                } else {
+                    if (result.errors && result.errors.length > 0) {
+                        const errorMessages = result.errors.map(err => `${err.path}: ${err.msg}`).join('\n');
+                        showMessage(`Validation failed:\n${errorMessages}`, 'error');
+                    } else {
+                        showMessage(result.error || 'Failed to update listing', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Update listing error:', error);
+                showMessage('Failed to update listing', 'error');
+            }
+        });
+    }
 });
 
 function showSection(section) {
@@ -1154,7 +1231,7 @@ function renderListings() {
         .then(res => res.json())
         .then(data => {
             if (!data.success || !data.data || !data.data.listings) {
-                grid.innerHTML = '<div>No listings found.</div>';
+                grid.innerHTML = '<div style="text-align:center; padding:3rem; color:#64748b; font-size:1.1rem;">No listings found.</div>';
                 return;
             }
             const listings = data.data.listings;
@@ -1164,60 +1241,94 @@ function renderListings() {
                 if (listing.media && listing.media.length > 0) {
                     const primary = listing.media.find(m => m.media_type === 'image' && m.is_primary) || listing.media.find(m => m.media_type === 'image');
                     if (primary) {
-                        primaryImg = `<img src="/uploads/images/${primary.file_name}" alt="${listing.title}" style="width:100%; height:160px; object-fit:cover; border-radius:10px 10px 0 0;">`;
+                        primaryImg = `<img src="/uploads/images/${primary.file_name}" alt="${listing.title}" style="width:100%; height:200px; object-fit:cover; border-radius:12px 12px 0 0;">`;
                     }
                 }
                 if (!primaryImg) {
-                    primaryImg = `<div style="width:100%; height:160px; background:#e6f9e6; display:flex; align-items:center; justify-content:center; font-size:2.5rem; color:#27ae60; border-radius:10px 10px 0 0;">🏞️</div>`;
+                    primaryImg = `<div style="width:100%; height:200px; background:linear-gradient(135deg, #e6f9e6 0%, #d1f2d1 100%); display:flex; align-items:center; justify-content:center; font-size:3rem; color:#27ae60; border-radius:12px 12px 0 0; border:2px dashed #27ae60;">🏞️</div>`;
                 }
-                // Thumbnails for images
-                let imageThumbs = '';
-                if (listing.media && listing.media.length > 1) {
-                    imageThumbs = '<div style="display:flex; gap:4px; margin-top:6px;">' +
-                        listing.media.filter(m => m.media_type === 'image').map(m =>
-                            `<img src="/uploads/images/${m.file_name}" alt="thumb" style="width:36px; height:36px; object-fit:cover; border-radius:6px;">`
-                        ).join('') + '</div>';
+                
+                // Status badge
+                const statusColors = {
+                    'available': '#27ae60',
+                    'reserved': '#f39c12',
+                    'sold': '#e74c3c',
+                    'pending': '#9b59b6'
+                };
+                const statusColor = statusColors[listing.status] || '#27ae60';
+                const statusBadge = `<span style="position:absolute; top:12px; right:12px; background:${statusColor}; color:#fff; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; text-transform:uppercase;">${listing.status || 'Available'}</span>`;
+                
+                // Price and size info
+                const price = listing.price ? `RWF ${listing.price.toLocaleString()}` : 'Price on request';
+                const size = listing.plot_size ? `${listing.plot_size} ${listing.plot_size_unit || 'sqm'}` : 'Size not specified';
+                
+                // Media indicators
+                let mediaIndicators = '';
+                if (listing.media && listing.media.length > 0) {
+                    const imageCount = listing.media.filter(m => m.media_type === 'image').length;
+                    const videoCount = listing.media.filter(m => m.media_type === 'video').length;
+                    const docCount = listing.documents ? listing.documents.length : 0;
+                    
+                    mediaIndicators = '<div style="display:flex; gap:8px; margin-top:12px; font-size:0.8rem; color:#64748b;">';
+                    if (imageCount > 0) mediaIndicators += `<span>📷 ${imageCount} photos</span>`;
+                    if (videoCount > 0) mediaIndicators += `<span>🎬 ${videoCount} videos</span>`;
+                    if (docCount > 0) mediaIndicators += `<span>📄 ${docCount} docs</span>`;
+                    mediaIndicators += '</div>';
                 }
-                // Video thumbnails/links
-                let videoLinks = '';
-                if (listing.media && listing.media.some(m => m.media_type === 'video')) {
-                    videoLinks = '<div style="margin-top:8px;">' +
-                        listing.media.filter(m => m.media_type === 'video').map(m =>
-                            `<a href="/uploads/videos/${m.file_name}" target="_blank" style="margin-right:8px; color:#27ae60; text-decoration:underline;">🎬 Video</a>`
-                        ).join('') + '</div>';
-                }
-                // Document links
-                let docLinks = '';
-                if (listing.documents && listing.documents.length > 0) {
-                    docLinks = '<div style="margin-top:8px;">' +
-                        listing.documents.map(doc =>
-                            `<a href="/uploads/documents/${doc.file_name}" target="_blank" style="margin-right:8px; color:#219150; text-decoration:underline;">📄 ${doc.name}</a>`
-                        ).join('') + '</div>';
-                }
-                // Edit and Delete buttons
-                let editBtn = `<button class="btn btn-outline btn-edit-listing" data-idx="${idx}" style="border-color:#27ae60; color:#27ae60; float:right; margin-top:8px; margin-right:8px;">Edit</button>`;
-                let deleteBtn = `<button class="btn btn-outline btn-delete-listing" data-id="${listing.id}" style="border-color:#ef4444; color:#ef4444; float:right; margin-top:8px;">Delete</button>`;
-                // Card click handler: add data-idx for lookup
+                
                 return `
-                <div class="dashboard-card listing-card" data-idx="${idx}" style="cursor:pointer; position:relative;">
-                    ${editBtn}
-                    ${deleteBtn}
+                <div class="dashboard-card listing-card" data-idx="${idx}" style="cursor:pointer; position:relative; background:#fff; border-radius:12px; box-shadow:0 4px 20px rgba(39,174,96,0.08); transition:all 0.3s ease; overflow:hidden; border:1px solid #e5e7eb;">
+                    ${statusBadge}
                     ${primaryImg}
-                    <div class="card-title">${listing.title}</div>
-                    <div class="card-subtitle">${listing.sector}, ${listing.district}</div>
-                    <div class="card-status">${listing.status || 'Available'}</div>
-                    <div class="card-date">${new Date(listing.created_at).toLocaleDateString()}</div>
-                    ${imageThumbs}
-                    ${videoLinks}
-                    ${docLinks}
-                    <div class="card-avatars" style="margin-top:10px;">
-                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Broker">
+                    <div style="padding:1.5rem;">
+                        <div style="margin-bottom:0.5rem;">
+                            <h3 style="font-size:1.25rem; font-weight:700; color:#1f2937; margin:0 0 0.5rem 0; line-height:1.3;">${listing.title}</h3>
+                            <p style="color:#64748b; font-size:0.9rem; margin:0; display:flex; align-items:center; gap:4px;">
+                                📍 ${listing.sector}, ${listing.district}
+                            </p>
+                        </div>
+                        
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin:1rem 0;">
+                            <div>
+                                <div style="font-size:1.1rem; font-weight:700; color:#27ae60;">${price}</div>
+                                <div style="font-size:0.85rem; color:#64748b;">${size}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:0.8rem; color:#64748b;">Land Type</div>
+                                <div style="font-size:0.9rem; font-weight:600; color:#374151; text-transform:capitalize;">${listing.land_type || 'Not specified'}</div>
+                            </div>
+                        </div>
+                        
+                        ${mediaIndicators}
+                        
+                        <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #f1f5f9;">
+                            <div style="display:flex; gap:8px; justify-content:space-between;">
+                                <button class="btn btn-outline btn-edit-listing" data-idx="${idx}" style="flex:1; padding:0.6rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                                    ✏️ Edit
+                                </button>
+                                <button class="btn btn-outline btn-danger btn-delete-listing" data-id="${listing.id}" style="flex:1; padding:0.6rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:600;">
+                                    🗑️ Delete
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 `;
             }).join('');
-            // Add click listeners for each card
+            
+            // Add hover effects
             document.querySelectorAll('.listing-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px)';
+                    this.style.boxShadow = '0 8px 30px rgba(39,174,96,0.15)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 20px rgba(39,174,96,0.08)';
+                });
+                
+                // Card click handler
                 card.addEventListener('click', function(e) {
                     // Prevent click if Edit or Delete button was clicked
                     if (e.target.classList.contains('btn-delete-listing') || e.target.classList.contains('btn-edit-listing')) return;
@@ -1225,6 +1336,7 @@ function renderListings() {
                     showListingDetails(listings[idx]);
                 });
             });
+            
             // Add delete listeners
             document.querySelectorAll('.btn-delete-listing').forEach(btn => {
                 btn.addEventListener('click', function(e) {
@@ -1233,6 +1345,7 @@ function renderListings() {
                     deleteListing(id);
                 });
             });
+            
             // Add edit listeners
             document.querySelectorAll('.btn-edit-listing').forEach(btn => {
                 btn.addEventListener('click', function(e) {
@@ -1243,7 +1356,7 @@ function renderListings() {
             });
         })
         .catch(() => {
-            grid.innerHTML = '<div>Error loading listings.</div>';
+            grid.innerHTML = '<div style="text-align:center; padding:3rem; color:#ef4444; font-size:1.1rem;">Error loading listings.</div>';
         });
 }
 
@@ -1372,21 +1485,21 @@ function openEditListingModal(listing) {
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
             <div>
                 <label>Land Size*</label>
-                <input type="number" name="land_size_value" min="1" step="0.01" value="${listing.land_size_value || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
+                <input type="number" name="plot_size" min="1" step="0.01" value="${listing.plot_size || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
             </div>
             <div>
                 <label>Unit*</label>
-                <select name="land_size_unit" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-                    <option value="sqm" ${listing.land_size_unit === 'sqm' ? 'selected' : ''}>Square Meters</option>
-                    <option value="hectares" ${listing.land_size_unit === 'hectares' ? 'selected' : ''}>Hectares</option>
-                    <option value="acres" ${listing.land_size_unit === 'acres' ? 'selected' : ''}>Acres</option>
+                <select name="plot_size_unit" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
+                    <option value="sqm" ${listing.plot_size_unit === 'sqm' ? 'selected' : ''}>Square Meters</option>
+                    <option value="hectares" ${listing.plot_size_unit === 'hectares' ? 'selected' : ''}>Hectares</option>
+                    <option value="acres" ${listing.plot_size_unit === 'acres' ? 'selected' : ''}>Acres</option>
                 </select>
             </div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
             <div>
                 <label>Price*</label>
-                <input type="number" name="price_amount" min="0" value="${listing.price_amount || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
+                <input type="number" name="price" min="0" value="${listing.price || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
             </div>
             <div>
                 <label>Currency*</label>
