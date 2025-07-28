@@ -180,8 +180,13 @@ function hideModal(modalId) {
 
 function showModal(modalId) {
     const modal = document.getElementById(modalId);
+    console.log('showModal called for:', modalId);
+    console.log('Modal element found:', !!modal);
     if (modal) {
         modal.style.display = 'flex';
+        console.log('Modal should now be visible');
+    } else {
+        console.error('Modal not found:', modalId);
     }
 }
 
@@ -1354,7 +1359,14 @@ function renderListings() {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const idx = this.getAttribute('data-idx');
-                    openEditListingModal(listings[idx]);
+                    console.log('Edit button clicked, idx:', idx);
+                    console.log('Listings array:', listings);
+                    if (listings[idx]) {
+                        console.log('Opening edit modal for listing:', listings[idx]);
+                        openEditListingModal(listings[idx]);
+                    } else {
+                        console.error('Listing not found at index:', idx);
+                    }
                 });
             });
         })
@@ -1419,6 +1431,7 @@ function showListingDetails(listing) {
     const editBtnModal = document.querySelector('.btn-edit-listing-modal');
     if (editBtnModal) {
         editBtnModal.addEventListener('click', function() {
+            console.log('Edit button in modal clicked for listing:', listing);
             openEditListingModal(listing);
         });
     }
@@ -1497,21 +1510,21 @@ function openEditListingModal(listing) {
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                 <div>
                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Land Size*</label>
-                    <input type="number" name="plot_size" min="1" step="0.01" value="${listing.plot_size || ''}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                    <input type="number" name="land_size_value" min="1" step="0.01" value="${listing.plot_size || listing.land_size_value || ''}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
                 </div>
                 <div>
                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Unit*</label>
-                    <select name="plot_size_unit" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
-                        <option value="sqm" ${listing.plot_size_unit === 'sqm' ? 'selected' : ''}>Square Meters</option>
-                        <option value="hectares" ${listing.plot_size_unit === 'hectares' ? 'selected' : ''}>Hectares</option>
-                        <option value="acres" ${listing.plot_size_unit === 'acres' ? 'selected' : ''}>Acres</option>
+                    <select name="land_size_unit" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                        <option value="sqm" ${(listing.plot_size_unit || listing.land_size_unit) === 'sqm' ? 'selected' : ''}>Square Meters</option>
+                        <option value="hectares" ${(listing.plot_size_unit || listing.land_size_unit) === 'hectares' ? 'selected' : ''}>Hectares</option>
+                        <option value="acres" ${(listing.plot_size_unit || listing.land_size_unit) === 'acres' ? 'selected' : ''}>Acres</option>
                     </select>
                 </div>
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
                 <div>
                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Price*</label>
-                    <input type="number" name="price" min="0" value="${listing.price || ''}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                    <input type="number" name="price_amount" min="0" value="${listing.price || listing.price_amount || ''}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
                 </div>
                 <div>
                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Currency*</label>
@@ -1577,6 +1590,15 @@ function openEditListingModal(listing) {
     // Show the modal
     showModal('editListingModal');
     console.log('Modal should be visible now');
+    
+    // Add a small delay to ensure modal is rendered
+    setTimeout(() => {
+        const modal = document.getElementById('editListingModal');
+        console.log('Modal after timeout:', modal);
+        if (modal) {
+            console.log('Modal display style:', modal.style.display);
+        }
+    }, 100);
     
     // Add event listeners for cancel button
     const cancelBtn = document.getElementById('cancelEditListing');
