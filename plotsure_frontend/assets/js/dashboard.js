@@ -1408,6 +1408,7 @@ function renderListings() {
     
     // Add status change listeners
     document.querySelectorAll('.status-select').forEach(select => {
+        console.log('Adding status change listener to:', select);
         select.addEventListener('change', async function(e) {
             e.stopPropagation();
             const listingId = this.getAttribute('data-listing-id');
@@ -1426,6 +1427,8 @@ function renderListings() {
                 });
                 
                 const result = await response.json();
+                console.log('Status update response:', result);
+                
                 if (result.success) {
                     showMessage(`Status updated to ${newStatus}!`, 'success');
                     // Update the status badge on the card
@@ -1439,16 +1442,18 @@ function renderListings() {
                                 'sold': '#e74c3c'
                             };
                             const statusLabels = {
-                                'available': 'Available',
-                                'reserved': 'Reserved',
-                                'sold': 'Sold'
+                                'available': '🟢 Available',
+                                'reserved': '🟡 Reserved',
+                                'sold': '🔴 Sold'
                             };
                             badge.style.background = statusColors[newStatus];
                             badge.textContent = statusLabels[newStatus];
                         }
                     }
+                    // Update the original status for future reverts
+                    this.setAttribute('data-original-status', newStatus);
                 } else {
-                    showMessage('Failed to update status', 'error');
+                    showMessage('Failed to update status: ' + (result.message || 'Unknown error'), 'error');
                     // Revert the select to previous value
                     this.value = this.getAttribute('data-original-status') || 'available';
                 }
@@ -1527,7 +1532,7 @@ function renderListings() {
         });
     }
     
-    // Add a test button to the page for debugging
+    // Add test buttons to the page for debugging
     const testButton = document.createElement('button');
     testButton.textContent = 'Test Edit Modal';
     testButton.style.cssText = 'position:fixed; top:10px; right:10px; z-index:9999; background:#27ae60; color:#fff; padding:10px; border:none; border-radius:5px; cursor:pointer;';
@@ -1541,6 +1546,31 @@ function renderListings() {
         }
     };
     document.body.appendChild(testButton);
+    
+    // Add status test button
+    const statusTestButton = document.createElement('button');
+    statusTestButton.textContent = 'Test Status Change';
+    statusTestButton.style.cssText = 'position:fixed; top:50px; right:10px; z-index:9999; background:#f39c12; color:#fff; padding:10px; border:none; border-radius:5px; cursor:pointer;';
+    statusTestButton.onclick = function() {
+        console.log('Status test button clicked');
+        const statusSelects = document.querySelectorAll('.status-select');
+        console.log('Found status selects:', statusSelects.length);
+        statusSelects.forEach((select, index) => {
+            console.log(`Status select ${index}:`, select.value, 'listing ID:', select.getAttribute('data-listing-id'));
+        });
+        
+        // Test status change on first listing
+        if (statusSelects.length > 0 && listings && listings.length > 0) {
+            const firstSelect = statusSelects[0];
+            const listingId = firstSelect.getAttribute('data-listing-id');
+            console.log('Testing status change for listing:', listingId);
+            
+            // Manually trigger status change
+            firstSelect.value = 'reserved';
+            firstSelect.dispatchEvent(new Event('change'));
+        }
+    };
+    document.body.appendChild(statusTestButton);
         })
         .catch(() => {
             grid.innerHTML = '<div style="text-align:center; padding:3rem; color:#ef4444; font-size:1.1rem;">Error loading listings.</div>';

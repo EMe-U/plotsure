@@ -86,7 +86,7 @@ const updateListingValidation = [
     .withMessage('Invalid land type'),
   body('status')
     .optional()
-    .isIn(['draft', 'active', 'reserved', 'sold', 'withdrawn'])
+    .isIn(['available', 'reserved', 'sold'])
     .withMessage('Invalid status')
 ];
 
