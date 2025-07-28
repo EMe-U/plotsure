@@ -290,6 +290,65 @@
         @media (max-width: 600px) {
             .card-grid { grid-template-columns: 1fr; }
         }
+
+        /* Add Listing Modal Styles */
+        #addListingModal input:focus,
+        #addListingModal select:focus,
+        #addListingModal textarea:focus {
+            outline: none;
+            border-color: #27ae60 !important;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1) !important;
+        }
+        
+        #addListingModal .btn-outline:hover {
+            background: #27ae60 !important;
+            color: #fff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
+        }
+        
+        #addListingModal .btn-primary:hover {
+            background: #219150 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+        
+        #addListingModal .btn-outline:active,
+        #addListingModal .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        /* File upload button hover effects */
+        #addListingModal label[class*="btn-outline"]:hover {
+            background: #27ae60 !important;
+            color: #fff !important;
+        }
+        
+        /* Modal backdrop animation */
+        #addListingModal {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Modal content animation */
+        #addListingModal .modal-content {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
     </style>
 </head>
 <body>
@@ -300,10 +359,10 @@
         </div>
         <nav class="sidebar-nav">
             <ul>
-                <li><a href="#" class="sidebar-link active" data-section="listings"><span class="icon">🏠</span><span>Dashboard</span></a></li>
-                <li><a href="#" class="sidebar-link" data-section="inquiries"><span class="icon">📋</span><span>Listings</span></a></li>
-                <li><a href="#" class="sidebar-link" data-section="contacts"><span class="icon">💬</span><span>Inquiries</span></a></li>
-                <li><a href="#" class="sidebar-link" data-section="profile"><span class="icon">📧</span><span>Contacts</span></a></li>
+                <li><a href="#" class="sidebar-link active" data-section="dashboard"><span class="icon">🏠</span><span>Dashboard</span></a></li>
+                <li><a href="#" class="sidebar-link" data-section="listings"><span class="icon">📋</span><span>Listings</span></a></li>
+                <li><a href="#" class="sidebar-link" data-section="inquiries"><span class="icon">💬</span><span>Inquiries</span></a></li>
+                <li><a href="#" class="sidebar-link" data-section="contacts"><span class="icon">📧</span><span>Contacts</span></a></li>
                 <li><a href="#" class="sidebar-link" data-section="profile"><span class="icon">👤</span><span>Profile</span></a></li>
             </ul>
         </nav>
@@ -328,10 +387,32 @@
             </div>
         </div>
         <div class="dashboard-content">
-            <!-- Listings Section (default visible) -->
+            <!-- Dashboard Section (add this for dashboard overview) -->
+            <div id="section-dashboard" class="dashboard-section" style="display: none;">
+                <div style="font-size:2rem; color:#27ae60; font-weight:800; margin-bottom:2rem;">Welcome to your Dashboard Overview</div>
+                <!-- Add dashboard stats/overview here if needed -->
+            </div>
+            <!-- Listings Section -->
             <div id="section-listings" class="dashboard-section" style="display: block;">
                 <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem;">
                     <button id="addListingBtn" class="btn btn-primary" style="background: #27ae60; color: #fff; font-weight: 600; border-radius: 8px;">➕ Add Listing</button>
+                </div>
+                <!-- Search & Filter UI -->
+                <div id="dashboardListingsSearchFilter" style="display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:2rem; align-items:center;">
+                    <input id="dashboardSearchInput" type="text" placeholder="Search by title, location, or description..." style="flex:2; min-width:180px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                    <select id="dashboardLandTypeFilter" style="padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                        <option value="">All Land Types</option>
+                        <option value="residential">Residential</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="agricultural">Agricultural</option>
+                        <option value="industrial">Industrial</option>
+                        <option value="mixed">Mixed Use</option>
+                    </select>
+                    <input id="dashboardMinPriceFilter" type="number" placeholder="Min Price" style="width:110px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                    <input id="dashboardMaxPriceFilter" type="number" placeholder="Max Price" style="width:110px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                    <input id="dashboardMinSizeFilter" type="number" placeholder="Min Size (sqm)" style="width:120px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                    <input id="dashboardMaxSizeFilter" type="number" placeholder="Max Size (sqm)" style="width:120px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                    <button id="dashboardResetFiltersBtn" class="btn btn-outline" style="border-color:#27ae60; color:#27ae60;">Reset</button>
                 </div>
                 <div class="tabs" id="listingsTabs">
                     <button class="tab-btn active" data-tab="all">All</button>
@@ -353,113 +434,151 @@
                 </div>
             </div>
             <!-- Add Listing Modal -->
-            <div id="addListingModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.25); z-index:2000; align-items:center; justify-content:center;">
-                <div class="modal-content" style="background:#fff; border-radius:16px; max-width:600px; width:95%; margin:2rem auto; padding:2rem; position:relative; box-shadow:0 8px 32px rgba(39,174,96,0.15);">
-                    <button id="closeAddListingModal" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.5rem; color:#64748b; cursor:pointer;">&times;</button>
-                    <h2 style="color:#27ae60; font-weight:800; margin-bottom:1.5rem;">Add New Listing</h2>
-                    <form id="addListingForm" enctype="multipart/form-data">
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                            <div>
-                                <label>Title*</label>
-                                <input type="text" name="title" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
+            <div id="addListingModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+                <div class="modal-content" style="background:#fff; border-radius:20px; max-width:700px; width:95%; max-height:90vh; overflow-y:auto; margin:2rem auto; padding:2.5rem; position:relative; box-shadow:0 20px 60px rgba(39,174,96,0.2); border:1px solid rgba(39,174,96,0.1);">
+                    <button id="closeAddListingModal" style="position:absolute; top:1.5rem; right:1.5rem; background:none; border:none; font-size:1.8rem; color:#64748b; cursor:pointer; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:all 0.3s;">&times;</button>
+                    <h2 style="color:#27ae60; font-weight:800; margin-bottom:2rem; font-size:1.8rem; text-align:center;">➕ Add New Listing</h2>
+                    <form id="addListingForm" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.5rem;">
+                        <!-- Listing Details Section -->
+                        <div style="background:#f8fafc; padding:1.5rem; border-radius:12px; border-left:4px solid #27ae60;">
+                            <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">📋 Listing Details</div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Title*</label>
+                                    <input type="text" name="title" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter listing title">
+                                </div>
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Land Type*</label>
+                                    <select name="land_type" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;">
+                                        <option value="">Select land type</option>
+                                        <option value="residential">Residential</option>
+                                        <option value="commercial">Commercial</option>
+                                        <option value="agricultural">Agricultural</option>
+                                        <option value="industrial">Industrial</option>
+                                        <option value="mixed">Mixed Use</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div>
-                                <label>Land Type*</label>
-                                <select name="land_type" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-                                    <option value="">Select type</option>
-                                    <option value="residential">Residential</option>
-                                    <option value="commercial">Commercial</option>
-                                    <option value="agricultural">Agricultural</option>
-                                    <option value="industrial">Industrial</option>
-                                    <option value="mixed">Mixed Use</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label>Description*</label>
-                            <textarea name="description" required rows="3" style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;"></textarea>
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                            <div>
-                                <label>District*</label>
-                                <input type="text" name="district" value="Bugesera" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-                            </div>
-                            <div>
-                                <label>Sector*</label>
-                                <input type="text" name="sector" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
+                            <div style="margin-top:1rem;">
+                                <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Description*</label>
+                                <textarea name="description" required rows="4" style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s; resize:vertical;" placeholder="Describe the land, features, and any important details"></textarea>
                             </div>
                         </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                            <div>
-                                <label>Cell*</label>
-                                <input type="text" name="cell" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
+
+                        <!-- Location Section -->
+                        <div style="background:#f8fafc; padding:1.5rem; border-radius:12px; border-left:4px solid #27ae60;">
+                            <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">📍 Location Details</div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">District*</label>
+                                    <input type="text" name="district" value="Bugesera" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;">
+                                </div>
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Sector*</label>
+                                    <input type="text" name="sector" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter sector">
+                                </div>
                             </div>
-                            <div>
-                                <label>Village*</label>
-                                <input type="text" name="village" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-                            </div>
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                            <div>
-                                <label>Land Size*</label>
-                                <input type="number" name="land_size_value" min="1" step="0.01" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-                            </div>
-                            <div>
-                                <label>Unit*</label>
-                                <select name="land_size_unit" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-                                    <option value="sqm">Square Meters</option>
-                                    <option value="hectares">Hectares</option>
-                                    <option value="acres">Acres</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                            <div>
-                                <label>Price*</label>
-                                <input type="number" name="price_amount" min="0" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-                            </div>
-                            <div>
-                                <label>Currency*</label>
-                                <select name="price_currency" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-                                    <option value="RWF">RWF</option>
-                                    <option value="USD">USD</option>
-                                </select>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Cell*</label>
+                                    <input type="text" name="cell" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter cell">
+                                </div>
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Village*</label>
+                                    <input type="text" name="village" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter village">
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <label><input type="checkbox" name="price_negotiable"> Price is negotiable</label>
-                        </div>
-                        <div style="margin-top:1.5rem; font-weight:600; color:#27ae60;">Landowner Information</div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                            <div>
-                                <label>Landowner Name*</label>
-                                <input type="text" name="landowner_name" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
+
+                        <!-- Land Size & Price Section -->
+                        <div style="background:#f8fafc; padding:1.5rem; border-radius:12px; border-left:4px solid #27ae60;">
+                            <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">💰 Size & Pricing</div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Land Size*</label>
+                                    <input type="number" name="land_size_value" min="1" step="0.01" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter size">
+                                </div>
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Unit*</label>
+                                    <select name="land_size_unit" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;">
+                                        <option value="sqm">Square Meters</option>
+                                        <option value="hectares">Hectares</option>
+                                        <option value="acres">Acres</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div>
-                                <label>Landowner Phone*</label>
-                                <input type="tel" name="landowner_phone" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Price*</label>
+                                    <input type="number" name="price_amount" min="0" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter price">
+                                </div>
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Currency*</label>
+                                    <select name="price_currency" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;">
+                                        <option value="RWF">RWF</option>
+                                        <option value="USD">USD</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="margin-top:1rem;">
+                                <label style="display:flex; align-items:center; gap:0.5rem; font-weight:600; color:#374151;">
+                                    <input type="checkbox" name="price_negotiable" style="width:18px; height:18px;">
+                                    Price is negotiable
+                                </label>
                             </div>
                         </div>
-                        <div>
-                            <label>Landowner ID Number*</label>
-                            <input type="text" name="landowner_id_number" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
+
+                        <!-- Landowner Information Section -->
+                        <div style="background:#f8fafc; padding:1.5rem; border-radius:12px; border-left:4px solid #27ae60;">
+                            <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">👤 Landowner Information</div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Landowner Name*</label>
+                                    <input type="text" name="landowner_name" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter landowner name">
+                                </div>
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Landowner Phone*</label>
+                                    <input type="tel" name="landowner_phone" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter phone number">
+                                </div>
+                            </div>
+                            <div style="margin-top:1rem;">
+                                <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Landowner ID Number*</label>
+                                <input type="text" name="landowner_id_number" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; transition:border-color 0.3s;" placeholder="Enter ID number">
+                            </div>
                         </div>
-                        <div style="margin-top:1.5rem; font-weight:600; color:#27ae60;">Upload Documents & Media</div>
-                        <div style="margin-bottom:1rem;">
-                            <label>Documents (PDF, DOC, Images)</label>
-                            <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,image/*" style="display:block; margin-bottom:0.5rem;">
+
+                        <!-- Upload Section -->
+                        <div style="background:#f8fafc; padding:1.5rem; border-radius:12px; border-left:4px solid #27ae60;">
+                            <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">📁 Upload Documents & Media</div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Documents</label>
+                                    <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
+                                        <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,image/*" style="display:none;">
+                                        <span>📄 Upload Documents</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Images</label>
+                                    <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
+                                        <input type="file" name="images" multiple accept="image/*" style="display:none;">
+                                        <span>🖼️ Upload Images</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Videos</label>
+                                    <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
+                                        <input type="file" name="videos" multiple accept="video/*" style="display:none;">
+                                        <span>🎥 Upload Videos</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                        <div style="margin-bottom:1rem;">
-                            <label>Images (JPG, PNG, GIF, WEBP)</label>
-                            <input type="file" name="images" multiple accept="image/*" style="display:block; margin-bottom:0.5rem;">
-                        </div>
-                        <div style="margin-bottom:1.5rem;">
-                            <label>Videos (MP4, WebM, MOV)</label>
-                            <input type="file" name="videos" multiple accept="video/*" style="display:block; margin-bottom:0.5rem;">
-                        </div>
-                        <div style="display:flex; gap:1rem; justify-content:flex-end;">
-                            <button type="button" id="cancelAddListing" class="btn btn-outline" style="border-color:#27ae60; color:#27ae60;">Cancel</button>
-                            <button type="submit" class="btn btn-primary" style="background:#27ae60; color:#fff;">Submit</button>
+
+                        <!-- Submit Buttons -->
+                        <div style="display:flex; gap:1rem; justify-content:center; margin-top:2rem; padding-top:2rem; border-top:1px solid #e5e7eb;">
+                            <button type="button" id="cancelAddListing" class="btn btn-outline" style="border-color:#64748b; color:#64748b; padding:1rem 2rem; font-weight:600; border-radius:10px; min-width:120px;">Cancel</button>
+                            <button type="submit" class="btn btn-primary" style="background:#27ae60; color:#fff; padding:1rem 2rem; font-weight:600; border-radius:10px; min-width:120px; border:none; font-size:1.1rem;">✅ Create Listing</button>
                         </div>
                     </form>
                 </div>
@@ -498,7 +617,18 @@
                     <!-- Profile info will be rendered here by JS -->
                 </div>
             </div>
+            <!-- Edit Listing Modal -->
+            <div id="editListingModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.25); z-index:2100; align-items:center; justify-content:center;">
+                <div class="modal-content" style="background:#fff; border-radius:16px; max-width:600px; width:95%; margin:2rem auto; padding:2rem; position:relative; box-shadow:0 8px 32px rgba(39,174,96,0.15);">
+                    <button id="closeEditListingModal" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.5rem; color:#64748b; cursor:pointer;">&times;</button>
+                    <h2 style="color:#27ae60; font-weight:800; margin-bottom:1.5rem;">Edit Listing</h2>
+                    <form id="editListingForm" enctype="multipart/form-data">
+                        <!-- Form fields will be dynamically generated by JS -->
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+    <script src="../assets/js/dashboard.js"></script>
 </body>
 </html>

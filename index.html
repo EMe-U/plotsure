@@ -739,81 +739,27 @@
                 <h2>Featured Land Listings</h2>
                 <p>Explore our latest green plots with verified documentation</p>
             </div>
-
-            <div class="listings-grid">
-                <div class="listing-card">
-                    <div class="listing-image" style="background-image: url('https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80'); background-size: cover; background-position: center;">
-                        <span class="listing-badge">✅ Verified</span>
-                    </div>
-                    <div class="listing-content">
-                        <h3 class="listing-title">Prime Green Plot in Nyamata</h3>
-                        <div class="listing-location">
-                            📍 Nyamata, Bugesera District
-                        </div>
-                        <div class="listing-details">
-                            <div class="listing-price">15M RWF</div>
-                            <div class="listing-size">600 sqm</div>
-                        </div>
-                        <div class="listing-features">
-                            <span class="feature-tag">Fertile Soil</span>
-                            <span class="feature-tag">Road Access</span>
-                            <span class="feature-tag">Water</span>
-                        </div>
-                        <a href="#" class="btn btn-primary" style="width: 100%;">View Details</a>
-                        <a href="mailto:plotsureconnect@gmail.com?subject=Inquiry about Prime Green Plot in Nyamata&body=Hello, I am interested in the Prime Green Plot in Nyamata. Please provide more details." class="btn btn-outline" style="width: 100%; margin-top: 0.5rem; color: #27ae60; border-color: #27ae60;">Send Inquiry</a>
-                    </div>
-                </div>
-
-                <div class="listing-card">
-                    <div class="listing-image" style="background-image: url('https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=600&q=80'); background-size: cover; background-position: center;">
-                        <span class="listing-badge">✅ Verified</span>
-                    </div>
-                    <div class="listing-content">
-                        <h3 class="listing-title">Commercial Land Near Market</h3>
-                        <div class="listing-location">
-                            📍 Rilima, Bugesera District
-                        </div>
-                        <div class="listing-details">
-                            <div class="listing-price">25M RWF</div>
-                            <div class="listing-size">800 sqm</div>
-                        </div>
-                        <div class="listing-features">
-                            <span class="feature-tag">Commercial</span>
-                            <span class="feature-tag">Main Road</span>
-                            <span class="feature-tag">Utilities</span>
-                        </div>
-                        <a href="#" class="btn btn-primary" style="width: 100%;">View Details</a>
-                        <a href="mailto:plotsureconnect@gmail.com?subject=Inquiry about Commercial Land Near Market&body=Hello, I am interested in the Commercial Land Near Market. Please provide more details." class="btn btn-outline" style="width: 100%; margin-top: 0.5rem; color: #27ae60; border-color: #27ae60;">Send Inquiry</a>
-                    </div>
-                </div>
-
-                <div class="listing-card">
-                    <div class="listing-image" style="background-image: url('https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80'); background-size: cover; background-position: center;">
-                        <span class="listing-badge">✅ Verified</span>
-                    </div>
-                    <div class="listing-content">
-                        <h3 class="listing-title">Agricultural Land with Lake View</h3>
-                        <div class="listing-location">
-                            📍 Gashora, Bugesera District
-                        </div>
-                        <div class="listing-details">
-                            <div class="listing-price">50M RWF</div>
-                            <div class="listing-size">2 hectares</div>
-                        </div>
-                        <div class="listing-features">
-                            <span class="feature-tag">Lake View</span>
-                            <span class="feature-tag">Fertile Soil</span>
-                            <span class="feature-tag">Irrigation</span>
-                        </div>
-                        <a href="#" class="btn btn-primary" style="width: 100%;">View Details</a>
-                        <a href="mailto:plotsureconnect@gmail.com?subject=Inquiry about Agricultural Land with Lake View&body=Hello, I am interested in the Agricultural Land with Lake View. Please provide more details." class="btn btn-outline" style="width: 100%; margin-top: 0.5rem; color: #27ae60; border-color: #27ae60;">Send Inquiry</a>
-                    </div>
-                </div>
+            <!-- Search & Filter UI -->
+            <div id="listingsSearchFilter" style="display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:2rem; align-items:center;">
+                <input id="searchInput" type="text" placeholder="Search by title, location, or description..." style="flex:2; min-width:180px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                <select id="landTypeFilter" style="padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                    <option value="">All Land Types</option>
+                    <option value="residential">Residential</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="agricultural">Agricultural</option>
+                    <option value="industrial">Industrial</option>
+                    <option value="mixed">Mixed Use</option>
+                </select>
+                <input id="minPriceFilter" type="number" placeholder="Min Price" style="width:110px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                <input id="maxPriceFilter" type="number" placeholder="Max Price" style="width:110px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                <input id="minSizeFilter" type="number" placeholder="Min Size (sqm)" style="width:120px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                <input id="maxSizeFilter" type="number" placeholder="Max Size (sqm)" style="width:120px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                <button id="resetFiltersBtn" class="btn btn-outline" style="border-color:#27ae60; color:#27ae60;">Reset</button>
             </div>
-
-            <div style="text-align: center; margin-top: 3rem;">
-                <a href="#" class="btn btn-primary btn-hero">View All Listings</a>
+            <div class="listings-grid" id="listingsGrid">
+                <!-- Listing cards will be rendered here by JS -->
             </div>
+            <div id="listingsPagination" style="text-align:center; margin-top:2rem;"></div>
         </div>
     </section>
 
@@ -889,6 +835,49 @@
             <p>Made in Rwanda | Privacy Policy | Terms of Service</p>
         </div>
     </footer>
+
+    <!-- Inquiry/Reservation Modal (hidden by default) -->
+    <div id="inquiryModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.25); z-index:3000; align-items:center; justify-content:center;">
+      <div style="background:#fff; border-radius:16px; max-width:500px; width:95%; margin:2rem auto; padding:2rem; position:relative; box-shadow:0 8px 32px rgba(39,174,96,0.15);">
+        <button id="closeInquiryModal" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.5rem; color:#64748b; cursor:pointer;">&times;</button>
+        <h2 style="color:#27ae60; font-weight:800; margin-bottom:1.5rem;">Send Inquiry / Reservation</h2>
+        <form id="inquiryForm">
+          <input type="hidden" name="listing_id" id="inquiryListingId">
+          <div style="margin-bottom:1rem;">
+            <label>Name*</label>
+            <input type="text" name="inquirer_name" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label>Email*</label>
+            <input type="email" name="inquirer_email" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label>Phone*</label>
+            <input type="tel" name="inquirer_phone" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label>Inquiry Type*</label>
+            <select name="inquiry_type" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+              <option value="general_interest">General Inquiry</option>
+              <option value="site_visit">Site Visit</option>
+              <option value="price_negotiation">Price Negotiation</option>
+              <option value="document_verification">Document Verification</option>
+              <option value="purchase_intent">Purchase Intent</option>
+              <option value="reservation">Reservation</option>
+            </select>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label>Message*</label>
+            <textarea name="message" required rows="3" style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;"></textarea>
+          </div>
+          <div id="inquiryFormFeedback" style="margin-bottom:1rem; color:#ef4444; display:none;"></div>
+          <div style="display:flex; gap:1rem; justify-content:flex-end;">
+            <button type="button" id="cancelInquiry" class="btn btn-outline" style="border-color:#27ae60; color:#27ae60;">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="background:#27ae60; color:#fff;">Send</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -1020,7 +1009,161 @@
                 }
             `;
             document.head.appendChild(style);
+
+            // Add event listeners to all 'Send Inquiry' buttons
+            document.querySelectorAll('.btn-inquiry').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const listingId = this.getAttribute('data-listing-id');
+                    document.getElementById('inquiryListingId').value = listingId;
+                    document.getElementById('inquiryModal').style.display = 'flex';
+                });
+            });
+            // Modal close/cancel logic
+            const closeBtn = document.getElementById('closeInquiryModal');
+            const cancelBtn = document.getElementById('cancelInquiry');
+            const modal = document.getElementById('inquiryModal');
+            if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; };
+            if (cancelBtn) cancelBtn.onclick = () => { modal.style.display = 'none'; };
+            window.addEventListener('click', function(e) {
+                if (e.target === modal) modal.style.display = 'none';
+            });
+            // Form submit logic
+            const form = document.getElementById('inquiryForm');
+            const feedback = document.getElementById('inquiryFormFeedback');
+            if (form) {
+                form.onsubmit = async function(e) {
+                    e.preventDefault();
+                    feedback.style.display = 'none';
+                    const formData = new FormData(form);
+                    // Simple validation
+                    for (let field of ['inquirer_name','inquirer_email','inquirer_phone','inquiry_type','message']) {
+                        if (!formData.get(field)) {
+                            feedback.textContent = 'Please fill all required fields.';
+                            feedback.style.display = 'block';
+                            return;
+                        }
+                    }
+                    try {
+                        const response = await fetch('/api/inquiries', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            feedback.textContent = 'Inquiry sent successfully! You will receive a confirmation email.';
+                            feedback.style.color = '#27ae60';
+                            feedback.style.display = 'block';
+                            setTimeout(() => { modal.style.display = 'none'; feedback.style.color = '#ef4444'; }, 2000);
+                            form.reset();
+                        } else {
+                            feedback.textContent = result.message || 'Failed to send inquiry.';
+                            feedback.style.display = 'block';
+                        }
+                    } catch (err) {
+                        feedback.textContent = 'Error sending inquiry.';
+                        feedback.style.display = 'block';
+                    }
+                };
+            }
         });
     </script>
+    <script>
+// Listings search/filter logic
+async function fetchAndRenderListings(page=1) {
+    const grid = document.getElementById('listingsGrid');
+    const pagination = document.getElementById('listingsPagination');
+    if (!grid) return;
+    grid.innerHTML = '<div>Loading listings...</div>';
+    // Get filter values
+    const search = document.getElementById('searchInput').value.trim();
+    const landType = document.getElementById('landTypeFilter').value;
+    const minPrice = document.getElementById('minPriceFilter').value;
+    const maxPrice = document.getElementById('maxPriceFilter').value;
+    const minSize = document.getElementById('minSizeFilter').value;
+    const maxSize = document.getElementById('maxSizeFilter').value;
+    // Build query params
+    const params = new URLSearchParams();
+    params.append('page', page);
+    params.append('limit', 12);
+    if (search) params.append('search', search);
+    if (landType) params.append('land_type', landType);
+    if (minPrice) params.append('min_price', minPrice);
+    if (maxPrice) params.append('max_price', maxPrice);
+    if (minSize) params.append('min_size', minSize);
+    if (maxSize) params.append('max_size', maxSize);
+    // Fetch listings
+    try {
+        const res = await fetch(`/api/listings?${params.toString()}`);
+        const data = await res.json();
+        if (!data.success || !data.data || !data.data.listings) {
+            grid.innerHTML = '<div>No listings found.</div>';
+            pagination.innerHTML = '';
+            return;
+        }
+        const listings = data.data.listings;
+        if (listings.length === 0) {
+            grid.innerHTML = '<div>No listings found.</div>';
+            pagination.innerHTML = '';
+            return;
+        }
+        grid.innerHTML = listings.map(listing => `
+            <div class="listing-card">
+                <div class="listing-image" style="background-image: url('${listing.media && listing.media.length > 0 ? '/uploads/images/' + listing.media[0].file_name : 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80'}'); background-size: cover; background-position: center;">
+                    <span class="listing-badge">${listing.verified ? '✅ Verified' : ''}</span>
+                </div>
+                <div class="listing-content">
+                    <h3 class="listing-title">${listing.title}</h3>
+                    <div class="listing-location">📍 ${listing.sector || ''}, ${listing.district || ''}</div>
+                    <div class="listing-details">
+                        <div class="listing-price">${listing.price_amount} ${listing.price_currency || 'RWF'}</div>
+                        <div class="listing-size">${listing.land_size_value} ${listing.land_size_unit || 'sqm'}</div>
+                    </div>
+                    <div class="listing-features">
+                        ${(listing.amenities || []).map(a => `<span class="feature-tag">${a}</span>`).join('')}
+                    </div>
+                    <button class="btn btn-primary btn-inquiry" data-listing-id="${listing.id}" style="width: 100%; margin-bottom:0.5rem;">Send Inquiry/Reservation</button>
+                </div>
+            </div>
+        `).join('');
+        // Pagination
+        const { currentPage, totalPages } = data.data.pagination;
+        let pagHtml = '';
+        if (totalPages > 1) {
+            for (let i = 1; i <= totalPages; i++) {
+                pagHtml += `<button class="btn btn-outline" style="margin:0 2px; ${i===currentPage?'background:#27ae60;color:#fff;':''}" onclick="fetchAndRenderListings(${i})">${i}</button>`;
+            }
+        }
+        pagination.innerHTML = pagHtml;
+        // Re-attach inquiry button listeners
+        document.querySelectorAll('.btn-inquiry').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const listingId = this.getAttribute('data-listing-id');
+                document.getElementById('inquiryListingId').value = listingId;
+                document.getElementById('inquiryModal').style.display = 'flex';
+            });
+        });
+    } catch (err) {
+        grid.innerHTML = '<div>Error loading listings.</div>';
+        pagination.innerHTML = '';
+    }
+}
+// Attach filter/search listeners
+['searchInput','landTypeFilter','minPriceFilter','maxPriceFilter','minSizeFilter','maxSizeFilter'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => fetchAndRenderListings(1));
+});
+document.getElementById('resetFiltersBtn').addEventListener('click', function() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('landTypeFilter').value = '';
+    document.getElementById('minPriceFilter').value = '';
+    document.getElementById('maxPriceFilter').value = '';
+    document.getElementById('minSizeFilter').value = '';
+    document.getElementById('maxSizeFilter').value = '';
+    fetchAndRenderListings(1);
+});
+// Initial fetch
+fetchAndRenderListings(1);
+</script>
 </body>
 </html>

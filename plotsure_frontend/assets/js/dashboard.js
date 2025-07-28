@@ -10,6 +10,14 @@ window.logout = function() {
   window.location.href = '/admin/login.html';
 };
 
+// Helper for authenticated fetch requests
+function authFetch(url, options = {}) {
+    const token = localStorage.getItem('token');
+    if (!options.headers) options.headers = {};
+    options.headers['Authorization'] = 'Bearer ' + token;
+    return fetch(url, options);
+}
+
 // Dashboard Management
 class DashboardManager {
     constructor() {
@@ -770,50 +778,100 @@ document.addEventListener('DOMContentLoaded', function() {
     const addListingForm = document.getElementById('addListingForm');
 
     function openModal() {
-        addListingModal.style.display = 'flex';
+        console.log('Opening Add Listing modal...');
+        if (addListingModal) {
+            addListingModal.style.display = 'flex';
+            // Reset form when opening
+            if (addListingForm) {
+                addListingForm.reset();
+            }
+        } else {
+            console.error('Add Listing modal not found!');
+        }
     }
+    
     function closeModal() {
-        addListingModal.style.display = 'none';
-        addListingForm.reset();
+        console.log('Closing Add Listing modal...');
+        if (addListingModal) {
+            addListingModal.style.display = 'none';
+        }
+        if (addListingForm) {
+            addListingForm.reset();
+        }
     }
-    if (addListingBtn) addListingBtn.addEventListener('click', openModal);
-    if (closeAddListingModal) closeAddListingModal.addEventListener('click', closeModal);
-    if (cancelAddListing) cancelAddListing.addEventListener('click', closeModal);
+    
+    if (addListingBtn) {
+        addListingBtn.addEventListener('click', openModal);
+        console.log('Add Listing button event listener attached');
+    } else {
+        console.error('Add Listing button not found!');
+    }
+    
+    if (closeAddListingModal) {
+        closeAddListingModal.addEventListener('click', closeModal);
+    }
+    
+    if (cancelAddListing) {
+        cancelAddListing.addEventListener('click', closeModal);
+    }
+    
     window.addEventListener('click', function(e) {
-        if (e.target === addListingModal) closeModal();
+        if (e.target === addListingModal) {
+            closeModal();
+        }
     });
 
     // Handle Add Listing form submission
     if (addListingForm) {
         addListingForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            // Show loading (simple way)
+            console.log('Add Listing form submitted');
+            
+            // Show loading state
             const submitBtn = addListingForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
 
             const formData = new FormData(addListingForm);
+            
+            // Log form data for debugging
+            console.log('Form data entries:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+            
             try {
                 const response = await authFetch('/api/listings', {
                     method: 'POST',
                     body: formData,
                 });
+                
+                console.log('Response status:', response.status);
                 const result = await response.json();
+                console.log('Response result:', result);
+                
                 if (result.success) {
                     alert('Listing created successfully!');
                     closeModal();
-                    // Optionally refresh listings
-                    if (typeof renderListings === 'function') renderListings();
+                    // Refresh listings
+                    if (typeof fetchAndRenderDashboardListings === 'function') {
+                        fetchAndRenderDashboardListings(1);
+                    }
                 } else {
                     alert(result.message || 'Failed to create listing.');
                 }
             } catch (err) {
-                alert('Error submitting listing.');
+                console.error('Error submitting listing:', err);
+                alert('Error submitting listing. Please try again.');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit';
+                submitBtn.textContent = originalText;
             }
         });
+        console.log('Add Listing form event listener attached');
+    } else {
+        console.error('Add Listing form not found!');
     }
 
     // Sidebar navigation
@@ -1034,7 +1092,19 @@ function openEditListingModal(listing) {
     const modal = document.getElementById('editListingModal');
     const form = document.getElementById('editListingForm');
     if (!modal || !form) return;
-    // Build form fields (similar to Add Listing, pre-filled)
+    // Track files to remove
+    let filesToRemove = { images: [], videos: [], documents: [] };
+    // Helper to render file lists with remove buttons
+    function renderFileList(type, files) {
+        return files && files.length > 0 ? `<div style="margin-bottom:0.5rem;">` +
+            files.map(file =>
+                `<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    <span>${file.name || file.file_name}</span>
+                    <button type="button" class="remove-file-btn" data-type="${type}" data-id="${file.id}" style="color:#ef4444; background:none; border:none; cursor:pointer;">Remove</button>
+                </div>`
+            ).join('') + '</div>' : '';
+    }
+    // Build form fields (pre-filled)
     form.innerHTML = `
         <input type="hidden" name="id" value="${listing.id}">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
@@ -1123,17 +1193,22 @@ function openEditListingModal(listing) {
             <label>Landowner ID Number*</label>
             <input type="text" name="landowner_id_number" value="${listing.landowner_id_number || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
         </div>
-        <div style="margin-top:1.5rem; font-weight:600; color:#27ae60;">Upload Documents & Media (leave blank to keep existing)</div>
+        <div style="margin-top:1.5rem; font-weight:600; color:#27ae60;">Existing Documents</div>
+        ${renderFileList('documents', listing.documents || [])}
         <div style="margin-bottom:1rem;">
-            <label>Documents (PDF, DOC, Images)</label>
+            <label>Upload New Documents (PDF, DOC, Images)</label>
             <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,image/*" style="display:block; margin-bottom:0.5rem;">
         </div>
+        <div style="margin-top:1.5rem; font-weight:600; color:#27ae60;">Existing Images</div>
+        ${renderFileList('images', (listing.media || []).filter(m => m.media_type === 'image'))}
         <div style="margin-bottom:1rem;">
-            <label>Images (JPG, PNG, GIF, WEBP)</label>
+            <label>Upload New Images (JPG, PNG, GIF, WEBP)</label>
             <input type="file" name="images" multiple accept="image/*" style="display:block; margin-bottom:0.5rem;">
         </div>
+        <div style="margin-top:1.5rem; font-weight:600; color:#27ae60;">Existing Videos</div>
+        ${renderFileList('videos', (listing.media || []).filter(m => m.media_type === 'video'))}
         <div style="margin-bottom:1.5rem;">
-            <label>Videos (MP4, WebM, MOV)</label>
+            <label>Upload New Videos (MP4, WebM, MOV)</label>
             <input type="file" name="videos" multiple accept="video/*" style="display:block; margin-bottom:0.5rem;">
         </div>
         <div style="display:flex; gap:1rem; justify-content:flex-end;">
@@ -1142,18 +1217,21 @@ function openEditListingModal(listing) {
         </div>
     `;
     modal.style.display = 'flex';
-    // Close/cancel logic
+    // Remove file logic
+    form.querySelectorAll('.remove-file-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const type = this.getAttribute('data-type');
+            const id = this.getAttribute('data-id');
+            filesToRemove[type].push(id);
+            this.parentElement.style.display = 'none';
+        });
+    });
+    // Cancel/close logic
     const closeBtn = document.getElementById('closeEditListingModal');
     const cancelBtn = document.getElementById('cancelEditListing');
     if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; };
     if (cancelBtn) cancelBtn.onclick = () => { modal.style.display = 'none'; };
-}
-
-// Edit Listing form submission
-(function() {
-    const modal = document.getElementById('editListingModal');
-    const form = document.getElementById('editListingForm');
-    if (!form) return;
+    // Form submit logic
     form.onsubmit = async function(e) {
         e.preventDefault();
         const submitBtn = form.querySelector('button[type="submit"]');
@@ -1161,6 +1239,10 @@ function openEditListingModal(listing) {
         submitBtn.textContent = 'Updating...';
         const id = form.querySelector('input[name="id"]').value;
         const formData = new FormData(form);
+        // Attach files to remove
+        formData.append('remove_images', JSON.stringify(filesToRemove.images));
+        formData.append('remove_videos', JSON.stringify(filesToRemove.videos));
+        formData.append('remove_documents', JSON.stringify(filesToRemove.documents));
         try {
             const response = await authFetch(`/api/listings/${id}`, {
                 method: 'PUT',
@@ -1181,7 +1263,7 @@ function openEditListingModal(listing) {
             submitBtn.textContent = 'Update';
         }
     };
-})();
+}
 
 // Close modal logic
 (function() {
@@ -1252,4 +1334,102 @@ function renderProfile() {
             </div>
         </div>
     `;
+}
+
+// Dashboard Listings Search/Filter Logic
+async function fetchAndRenderDashboardListings(page=1) {
+    const grid = document.getElementById('listingsGrid');
+    if (!grid) return;
+    grid.innerHTML = '<div>Loading listings...</div>';
+    // Get filter values
+    const search = document.getElementById('dashboardSearchInput').value.trim();
+    const landType = document.getElementById('dashboardLandTypeFilter').value;
+    const minPrice = document.getElementById('dashboardMinPriceFilter').value;
+    const maxPrice = document.getElementById('dashboardMaxPriceFilter').value;
+    const minSize = document.getElementById('dashboardMinSizeFilter').value;
+    const maxSize = document.getElementById('dashboardMaxSizeFilter').value;
+    // Build query params
+    const params = new URLSearchParams();
+    params.append('page', page);
+    params.append('limit', 12);
+    if (search) params.append('search', search);
+    if (landType) params.append('land_type', landType);
+    if (minPrice) params.append('min_price', minPrice);
+    if (maxPrice) params.append('max_price', maxPrice);
+    if (minSize) params.append('min_size', minSize);
+    if (maxSize) params.append('max_size', maxSize);
+    // Fetch broker's listings (protected route)
+    try {
+        const res = await authFetch(`/api/listings/broker/my-listings?${params.toString()}`);
+        const data = await res.json();
+        if (!data.success || !data.data || !data.data.listings) {
+            grid.innerHTML = '<div>No listings found.</div>';
+            return;
+        }
+        const listings = data.data.listings;
+        if (listings.length === 0) {
+            grid.innerHTML = '<div>No listings found.</div>';
+            return;
+        }
+        grid.innerHTML = listings.map((listing, idx) => {
+            let primaryImg = '';
+            if (listing.media && listing.media.length > 0) {
+                primaryImg = `<img src="/uploads/images/${listing.media[0].file_name}" alt="${listing.title}" style="width:100%; height:160px; object-fit:cover; border-radius:10px 10px 0 0;">`;
+            } else {
+                primaryImg = `<div style="width:100%; height:160px; background:#e6f9e6; display:flex; align-items:center; justify-content:center; font-size:2.5rem; color:#27ae60; border-radius:10px 10px 0 0;">🏞️</div>`;
+            }
+            return `
+            <div class="dashboard-card listing-card" data-idx="${idx}" style="cursor:pointer; position:relative;">
+                <button class="btn btn-outline btn-edit-listing" data-idx="${idx}" style="border-color:#27ae60; color:#27ae60; float:right; margin-top:8px; margin-right:8px;">Edit</button>
+                <button class="btn btn-outline btn-delete-listing" data-id="${listing.id}" style="border-color:#ef4444; color:#ef4444; float:right; margin-top:8px;">Delete</button>
+                ${primaryImg}
+                <div class="card-title">${listing.title}</div>
+                <div class="card-subtitle">${listing.sector}, ${listing.district}</div>
+                <div class="card-status">${listing.status || 'Available'}</div>
+                <div class="card-date">${new Date(listing.created_at).toLocaleDateString()}</div>
+            </div>
+            `;
+        }).join('');
+        // Add click listeners for each card
+        document.querySelectorAll('.listing-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.classList.contains('btn-delete-listing') || e.target.classList.contains('btn-edit-listing')) return;
+                const idx = this.getAttribute('data-idx');
+                showListingDetails(listings[idx]);
+            });
+        });
+        document.querySelectorAll('.btn-delete-listing').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const id = this.getAttribute('data-id');
+                deleteListing(id);
+            });
+        });
+        document.querySelectorAll('.btn-edit-listing').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = this.getAttribute('data-idx');
+                openEditListingModal(listings[idx]);
+            });
+        });
+    } catch (err) {
+        grid.innerHTML = '<div>Error loading listings.</div>';
+    }
+}
+// Attach filter/search listeners
+['dashboardSearchInput','dashboardLandTypeFilter','dashboardMinPriceFilter','dashboardMaxPriceFilter','dashboardMinSizeFilter','dashboardMaxSizeFilter'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => fetchAndRenderDashboardListings(1));
+});
+document.getElementById('dashboardResetFiltersBtn').addEventListener('click', function() {
+    document.getElementById('dashboardSearchInput').value = '';
+    document.getElementById('dashboardLandTypeFilter').value = '';
+    document.getElementById('dashboardMinPriceFilter').value = '';
+    document.getElementById('dashboardMaxPriceFilter').value = '';
+    document.getElementById('dashboardMinSizeFilter').value = '';
+    document.getElementById('dashboardMaxSizeFilter').value = '';
+    fetchAndRenderDashboardListings(1);
+});
+// Initial fetch for dashboard listings
+if (document.getElementById('dashboardSearchInput')) {
+    fetchAndRenderDashboardListings(1);
 }
