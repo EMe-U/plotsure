@@ -1354,21 +1354,38 @@ function renderListings() {
                 });
             });
             
-            // Add edit listeners
-            document.querySelectorAll('.btn-edit-listing').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const idx = this.getAttribute('data-idx');
-                    console.log('Edit button clicked, idx:', idx);
-                    console.log('Listings array:', listings);
-                    if (listings[idx]) {
-                        console.log('Opening edit modal for listing:', listings[idx]);
-                        openEditListingModal(listings[idx]);
-                    } else {
-                        console.error('Listing not found at index:', idx);
-                    }
-                });
-            });
+                // Add edit listeners
+    document.querySelectorAll('.btn-edit-listing').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const idx = this.getAttribute('data-idx');
+            console.log('Edit button clicked, idx:', idx);
+            console.log('Listings array:', listings);
+            console.log('Listings length:', listings.length);
+            if (listings && listings[idx]) {
+                console.log('Opening edit modal for listing:', listings[idx]);
+                openEditListingModal(listings[idx]);
+            } else {
+                console.error('Listing not found at index:', idx);
+                console.error('Available listings:', listings);
+            }
+        });
+    });
+    
+    // Add a test button to the page for debugging
+    const testButton = document.createElement('button');
+    testButton.textContent = 'Test Edit Modal';
+    testButton.style.cssText = 'position:fixed; top:10px; right:10px; z-index:9999; background:#27ae60; color:#fff; padding:10px; border:none; border-radius:5px; cursor:pointer;';
+    testButton.onclick = function() {
+        console.log('Test button clicked');
+        if (listings && listings.length > 0) {
+            console.log('Testing with first listing:', listings[0]);
+            openEditListingModal(listings[0]);
+        } else {
+            console.error('No listings available for test');
+        }
+    };
+    document.body.appendChild(testButton);
         })
         .catch(() => {
             grid.innerHTML = '<div style="text-align:center; padding:3rem; color:#ef4444; font-size:1.1rem;">Error loading listings.</div>';
@@ -1440,10 +1457,15 @@ function showListingDetails(listing) {
 // Open Edit Listing modal and populate form
 // Working Edit Modal Function - Replace the current one in dashboard.js
 function openEditListingModal(listing) {
+    console.log('openEditListingModal called with listing:', listing);
     const modal = document.getElementById('editListingModal');
     const form = document.getElementById('editListingForm');
+    console.log('Modal element:', modal);
+    console.log('Form element:', form);
     if (!modal || !form) {
         console.error('Modal or form not found');
+        console.error('Modal:', modal);
+        console.error('Form:', form);
         return;
     }
     
