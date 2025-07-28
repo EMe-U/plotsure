@@ -50,6 +50,14 @@ class ApiClient {
             const data = await response.json();
 
             if (!response.ok) {
+                // For validation errors (400), return the detailed error information
+                if (response.status === 400 && data.errors) {
+                    return { 
+                        success: false, 
+                        error: data.message || 'Validation failed',
+                        errors: data.errors
+                    };
+                }
                 throw new Error(data.message || this.getErrorMessage(response.status));
             }
 

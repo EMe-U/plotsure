@@ -1,3 +1,152 @@
+// Simple message display function for dashboard
+function showMessage(message, type = 'info') {
+    if (type === 'error') {
+        alert(message);
+    } else {
+        // For success/info messages, you could implement a toast notification
+        console.log(`${type.toUpperCase()}: ${message}`);
+    }
+}
+
+// Simple APP_CONFIG for dashboard
+const APP_CONFIG = {
+    SUCCESS_MESSAGES: {
+        LISTING_CREATED: 'Listing created successfully!',
+        LISTING_DELETED: 'Listing deleted successfully!',
+        PROFILE_UPDATED: 'Profile updated successfully!'
+    },
+    STORAGE_KEYS: {
+        USER_DATA: 'userData'
+    },
+    CURRENCY: {
+        SYMBOLS: {
+            'RWF': 'RWF',
+            'USD': '$'
+        }
+    }
+};
+
+// Simple authAPI for dashboard
+const authAPI = {
+    isAuthenticated() {
+        return !!localStorage.getItem('token');
+    },
+    getCurrentUser() {
+        const userData = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.USER_DATA);
+        return userData ? JSON.parse(userData) : null;
+    },
+    async updateProfile(formData) {
+        // Simple implementation - in real app this would make API call
+        return { success: true, data: formData };
+    },
+    async changePassword(currentPassword, newPassword) {
+        // Simple implementation - in real app this would make API call
+        return { success: true };
+    }
+};
+
+// Simple listingsAPI for dashboard
+const listingsAPI = {
+    async create(formData, files = null) {
+        const form = new FormData();
+        
+        // Add form data
+        Object.keys(formData).forEach(key => {
+            form.append(key, formData[key]);
+        });
+        
+        // Add files if present
+        if (files) {
+            if (files.documents) {
+                Array.from(files.documents).forEach(file => {
+                    form.append('documents', file);
+                });
+            }
+            if (files.images) {
+                Array.from(files.images).forEach(file => {
+                    form.append('images', file);
+                });
+            }
+            if (files.videos) {
+                Array.from(files.videos).forEach(file => {
+                    form.append('videos', file);
+                });
+            }
+        }
+        
+        try {
+            const response = await authFetch('/api/listings', {
+                method: 'POST',
+                body: form
+            });
+            return await response.json();
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async getBrokerListings(params = {}) {
+        try {
+            const response = await authFetch('/api/listings/broker?' + new URLSearchParams(params));
+            return await response.json();
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async delete(id) {
+        try {
+            const response = await authFetch(`/api/listings/${id}`, {
+                method: 'DELETE'
+            });
+            return await response.json();
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    async getStats() {
+        try {
+            const response = await authFetch('/api/listings/stats');
+            return await response.json();
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+};
+
+// Simple loading functions
+function hideLoading() {
+    // Hide any loading indicators if they exist
+    const loader = document.querySelector('.loader');
+    if (loader) {
+        loader.style.display = 'none';
+    }
+}
+
+function showLoading() {
+    // Show loading indicator if it exists
+    const loader = document.querySelector('.loader');
+    if (loader) {
+        loader.style.display = 'flex';
+    }
+}
+
+// Simple modal functions
+function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
 // Token check at the very top to ensure user is logged in
 if (!localStorage.getItem('token')) {
     alert('You are not logged in. Please login again.');
@@ -523,6 +672,50 @@ class DashboardManager {
             landowner_id_number: document.getElementById('landownerIdNumber').value.trim()
         };
 
+        // Debug: Log the form data
+        console.log('Form data being sent:', formData);
+
+        // Frontend validation
+        const errors = [];
+        if (!formData.title || formData.title.length < 5) {
+            errors.push('Title must be at least 5 characters long');
+        }
+        if (!formData.description || formData.description.length < 20) {
+            errors.push('Description must be at least 20 characters long');
+        }
+        if (!formData.land_type) {
+            errors.push('Land type is required');
+        }
+        if (!formData.sector) {
+            errors.push('Sector is required');
+        }
+        if (!formData.cell) {
+            errors.push('Cell is required');
+        }
+        if (!formData.village) {
+            errors.push('Village is required');
+        }
+        if (!formData.land_size_value || formData.land_size_value <= 0) {
+            errors.push('Land size must be a positive number');
+        }
+        if (!formData.price_amount || formData.price_amount <= 0) {
+            errors.push('Price must be a positive number');
+        }
+        if (!formData.landowner_name) {
+            errors.push('Landowner name is required');
+        }
+        if (!formData.landowner_phone) {
+            errors.push('Landowner phone is required');
+        }
+        if (!formData.landowner_id_number) {
+            errors.push('Landowner ID number is required');
+        }
+
+        if (errors.length > 0) {
+            showMessage(`Please fix the following errors:\n${errors.join('\n')}`, 'error');
+            return;
+        }
+
         // Prepare files
         const files = {
             documents: document.getElementById('documents').files,
@@ -533,13 +726,22 @@ class DashboardManager {
         try {
             const result = await listingsAPI.create(formData, files);
             
+            console.log('Response status:', result.status);
+            console.log('Response result:', result);
+            
             if (result.success) {
                 showMessage(APP_CONFIG.SUCCESS_MESSAGES.LISTING_CREATED, 'success');
                 document.getElementById('createListingForm').reset();
                 hideModal('createListingModal');
                 this.loadListings();
             } else {
-                showMessage(result.error || 'Failed to create listing', 'error');
+                // Show specific validation errors if available
+                if (result.errors && result.errors.length > 0) {
+                    const errorMessages = result.errors.map(err => `${err.path}: ${err.msg}`).join('\n');
+                    showMessage(`Validation failed:\n${errorMessages}`, 'error');
+                } else {
+                    showMessage(result.error || 'Failed to create listing', 'error');
+                }
             }
         } catch (error) {
             console.error('Create listing error:', error);

@@ -34,16 +34,16 @@ exports.getAllListings = async (req, res) => {
 
     // Price range filter
     if (min_price || max_price) {
-      where.price_amount = {};
-      if (min_price) where.price_amount[Op.gte] = parseFloat(min_price);
-      if (max_price) where.price_amount[Op.lte] = parseFloat(max_price);
+      where.price = {}; // Changed from price_amount to price
+      if (min_price) where.price[Op.gte] = parseFloat(min_price);
+      if (max_price) where.price[Op.lte] = parseFloat(max_price);
     }
 
     // Size range filter
     if (min_size || max_size) {
-      where.land_size_value = {};
-      if (min_size) where.land_size_value[Op.gte] = parseFloat(min_size);
-      if (max_size) where.land_size_value[Op.lte] = parseFloat(max_size);
+      where.plot_size = {}; // Changed from land_size_value to plot_size
+      if (min_size) where.plot_size[Op.gte] = parseFloat(min_size);
+      if (max_size) where.plot_size[Op.lte] = parseFloat(max_size);
     }
 
     // Search filter
@@ -182,8 +182,20 @@ exports.createListing = async (req, res) => {
     }
 
     const listingData = {
-      ...req.body,
-      broker_id: req.user.id
+      title: req.body.title,
+      description: req.body.description,
+      location: `${req.body.village}, ${req.body.cell}, ${req.body.sector}, ${req.body.district}`,
+      sector: req.body.sector,
+      cell: req.body.cell,
+      village: req.body.village,
+      plot_size: req.body.land_size_value, // Map land_size_value to plot_size
+      plot_size_unit: req.body.land_size_unit, // Map land_size_unit to plot_size_unit
+      price: req.body.price_amount, // Map price_amount to price
+      price_negotiable: req.body.price_negotiable === 'on' || req.body.price_negotiable === true,
+      land_type: req.body.land_type,
+      landowner_name: req.body.landowner_name,
+      landowner_phone: req.body.landowner_phone,
+      user_id: req.user.id // Map broker_id to user_id
     };
 
     // Create listing
@@ -303,7 +315,7 @@ exports.updateListing = async (req, res) => {
     }
 
     // Check ownership (broker can only edit their own listings, admin can edit all)
-    if (req.user.role !== 'admin' && listing.broker_id !== req.user.id) {
+    if (req.user.role !== 'admin' && listing.user_id !== req.user.id) { // Changed from broker_id to user_id
       return res.status(403).json({
         success: false,
         message: 'You can only edit your own listings'
@@ -365,8 +377,27 @@ exports.updateListing = async (req, res) => {
       });
     }
 
-    // Update listing fields
-    await listing.update(req.body);
+    // Update listing fields with proper field mapping
+    const updateData = {};
+    if (req.body.title) updateData.title = req.body.title;
+    if (req.body.description) updateData.description = req.body.description;
+    if (req.body.sector) updateData.sector = req.body.sector;
+    if (req.body.cell) updateData.cell = req.body.cell;
+    if (req.body.village) updateData.village = req.body.village;
+    if (req.body.land_size_value) updateData.plot_size = req.body.land_size_value;
+    if (req.body.land_size_unit) updateData.plot_size_unit = req.body.land_size_unit;
+    if (req.body.price_amount) updateData.price = req.body.price_amount;
+    if (req.body.price_currency) updateData.price_currency = req.body.price_currency;
+    if (req.body.price_negotiable !== undefined) {
+      updateData.price_negotiable = req.body.price_negotiable === 'on' || req.body.price_negotiable === true;
+    }
+    if (req.body.land_type) updateData.land_type = req.body.land_type;
+    if (req.body.landowner_name) updateData.landowner_name = req.body.landowner_name;
+    if (req.body.landowner_phone) updateData.landowner_phone = req.body.landowner_phone;
+    if (req.body.landowner_id_number) updateData.landowner_id_number = req.body.landowner_id_number;
+    if (req.body.status) updateData.status = req.body.status;
+
+    await listing.update(updateData);
 
     // Handle new file uploads as before
     if (req.files) {
@@ -475,7 +506,7 @@ exports.deleteListing = async (req, res) => {
     }
 
     // Check ownership
-    if (req.user.role !== 'admin' && listing.broker_id !== req.user.id) {
+    if (req.user.role !== 'admin' && listing.user_id !== req.user.id) { // Changed from broker_id to user_id
       return res.status(403).json({
         success: false,
         message: 'You can only delete your own listings'
@@ -628,7 +659,7 @@ exports.getBrokerListings = async (req, res) => {
     const offset = (page - 1) * limit;
     const brokerId = req.user.id;
 
-    const where = { broker_id: brokerId };
+    const where = { user_id: brokerId }; // Changed from broker_id to user_id
     if (status) where.status = status;
 
     const { count, rows: listings } = await Listing.findAndCountAll({
@@ -679,7 +710,7 @@ exports.getBrokerListings = async (req, res) => {
 exports.getListingStats = async (req, res) => {
   try {
     const brokerId = req.user.role === 'admin' ? null : req.user.id;
-    const where = brokerId ? { broker_id: brokerId } : {};
+    const where = brokerId ? { user_id: brokerId } : {}; // Changed from broker_id to user_id
 
     const stats = await Promise.all([
       Listing.count({ where: { ...where, status: 'available' } }),
