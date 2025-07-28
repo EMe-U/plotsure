@@ -896,17 +896,24 @@ window.deleteListing = async (id) => {
     if (!confirm('Are you sure you want to delete this listing?')) return;
     
     try {
-        const result = await listingsAPI.delete(id);
+        console.log('Deleting listing with ID:', id);
+        const response = await authFetch(`/api/listings/${id}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        console.log('Delete response:', result);
         
         if (result.success) {
-            showMessage(APP_CONFIG.SUCCESS_MESSAGES.LISTING_DELETED, 'success');
-            dashboardManager.loadListings();
+            showMessage('Listing deleted successfully!', 'success');
+            // Refresh the listings
+            location.reload();
         } else {
             showMessage(result.error || 'Failed to delete listing', 'error');
         }
     } catch (error) {
         console.error('Delete listing error:', error);
-        showMessage('Failed to delete listing', 'error');
+        showMessage('Failed to delete listing: ' + error.message, 'error');
     }
 };
 
@@ -1619,12 +1626,19 @@ function openEditListingModal(listing) {
     showModal('editListingModal');
     console.log('Modal should be visible now');
     
+    // Fix modal styling for proper scrolling
+    const editModal = document.getElementById('editListingModal');
+    if (editModal) {
+        editModal.style.overflowY = 'auto';
+        editModal.style.alignItems = 'flex-start';
+        editModal.style.padding = '20px';
+    }
+    
     // Add a small delay to ensure modal is rendered
     setTimeout(() => {
-        const modal = document.getElementById('editListingModal');
-        console.log('Modal after timeout:', modal);
-        if (modal) {
-            console.log('Modal display style:', modal.style.display);
+        console.log('Modal after timeout:', editModal);
+        if (editModal) {
+            console.log('Modal display style:', editModal.style.display);
         }
     }, 100);
     
@@ -1637,7 +1651,27 @@ function openEditListingModal(listing) {
         });
     }
     
+    // Add close button functionality
+    const closeBtn = document.getElementById('closeEditListingModal');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            console.log('Close button clicked');
+            hideModal('editListingModal');
+        });
+    }
+    
+    // Close modal when clicking outside
+    const editModalForClose = document.getElementById('editListingModal');
+    if (editModalForClose) {
+        editModalForClose.addEventListener('click', (e) => {
+            if (e.target === editModalForClose) {
+                hideModal('editListingModal');
+            }
+        });
+    }
+    
     // Form submit logic
+    console.log('Adding form submit listener');
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         console.log('Form submitted');
