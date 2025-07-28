@@ -38,6 +38,33 @@
             flex-direction: column;
             align-items: stretch;
             padding: 2rem 0 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #219150;
         }
         .sidebar-logo {
             display: flex;
@@ -101,6 +128,8 @@
             display: flex;
             flex-direction: column;
             min-width: 0;
+            margin-left: 220px;
+            transition: margin-left 0.3s ease;
         }
         .topbar {
             background: var(--topbar-bg);
@@ -287,14 +316,33 @@
             color: var(--primary);
         }
         @media (max-width: 900px) {
-            .sidebar { width: 60px; }
+            .sidebar { 
+                width: 60px; 
+                transform: translateX(0);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+            }
             .sidebar-logo span { display: none; }
             .sidebar-link span { display: none; }
+            .main { margin-left: 60px; }
             .dashboard-content { padding: 1rem; }
             .topbar { padding: 1rem; }
         }
         @media (max-width: 600px) {
+            .sidebar { 
+                width: 220px; 
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main { margin-left: 0; }
             .card-grid { grid-template-columns: 1fr; }
+            .mobile-menu-toggle {
+                display: block !important;
+            }
         }
 
         /* Add Listing Modal Styles */
@@ -478,15 +526,16 @@
             <div style="margin-top: 0.5rem;">Support: <a href="mailto:plotsureconnect@gmail.com" style="color: var(--primary); text-decoration: none;">plotsureconnect@gmail.com</a></div>
         </div>
     </div>
-    <div class="main">
-        <div class="topbar">
-            <div class="topbar-left">
-                <span class="section-title" id="sectionTitle">Listings</span>
-                <div class="topbar-search">
-                    <span>🔍</span>
-                    <input type="text" placeholder="Search...">
+            <div class="main">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button id="mobileMenuToggle" class="mobile-menu-toggle" style="display:none; background:none; border:none; font-size:1.5rem; color:var(--primary); cursor:pointer; margin-right:1rem;">☰</button>
+                    <span class="section-title" id="sectionTitle">Listings</span>
+                    <div class="topbar-search">
+                        <span>🔍</span>
+                        <input type="text" placeholder="Search...">
+                    </div>
                 </div>
-            </div>
             <div class="topbar-right">
                 <button class="topbar-icon-btn"><span>🔔</span><span class="badge">3</span></button>
                 <div class="topbar-avatar">BR</div>

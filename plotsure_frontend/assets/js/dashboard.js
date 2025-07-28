@@ -270,6 +270,15 @@ class DashboardManager {
                 sidebar.classList.toggle('open');
             });
         }
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 600) {
+                if (!sidebar.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
 
         // Navigation items
         const navItems = document.querySelectorAll('.nav-item');
