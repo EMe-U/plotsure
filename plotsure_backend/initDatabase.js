@@ -10,13 +10,10 @@ async function initDatabase() {
     console.log('✅ Database tables created successfully!');
     
     // Create test user
-    const bcrypt = require('bcryptjs');
-    const hashedPassword = await bcrypt.hash('password123', 10);
-    
     const testUser = await User.create({
       name: 'Test Broker',
       email: 'broker@plotsure.com',
-      password: hashedPassword,
+      password: 'password123', // plain password, let model hash it
       phone: '+250 791 845 708',
       role: 'broker',
       is_active: true
