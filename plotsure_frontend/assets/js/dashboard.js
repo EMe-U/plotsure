@@ -1425,176 +1425,149 @@ function showListingDetails(listing) {
 }
 
 // Open Edit Listing modal and populate form
+// Working Edit Modal Function - Replace the current one in dashboard.js
 function openEditListingModal(listing) {
     const modal = document.getElementById('editListingModal');
     const form = document.getElementById('editListingForm');
-    if (!modal || !form) return;
-    // Track files to remove
-    let filesToRemove = { images: [], videos: [], documents: [] };
-    // Helper to render file lists with remove buttons
-    function renderFileList(type, files) {
-        return files && files.length > 0 ? `<div style="margin-bottom:0.5rem;">` +
-            files.map(file =>
-                `<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                    <span>${file.name || file.file_name}</span>
-                    <button type="button" class="remove-file-btn" data-type="${type}" data-id="${file.id}" style="color:#ef4444; background:none; border:none; cursor:pointer;">Remove</button>
-                </div>`
-            ).join('') + '</div>' : '';
+    if (!modal || !form) {
+        console.error('Modal or form not found');
+        return;
     }
+    
+    console.log('Opening edit modal for listing:', listing);
+    
     // Build form fields (pre-filled)
     form.innerHTML = `
         <input type="hidden" name="id" value="${listing.id}">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-            <div>
-                <label>Title*</label>
-                <input type="text" name="title" required value="${listing.title || ''}" style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-            </div>
-            <div>
-                <label>Land Type*</label>
-                <select name="land_type" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-                    <option value="">Select type</option>
-                    <option value="residential" ${listing.land_type === 'residential' ? 'selected' : ''}>Residential</option>
-                    <option value="commercial" ${listing.land_type === 'commercial' ? 'selected' : ''}>Commercial</option>
-                    <option value="agricultural" ${listing.land_type === 'agricultural' ? 'selected' : ''}>Agricultural</option>
-                    <option value="industrial" ${listing.land_type === 'industrial' ? 'selected' : ''}>Industrial</option>
-                    <option value="mixed" ${listing.land_type === 'mixed' ? 'selected' : ''}>Mixed Use</option>
-                </select>
-            </div>
-        </div>
-        <div>
-            <label>Description*</label>
-            <textarea name="description" required rows="3" style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">${listing.description || ''}</textarea>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-            <div>
-                <label>District*</label>
-                <input type="text" name="district" value="${listing.district || 'Bugesera'}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-            </div>
-            <div>
-                <label>Sector*</label>
-                <input type="text" name="sector" value="${listing.sector || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-            </div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-            <div>
-                <label>Cell*</label>
-                <input type="text" name="cell" value="${listing.cell || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-            </div>
-            <div>
-                <label>Village*</label>
-                <input type="text" name="village" value="${listing.village || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-            </div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-            <div>
-                <label>Land Size*</label>
-                <input type="number" name="plot_size" min="1" step="0.01" value="${listing.plot_size || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-            </div>
-            <div>
-                <label>Unit*</label>
-                <select name="plot_size_unit" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-                    <option value="sqm" ${listing.plot_size_unit === 'sqm' ? 'selected' : ''}>Square Meters</option>
-                    <option value="hectares" ${listing.plot_size_unit === 'hectares' ? 'selected' : ''}>Hectares</option>
-                    <option value="acres" ${listing.plot_size_unit === 'acres' ? 'selected' : ''}>Acres</option>
-                </select>
-            </div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-            <div>
-                <label>Price*</label>
-                <input type="number" name="price" min="0" value="${listing.price || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-            </div>
-            <div>
-                <label>Currency*</label>
-                <select name="price_currency" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-                    <option value="RWF" ${listing.price_currency === 'RWF' ? 'selected' : ''}>RWF</option>
-                    <option value="USD" ${listing.price_currency === 'USD' ? 'selected' : ''}>USD</option>
-                </select>
-            </div>
-        </div>
-        <div>
-            <label><input type="checkbox" name="price_negotiable" ${listing.price_negotiable ? 'checked' : ''}> Price is negotiable</label>
-        </div>
-        <div style="margin-top:1.5rem; font-weight:600; color:#27ae60;">Landowner Information</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-            <div>
-                <label>Landowner Name*</label>
-                <input type="text" name="landowner_name" value="${listing.landowner_name || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-            </div>
-            <div>
-                <label>Landowner Phone*</label>
-                <input type="tel" name="landowner_phone" value="${listing.landowner_phone || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-            </div>
-        </div>
-        <div>
-            <label>Landowner ID Number*</label>
-            <input type="text" name="landowner_id_number" value="${listing.landowner_id_number || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
-        </div>
-        <!-- Current Files Section -->
+        
+        <!-- Listing Details -->
         <div style="background:#f8fafc; padding:1.5rem; border-radius:12px; border-left:4px solid #27ae60; margin-bottom:1.5rem;">
-            <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">📁 Current Files</div>
-            ${listing.documents && listing.documents.length > 0 ? `
-                <div style="margin-bottom:1rem;">
-                    <h4 style="font-weight:600; color:#374151; margin-bottom:0.5rem;">Documents (${listing.documents.length})</h4>
-                    ${renderFileList('documents', listing.documents)}
+            <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">📋 Listing Details</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Title*</label>
+                    <input type="text" name="title" required value="${listing.title || ''}" style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
                 </div>
-            ` : ''}
-            ${listing.media && listing.media.filter(m => m.media_type === 'image').length > 0 ? `
-                <div style="margin-bottom:1rem;">
-                    <h4 style="font-weight:600; color:#374151; margin-bottom:0.5rem;">Images (${listing.media.filter(m => m.media_type === 'image').length})</h4>
-                    ${renderFileList('images', listing.media.filter(m => m.media_type === 'image'))}
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Land Type*</label>
+                    <select name="land_type" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                        <option value="">Select type</option>
+                        <option value="residential" ${listing.land_type === 'residential' ? 'selected' : ''}>Residential</option>
+                        <option value="commercial" ${listing.land_type === 'commercial' ? 'selected' : ''}>Commercial</option>
+                        <option value="agricultural" ${listing.land_type === 'agricultural' ? 'selected' : ''}>Agricultural</option>
+                        <option value="industrial" ${listing.land_type === 'industrial' ? 'selected' : ''}>Industrial</option>
+                        <option value="mixed" ${listing.land_type === 'mixed' ? 'selected' : ''}>Mixed Use</option>
+                    </select>
                 </div>
-            ` : ''}
-            ${listing.media && listing.media.filter(m => m.media_type === 'video').length > 0 ? `
-                <div style="margin-bottom:1rem;">
-                    <h4 style="font-weight:600; color:#374151; margin-bottom:0.5rem;">Videos (${listing.media.filter(m => m.media_type === 'video').length})</h4>
-                    ${renderFileList('videos', listing.media.filter(m => m.media_type === 'video'))}
-                </div>
-            ` : ''}
+            </div>
+            <div style="margin-top:1rem;">
+                <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Description*</label>
+                <textarea name="description" required rows="4" style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem; resize:vertical;">${listing.description || ''}</textarea>
+            </div>
         </div>
 
-        <!-- Upload New Files Section -->
+        <!-- Location -->
+        <div style="background:#f8fafc; padding:1.5rem; border-radius:12px; border-left:4px solid #27ae60; margin-bottom:1.5rem;">
+            <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">📍 Location</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">District*</label>
+                    <input type="text" name="district" value="${listing.district || 'Bugesera'}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                </div>
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Sector*</label>
+                    <input type="text" name="sector" value="${listing.sector || ''}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Cell*</label>
+                    <input type="text" name="cell" value="${listing.cell || ''}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                </div>
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Village*</label>
+                    <input type="text" name="village" value="${listing.village || ''}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Size & Price -->
+        <div style="background:#f8fafc; padding:1.5rem; border-radius:12px; border-left:4px solid #27ae60; margin-bottom:1.5rem;">
+            <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">💰 Size & Price</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Land Size*</label>
+                    <input type="number" name="plot_size" min="1" step="0.01" value="${listing.plot_size || ''}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                </div>
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Unit*</label>
+                    <select name="plot_size_unit" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                        <option value="sqm" ${listing.plot_size_unit === 'sqm' ? 'selected' : ''}>Square Meters</option>
+                        <option value="hectares" ${listing.plot_size_unit === 'hectares' ? 'selected' : ''}>Hectares</option>
+                        <option value="acres" ${listing.plot_size_unit === 'acres' ? 'selected' : ''}>Acres</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Price*</label>
+                    <input type="number" name="price" min="0" value="${listing.price || ''}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                </div>
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Currency*</label>
+                    <select name="price_currency" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                        <option value="RWF" ${listing.price_currency === 'RWF' ? 'selected' : ''}>RWF</option>
+                        <option value="USD" ${listing.price_currency === 'USD' ? 'selected' : ''}>USD</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top:1rem;">
+                <label style="display:flex; align-items:center; gap:0.5rem; font-weight:600; color:#374151;">
+                    <input type="checkbox" name="price_negotiable" ${listing.price_negotiable ? 'checked' : ''} style="margin:0;">
+                    Price is negotiable
+                </label>
+            </div>
+        </div>
+
+        <!-- Landowner Info -->
+        <div style="background:#f8fafc; padding:1.5rem; border-radius:12px; border-left:4px solid #27ae60; margin-bottom:1.5rem;">
+            <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">👤 Landowner Info</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Landowner Name*</label>
+                    <input type="text" name="landowner_name" value="${listing.landowner_name || ''}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                </div>
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Landowner Phone*</label>
+                    <input type="tel" name="landowner_phone" value="${listing.landowner_phone || ''}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                </div>
+            </div>
+            <div style="margin-top:1rem;">
+                <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Landowner ID Number*</label>
+                <input type="text" name="landowner_id_number" value="${listing.landowner_id_number || ''}" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+            </div>
+        </div>
+
+        <!-- File Upload -->
         <div style="background:#f8fafc; padding:1.5rem; border-radius:12px; border-left:4px solid #27ae60; margin-bottom:1.5rem;">
             <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">📁 Upload New Files</div>
             <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
                 <div>
                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Documents</label>
-                    <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
-                        <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,image/*" style="display:none;" onchange="previewFiles(this, 'editDocumentsPreview')">
-                        <span>📄 Upload Documents</span>
-                    </label>
-                    <div id="editDocumentsPreview" style="margin-top:0.5rem;"></div>
+                    <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,image/*" style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid #e5e7eb;">
                 </div>
                 <div>
                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Images</label>
-                    <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
-                        <input type="file" name="images" multiple accept="image/*" style="display:none;" onchange="previewFiles(this, 'editImagesPreview')">
-                        <span>🖼️ Upload Images</span>
-                    </label>
-                    <div id="editImagesPreview" style="margin-top:0.5rem;"></div>
+                    <input type="file" name="images" multiple accept="image/*" style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid #e5e7eb;">
                 </div>
                 <div>
                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Videos</label>
-                    <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
-                        <input type="file" name="videos" multiple accept="video/*" style="display:none;" onchange="previewFiles(this, 'editVideosPreview')">
-                        <span>🎥 Upload Videos</span>
-                    </label>
-                    <div id="editVideosPreview" style="margin-top:0.5rem;"></div>
+                    <input type="file" name="videos" multiple accept="video/*" style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid #e5e7eb;">
                 </div>
             </div>
         </div>
-        <div style="margin-top:1.5rem; font-weight:600; color:#27ae60;">Existing Images</div>
-        ${renderFileList('images', (listing.media || []).filter(m => m.media_type === 'image'))}
-        <div style="margin-bottom:1rem;">
-            <label>Upload New Images (JPG, PNG, GIF, WEBP)</label>
-            <input type="file" name="images" multiple accept="image/*" style="display:block; margin-bottom:0.5rem;">
-        </div>
-        <div style="margin-top:1.5rem; font-weight:600; color:#27ae60;">Existing Videos</div>
-        ${renderFileList('videos', (listing.media || []).filter(m => m.media_type === 'video'))}
-        <div style="margin-bottom:1.5rem;">
-            <label>Upload New Videos (MP4, WebM, MOV)</label>
-            <input type="file" name="videos" multiple accept="video/*" style="display:block; margin-bottom:0.5rem;">
-        </div>
+
+        <!-- Submit Buttons -->
         <div style="display:flex; gap:1rem; justify-content:center; margin-top:2rem; padding-top:2rem; border-top:1px solid #e5e7eb;">
             <button type="button" id="cancelEditListing" class="btn btn-outline" style="border-color:#64748b; color:#64748b; padding:1rem 2rem; font-weight:600; border-radius:10px; min-width:120px;">Cancel</button>
             <button type="submit" class="btn btn-primary" style="background:#27ae60; color:#fff; padding:1rem 2rem; font-weight:600; border-radius:10px; min-width:120px; border:none; font-size:1.1rem;">✅ Update Listing</button>
@@ -1603,296 +1576,65 @@ function openEditListingModal(listing) {
     
     // Show the modal
     showModal('editListingModal');
-    // Remove file logic
-    form.querySelectorAll('.remove-file-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const type = this.getAttribute('data-type');
-            const id = this.getAttribute('data-id');
-            filesToRemove[type].push(id);
-            this.parentElement.style.display = 'none';
-        });
-    });
-    // Cancel/close logic
-    const closeBtn = document.getElementById('closeEditListingModal');
+    console.log('Modal should be visible now');
+    
+    // Add event listeners for cancel button
     const cancelBtn = document.getElementById('cancelEditListing');
-    if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; };
-    if (cancelBtn) cancelBtn.onclick = () => { modal.style.display = 'none'; };
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            console.log('Cancel button clicked');
+            hideModal('editListingModal');
+        });
+    }
+    
     // Form submit logic
-    form.onsubmit = async function(e) {
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
+        console.log('Form submitted');
+        
         const submitBtn = form.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
         submitBtn.textContent = 'Updating...';
-        const id = form.querySelector('input[name="id"]').value;
-        const formData = new FormData(form);
-        // Attach files to remove
-        formData.append('remove_images', JSON.stringify(filesToRemove.images));
-        formData.append('remove_videos', JSON.stringify(filesToRemove.videos));
-        formData.append('remove_documents', JSON.stringify(filesToRemove.documents));
+        
         try {
-            const response = await authFetch(`/api/listings/${id}`, {
+            const formData = new FormData(form);
+            const listingId = formData.get('id');
+            
+            console.log('Submitting update for listing ID:', listingId);
+            console.log('Form data entries:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+            
+            const response = await authFetch(`/api/listings/${listingId}`, {
                 method: 'PUT',
                 body: formData,
             });
             const result = await response.json();
+            
+            console.log('Update response:', result);
+            
             if (result.success) {
-                alert('Listing updated successfully!');
-                modal.style.display = 'none';
-                renderListings();
+                showMessage('Listing updated successfully!', 'success');
+                hideModal('editListingModal');
+                // Refresh listings
+                if (typeof fetchAndRenderDashboardListings === 'function') {
+                    fetchAndRenderDashboardListings(1);
+                }
             } else {
-                alert(result.message || 'Failed to update listing.');
+                if (result.errors && result.errors.length > 0) {
+                    const errorMessages = result.errors.map(err => `${err.path}: ${err.msg}`).join('\n');
+                    showMessage(`Validation failed:\n${errorMessages}`, 'error');
+                } else {
+                    showMessage(result.error || 'Failed to update listing', 'error');
+                }
             }
-        } catch (err) {
-            alert('Error updating listing.');
+        } catch (error) {
+            console.error('Update listing error:', error);
+            showMessage('Failed to update listing', 'error');
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Update';
+            submitBtn.textContent = '✅ Update Listing';
         }
-    };
-}
-
-// Close modal logic
-(function() {
-    const modal = document.getElementById('viewListingModal');
-    const closeBtn = document.getElementById('closeViewListingModal');
-    if (closeBtn && modal) {
-        closeBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
-        });
-    }
-    window.addEventListener('click', function(e) {
-        if (e.target === modal) modal.style.display = 'none';
     });
-})();
-
-function renderInquiries() {
-    const grid = document.getElementById('inquiriesGrid');
-    if (!grid) return;
-    grid.innerHTML = `
-        <div class="dashboard-card">
-            <div class="card-title">Inquiry from John Doe</div>
-            <div class="card-subtitle">General Interest</div>
-            <div class="card-status">New</div>
-            <div class="card-date">Today</div>
-            <div class="card-avatars">
-                <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Inquirer">
-            </div>
-        </div>
-        <div class="dashboard-card">
-            <div class="card-title">Inquiry from Jane Smith</div>
-            <div class="card-subtitle">Site Visit Request</div>
-            <div class="card-status">Responded</div>
-            <div class="card-date">Yesterday</div>
-            <div class="card-avatars">
-                <img src="https://randomuser.me/api/portraits/women/46.jpg" alt="Inquirer">
-            </div>
-        </div>
-    `;
-}
-
-function renderContacts() {
-    const grid = document.getElementById('contactsGrid');
-    if (!grid) return;
-    grid.innerHTML = `
-        <div class="dashboard-card">
-            <div class="card-title">Contact: Alice M.</div>
-            <div class="card-subtitle">alice@email.com</div>
-            <div class="card-status">New</div>
-            <div class="card-date">2 days ago</div>
-            <div class="card-avatars">
-                <img src="https://randomuser.me/api/portraits/women/47.jpg" alt="Contact">
-            </div>
-        </div>
-    `;
-}
-
-function renderProfile() {
-    const grid = document.getElementById('profileGrid');
-    if (!grid) return;
-    grid.innerHTML = `
-        <div class="dashboard-card">
-            <div class="card-title">Broker Profile</div>
-            <div class="card-subtitle">Name: Broker User</div>
-            <div class="card-status">Active</div>
-            <div class="card-date">Joined: Jan 2024</div>
-            <div class="card-avatars">
-                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Broker">
-            </div>
-        </div>
-    `;
-}
-
-// Dashboard Listings Search/Filter Logic
-async function fetchAndRenderDashboardListings(page=1) {
-    const grid = document.getElementById('listingsGrid');
-    if (!grid) return;
-    grid.innerHTML = '<div>Loading listings...</div>';
-    // Get filter values
-    const search = document.getElementById('dashboardSearchInput').value.trim();
-    const landType = document.getElementById('dashboardLandTypeFilter').value;
-    const minPrice = document.getElementById('dashboardMinPriceFilter').value;
-    const maxPrice = document.getElementById('dashboardMaxPriceFilter').value;
-    const minSize = document.getElementById('dashboardMinSizeFilter').value;
-    const maxSize = document.getElementById('dashboardMaxSizeFilter').value;
-    // Build query params
-    const params = new URLSearchParams();
-    params.append('page', page);
-    params.append('limit', 12);
-    if (search) params.append('search', search);
-    if (landType) params.append('land_type', landType);
-    if (minPrice) params.append('min_price', minPrice);
-    if (maxPrice) params.append('max_price', maxPrice);
-    if (minSize) params.append('min_size', minSize);
-    if (maxSize) params.append('max_size', maxSize);
-    // Fetch broker's listings (protected route)
-    try {
-        const res = await authFetch(`/api/listings/broker/my-listings?${params.toString()}`);
-        const data = await res.json();
-        if (!data.success || !data.data || !data.data.listings) {
-            grid.innerHTML = '<div>No listings found.</div>';
-            return;
-        }
-        const listings = data.data.listings;
-        if (listings.length === 0) {
-            grid.innerHTML = '<div>No listings found.</div>';
-            return;
-        }
-        grid.innerHTML = listings.map((listing, idx) => {
-            let primaryImg = '';
-            if (listing.media && listing.media.length > 0) {
-                primaryImg = `<img src="/uploads/images/${listing.media[0].file_name}" alt="${listing.title}" style="width:100%; height:160px; object-fit:cover; border-radius:10px 10px 0 0;">`;
-            } else {
-                primaryImg = `<div style="width:100%; height:160px; background:#e6f9e6; display:flex; align-items:center; justify-content:center; font-size:2.5rem; color:#27ae60; border-radius:10px 10px 0 0;">🏞️</div>`;
-            }
-            return `
-            <div class="dashboard-card listing-card" data-idx="${idx}" style="cursor:pointer; position:relative;">
-                <button class="btn btn-outline btn-edit-listing" data-idx="${idx}" style="border-color:#27ae60; color:#27ae60; float:right; margin-top:8px; margin-right:8px;">Edit</button>
-                <button class="btn btn-outline btn-delete-listing" data-id="${listing.id}" style="border-color:#ef4444; color:#ef4444; float:right; margin-top:8px;">Delete</button>
-                ${primaryImg}
-                <div class="card-title">${listing.title}</div>
-                <div class="card-subtitle">${listing.sector}, ${listing.district}</div>
-                <div class="card-status">${listing.status || 'Available'}</div>
-                <div class="card-date">${new Date(listing.created_at).toLocaleDateString()}</div>
-            </div>
-            `;
-        }).join('');
-        // Add click listeners for each card
-        document.querySelectorAll('.listing-card').forEach(card => {
-            card.addEventListener('click', function(e) {
-                if (e.target.classList.contains('btn-delete-listing') || e.target.classList.contains('btn-edit-listing')) return;
-                const idx = this.getAttribute('data-idx');
-                showListingDetails(listings[idx]);
-            });
-        });
-        document.querySelectorAll('.btn-delete-listing').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const id = this.getAttribute('data-id');
-                deleteListing(id);
-            });
-        });
-        document.querySelectorAll('.btn-edit-listing').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const idx = this.getAttribute('data-idx');
-                openEditListingModal(listings[idx]);
-            });
-        });
-    } catch (err) {
-        grid.innerHTML = '<div>Error loading listings.</div>';
-    }
-}
-// Attach filter/search listeners
-['dashboardSearchInput','dashboardLandTypeFilter','dashboardMinPriceFilter','dashboardMaxPriceFilter','dashboardMinSizeFilter','dashboardMaxSizeFilter'].forEach(id => {
-    document.getElementById(id).addEventListener('input', () => fetchAndRenderDashboardListings(1));
-});
-document.getElementById('dashboardResetFiltersBtn').addEventListener('click', function() {
-    document.getElementById('dashboardSearchInput').value = '';
-    document.getElementById('dashboardLandTypeFilter').value = '';
-    document.getElementById('dashboardMinPriceFilter').value = '';
-    document.getElementById('dashboardMaxPriceFilter').value = '';
-    document.getElementById('dashboardMinSizeFilter').value = '';
-    document.getElementById('dashboardMaxSizeFilter').value = '';
-    fetchAndRenderDashboardListings(1);
-});
-// Initial fetch for dashboard listings
-if (document.getElementById('dashboardSearchInput')) {
-    fetchAndRenderDashboardListings(1);
-}
-
-// File preview function
-function previewFiles(input, previewId) {
-    const preview = document.getElementById(previewId);
-    preview.innerHTML = '';
-    
-    if (input.files && input.files.length > 0) {
-        Array.from(input.files).forEach((file, index) => {
-            const fileDiv = document.createElement('div');
-            fileDiv.style.cssText = `
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                margin-bottom: 0.5rem;
-                padding: 0.5rem;
-                background: #f1f5f9;
-                border-radius: 6px;
-                border: 1px solid #e2e8f0;
-            `;
-            
-            // Create file icon or thumbnail
-            let fileIcon = '📄';
-            if (file.type.startsWith('image/')) {
-                fileIcon = '🖼️';
-                // Create thumbnail for images
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                img.style.cssText = 'width: 30px; height: 30px; object-fit: cover; border-radius: 4px;';
-                fileDiv.appendChild(img);
-            } else if (file.type.startsWith('video/')) {
-                fileIcon = '🎥';
-            }
-            
-            // File info
-            const fileInfo = document.createElement('div');
-            fileInfo.style.cssText = 'flex: 1; font-size: 0.9rem;';
-            fileInfo.innerHTML = `
-                <div style="font-weight: 600; color: #374151;">${file.name}</div>
-                <div style="font-size: 0.8rem; color: #64748b;">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
-            `;
-            fileDiv.appendChild(fileInfo);
-            
-            // Remove button
-            const removeBtn = document.createElement('button');
-            removeBtn.innerHTML = '❌';
-            removeBtn.style.cssText = `
-                background: none;
-                border: none;
-                cursor: pointer;
-                font-size: 1rem;
-                color: #ef4444;
-                padding: 0.2rem;
-                border-radius: 4px;
-                transition: background 0.2s;
-            `;
-            removeBtn.onclick = function() {
-                // Remove file from input
-                const dt = new DataTransfer();
-                Array.from(input.files).forEach((f, i) => {
-                    if (i !== index) dt.items.add(f);
-                });
-                input.files = dt.files;
-                // Remove preview
-                fileDiv.remove();
-            };
-            removeBtn.onmouseover = function() {
-                this.style.background = '#fee2e2';
-            };
-            removeBtn.onmouseout = function() {
-                this.style.background = 'none';
-            };
-            fileDiv.appendChild(removeBtn);
-            
-            preview.appendChild(fileDiv);
-        });
-    }
 }
