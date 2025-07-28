@@ -1,11 +1,44 @@
 // Simple message display function for dashboard
 function showMessage(message, type = 'info') {
-    if (type === 'error') {
-        alert(message);
-    } else {
-        // For success/info messages, you could implement a toast notification
-        console.log(`${type.toUpperCase()}: ${message}`);
+    // Create message element
+    const messageEl = document.createElement('div');
+    messageEl.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        max-width: 400px;
+        word-wrap: break-word;
+    `;
+    
+    // Set background color based on type
+    switch(type) {
+        case 'success':
+            messageEl.style.background = '#27ae60';
+            break;
+        case 'error':
+            messageEl.style.background = '#ef4444';
+            break;
+        case 'warning':
+            messageEl.style.background = '#f39c12';
+            break;
+        default:
+            messageEl.style.background = '#3b82f6';
     }
+    
+    messageEl.textContent = message;
+    document.body.appendChild(messageEl);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        messageEl.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => messageEl.remove(), 300);
+    }, 3000);
 }
 
 // Simple APP_CONFIG for dashboard
@@ -1059,6 +1092,15 @@ function showInquiryModal(inquiry) {
 let dashboardManager;
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize dashboard manager
+    dashboardManager = new DashboardManager();
+    window.dashboardManager = dashboardManager; // Make it globally accessible
+    
+    // Initialize the dashboard
+    dashboardManager.init().catch(error => {
+        console.error('Failed to initialize dashboard:', error);
+    });
+    
     // Modal open/close logic
     const addListingBtn = document.getElementById('addListingBtn');
     const addListingModal = document.getElementById('addListingModal');
@@ -1928,4 +1970,13 @@ function openEditListingModal(listing) {
 function fetchAndRenderDashboardListings(page = 1) {
     console.log('Refreshing dashboard listings...');
     location.reload(); // Simple page refresh for now
+}
+
+// Global filterListings function
+function filterListings() {
+    if (window.dashboardManager) {
+        window.dashboardManager.filterListings();
+    } else {
+        console.error('Dashboard manager not initialized');
+    }
 }
