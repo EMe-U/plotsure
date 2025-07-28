@@ -1,8 +1,6 @@
-const s3Helper = require('../config/s3');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const stream = require('stream');
 
 // Ensure upload directories exist
 const ensureDirectoryExists = (dirPath) => {
@@ -39,30 +37,6 @@ const generateFilename = (originalname) => {
   const nameWithoutExt = path.basename(originalname, extension);
   return `${nameWithoutExt}_${timestamp}_${random}${extension}`;
 };
-
-// S3 upload handler for documents, images, videos
-const s3UploadHandler = (fieldName, allowedTypes, maxSize) => {
-  return multer({
-    storage: multer.memoryStorage(),
-    fileFilter: fileFilter(allowedTypes),
-    limits: { fileSize: maxSize }
-  }).array(fieldName, 10);
-};
-
-// Helper to upload files to S3 after multer parses them
-async function uploadFilesToS3(files, folder) {
-  const uploaded = [];
-  for (const file of files) {
-    const key = `${folder}/${Date.now()}_${file.originalname}`;
-    const result = await s3Helper.uploadFile(file.buffer, key, file.mimetype);
-    uploaded.push({
-      ...file,
-      s3Key: key,
-      s3Url: result.Location
-    });
-  }
-  return uploaded;
-}
 
 // File type configurations
 const documentTypes = [
@@ -107,10 +81,8 @@ exports.uploadDocuments = multer({
     }
   }),
   fileFilter: fileFilter(documentTypes),
-  limits: {
-    fileSize: fileSizeLimits.documents
-  }
-}).array('documents', 10); // Allow up to 10 documents
+  limits: { fileSize: fileSizeLimits.documents }
+}).array('documents', 10);
 
 // Upload middleware for images
 exports.uploadImages = multer({
@@ -123,10 +95,8 @@ exports.uploadImages = multer({
     }
   }),
   fileFilter: fileFilter(imageTypes),
-  limits: {
-    fileSize: fileSizeLimits.images
-  }
-}).array('images', 20); // Allow up to 20 images
+  limits: { fileSize: fileSizeLimits.images }
+}).array('images', 10);
 
 // Upload middleware for videos
 exports.uploadVideos = multer({
@@ -139,95 +109,60 @@ exports.uploadVideos = multer({
     }
   }),
   fileFilter: fileFilter(videoTypes),
-  limits: {
-    fileSize: fileSizeLimits.videos
-  }
-}).array('videos', 5); // Allow up to 5 videos
+  limits: { fileSize: fileSizeLimits.videos }
+}).array('videos', 10);
 
-// Mixed upload middleware for listing creation
+// Combined upload middleware for listings (documents, images, videos)
 exports.uploadListingFiles = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      let uploadPath;
-      if (documentTypes.includes(file.mimetype)) {
-        uploadPath = uploadDirs.documents;
-      } else if (imageTypes.includes(file.mimetype)) {
-        uploadPath = uploadDirs.images;
-      } else if (videoTypes.includes(file.mimetype)) {
-        uploadPath = uploadDirs.videos;
+      let uploadDir;
+      if (file.fieldname === 'documents') {
+        uploadDir = uploadDirs.documents;
+      } else if (file.fieldname === 'images') {
+        uploadDir = uploadDirs.images;
+      } else if (file.fieldname === 'videos') {
+        uploadDir = uploadDirs.videos;
       } else {
-        return cb(new Error('Invalid file type'), false);
+        uploadDir = uploadDirs.documents; // default
       }
-      cb(null, uploadPath);
+      cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
       cb(null, generateFilename(file.originalname));
     }
   }),
   fileFilter: (req, file, cb) => {
-    const allAllowedTypes = [...documentTypes, ...imageTypes, ...videoTypes];
-    if (allAllowedTypes.includes(file.mimetype)) {
-      cb(null, true);
+    if (file.fieldname === 'documents') {
+      fileFilter(documentTypes)(req, file, cb);
+    } else if (file.fieldname === 'images') {
+      fileFilter(imageTypes)(req, file, cb);
+    } else if (file.fieldname === 'videos') {
+      fileFilter(videoTypes)(req, file, cb);
     } else {
-      cb(new Error('Invalid file type'), false);
+      cb(null, true);
     }
   },
-  limits: {
-    fileSize: Math.max(...Object.values(fileSizeLimits)) // Use the largest limit
-  }
+  limits: { fileSize: fileSizeLimits.videos } // Use largest limit
 }).fields([
   { name: 'documents', maxCount: 10 },
-  { name: 'images', maxCount: 20 },
-  { name: 'videos', maxCount: 5 }
+  { name: 'images', maxCount: 10 },
+  { name: 'videos', maxCount: 10 }
 ]);
 
-// Single file upload middleware
-exports.uploadSingle = (fieldName, fileTypes, maxSize) => {
-  return multer({
-    storage: multer.diskStorage({
-      destination: (req, file, cb) => {
-        let uploadPath;
-        if (documentTypes.includes(file.mimetype)) {
-          uploadPath = uploadDirs.documents;
-        } else if (imageTypes.includes(file.mimetype)) {
-          uploadPath = uploadDirs.images;
-        } else if (videoTypes.includes(file.mimetype)) {
-          uploadPath = uploadDirs.videos;
-        } else {
-          return cb(new Error('Invalid file type'), false);
-        }
-        cb(null, uploadPath);
-      },
-      filename: (req, file, cb) => {
-        cb(null, generateFilename(file.originalname));
-      }
-    }),
-    fileFilter: fileFilter(fileTypes),
-    limits: {
-      fileSize: maxSize
-    }
-  }).single(fieldName);
-};
-
-// Error handling middleware for multer
+// Error handling middleware
 exports.handleUploadError = (error, req, res, next) => {
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
-        message: 'File too large. Please upload a smaller file.'
+        message: 'File too large'
       });
     }
     if (error.code === 'LIMIT_FILE_COUNT') {
       return res.status(400).json({
         success: false,
-        message: 'Too many files. Please reduce the number of files.'
-      });
-    }
-    if (error.code === 'LIMIT_UNEXPECTED_FILE') {
-      return res.status(400).json({
-        success: false,
-        message: 'Unexpected file field. Please check your upload fields.'
+        message: 'Too many files'
       });
     }
   }
@@ -238,6 +173,6 @@ exports.handleUploadError = (error, req, res, next) => {
       message: error.message
     });
   }
-
+  
   next(error);
 };
