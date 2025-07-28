@@ -165,11 +165,15 @@ const startServer = async () => {
     try {
         // Test database connection
         await db.sequelize.authenticate();
-        console.log('📦 MySQL Database Connected Successfully');
+        console.log('📦 SQLite Database Connected Successfully');
         
-        // Sync database models (use { force: true } to recreate tables)
-        await db.sequelize.sync({ alter: true });
-        console.log('📋 Database Models Synchronized');
+        // Sync database models without forcing changes
+        try {
+            await db.sequelize.sync({ force: false });
+            console.log('📋 Database Models Synchronized');
+        } catch (syncError) {
+            console.log('⚠️ Database sync warning (continuing anyway):', syncError.message);
+        }
         
         app.listen(PORT, () => {
             console.log(`🚀 PlotSure Connect API Server running on port ${PORT}`);

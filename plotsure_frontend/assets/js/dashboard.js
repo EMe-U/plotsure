@@ -739,8 +739,8 @@ class DashboardManager {
                 if (result.errors && result.errors.length > 0) {
                     const errorMessages = result.errors.map(err => `${err.path}: ${err.msg}`).join('\n');
                     showMessage(`Validation failed:\n${errorMessages}`, 'error');
-                } else {
-                    showMessage(result.error || 'Failed to create listing', 'error');
+            } else {
+                showMessage(result.error || 'Failed to create listing', 'error');
                 }
             }
         } catch (error) {
