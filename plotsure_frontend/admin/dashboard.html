@@ -507,6 +507,12 @@
                 <!-- Search & Filter UI -->
                 <div id="dashboardListingsSearchFilter" style="display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:2rem; align-items:center;">
                     <input id="dashboardSearchInput" type="text" placeholder="Search by title, location, or description..." style="flex:2; min-width:180px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                    <select id="dashboardStatusFilter" style="padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                        <option value="">All Status</option>
+                        <option value="available">🟢 Available</option>
+                        <option value="reserved">🟡 Reserved</option>
+                        <option value="sold">🔴 Sold</option>
+                    </select>
                     <select id="dashboardLandTypeFilter" style="padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
                         <option value="">All Land Types</option>
                         <option value="residential">Residential</option>

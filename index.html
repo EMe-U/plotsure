@@ -742,6 +742,12 @@
             <!-- Search & Filter UI -->
             <div id="listingsSearchFilter" style="display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:2rem; align-items:center;">
                 <input id="searchInput" type="text" placeholder="Search by title, location, or description..." style="flex:2; min-width:180px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                <select id="statusFilter" style="padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
+                    <option value="">All Status</option>
+                    <option value="available">🟢 Available</option>
+                    <option value="reserved">🟡 Reserved</option>
+                    <option value="sold">🔴 Sold</option>
+                </select>
                 <select id="landTypeFilter" style="padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
                     <option value="">All Land Types</option>
                     <option value="residential">Residential</option>
@@ -1077,6 +1083,7 @@ async function fetchAndRenderListings(page=1) {
     grid.innerHTML = '<div>Loading listings...</div>';
     // Get filter values
     const search = document.getElementById('searchInput').value.trim();
+    const status = document.getElementById('statusFilter').value;
     const landType = document.getElementById('landTypeFilter').value;
     const minPrice = document.getElementById('minPriceFilter').value;
     const maxPrice = document.getElementById('maxPriceFilter').value;
@@ -1087,6 +1094,7 @@ async function fetchAndRenderListings(page=1) {
     params.append('page', page);
     params.append('limit', 12);
     if (search) params.append('search', search);
+    if (status) params.append('status', status);
     if (landType) params.append('land_type', landType);
     if (minPrice) params.append('min_price', minPrice);
     if (maxPrice) params.append('max_price', maxPrice);
@@ -1110,7 +1118,10 @@ async function fetchAndRenderListings(page=1) {
         grid.innerHTML = listings.map(listing => `
             <div class="listing-card">
                 <div class="listing-image" style="background-image: url('${listing.media && listing.media.length > 0 ? '/uploads/images/' + listing.media[0].file_name : 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80'}'); background-size: cover; background-position: center;">
-                    <span class="listing-badge">${listing.verified ? '✅ Verified' : ''}</span>
+                    <span class="listing-badge" style="background: ${listing.status === 'available' ? '#27ae60' : listing.status === 'reserved' ? '#f39c12' : '#e74c3c'}; color: #fff; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; position: absolute; top: 1rem; right: 1rem;">
+                        ${listing.status === 'available' ? '🟢 Available' : listing.status === 'reserved' ? '🟡 Reserved' : '🔴 Sold'}
+                    </span>
+                    ${listing.verified ? '<span class="listing-badge" style="background: #27ae60; color: #fff; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; position: absolute; top: 1rem; left: 1rem;">✅ Verified</span>' : ''}
                 </div>
                 <div class="listing-content">
                     <h3 class="listing-title">${listing.title}</h3>
@@ -1150,11 +1161,12 @@ async function fetchAndRenderListings(page=1) {
     }
 }
 // Attach filter/search listeners
-['searchInput','landTypeFilter','minPriceFilter','maxPriceFilter','minSizeFilter','maxSizeFilter'].forEach(id => {
+['searchInput','statusFilter','landTypeFilter','minPriceFilter','maxPriceFilter','minSizeFilter','maxSizeFilter'].forEach(id => {
     document.getElementById(id).addEventListener('input', () => fetchAndRenderListings(1));
 });
 document.getElementById('resetFiltersBtn').addEventListener('click', function() {
     document.getElementById('searchInput').value = '';
+    document.getElementById('statusFilter').value = '';
     document.getElementById('landTypeFilter').value = '';
     document.getElementById('minPriceFilter').value = '';
     document.getElementById('maxPriceFilter').value = '';

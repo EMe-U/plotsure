@@ -793,8 +793,17 @@ class DashboardManager {
     }
 
     filterListings() {
-        const statusFilter = document.getElementById('statusFilter').value;
-        const searchTerm = document.getElementById('searchListings').value.toLowerCase();
+        const statusFilter = document.getElementById('dashboardStatusFilter')?.value || '';
+        const searchTerm = document.getElementById('dashboardSearchInput')?.value.toLowerCase() || '';
+        const landTypeFilter = document.getElementById('dashboardLandTypeFilter')?.value || '';
+        const minPrice = document.getElementById('dashboardMinPriceFilter')?.value || '';
+        const maxPrice = document.getElementById('dashboardMaxPriceFilter')?.value || '';
+        const minSize = document.getElementById('dashboardMinSizeFilter')?.value || '';
+        const maxSize = document.getElementById('dashboardMaxSizeFilter')?.value || '';
+
+        console.log('Filtering listings with:', {
+            statusFilter, searchTerm, landTypeFilter, minPrice, maxPrice, minSize, maxSize
+        });
 
         const filtered = this.listings.filter(listing => {
             const matchesStatus = !statusFilter || listing.status === statusFilter;
@@ -802,12 +811,17 @@ class DashboardManager {
                 listing.title.toLowerCase().includes(searchTerm) ||
                 listing.description.toLowerCase().includes(searchTerm) ||
                 this.getFullLocation(listing).toLowerCase().includes(searchTerm);
+            const matchesLandType = !landTypeFilter || listing.land_type === landTypeFilter;
+            const matchesMinPrice = !minPrice || (listing.price && listing.price >= parseFloat(minPrice));
+            const matchesMaxPrice = !maxPrice || (listing.price && listing.price <= parseFloat(maxPrice));
+            const matchesMinSize = !minSize || (listing.plot_size && listing.plot_size >= parseFloat(minSize));
+            const matchesMaxSize = !maxSize || (listing.plot_size && listing.plot_size <= parseFloat(maxSize));
             
-            return matchesStatus && matchesSearch;
+            return matchesStatus && matchesSearch && matchesLandType && matchesMinPrice && matchesMaxPrice && matchesMinSize && matchesMaxSize;
         });
 
-        this.listings = filtered;
-        this.renderListings();
+        console.log('Filtered listings count:', filtered.length);
+        this.renderListings(filtered);
     }
 
     filterInquiries() {
@@ -1271,7 +1285,12 @@ function renderListings() {
                     'pending': '#9b59b6'
                 };
                 const statusColor = statusColors[listing.status] || '#27ae60';
-                const statusBadge = `<span style="position:absolute; top:12px; right:12px; background:${statusColor}; color:#fff; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; text-transform:uppercase;">${listing.status || 'Available'}</span>`;
+                const statusLabels = {
+                    'available': '🟢 Available',
+                    'reserved': '🟡 Reserved', 
+                    'sold': '🔴 Sold'
+                };
+                const statusBadge = `<span style="position:absolute; top:12px; right:12px; background:${statusColor}; color:#fff; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:600;">${statusLabels[listing.status] || '🟢 Available'}</span>`;
                 
                 // Price and size info
                 const price = listing.price ? `RWF ${listing.price.toLocaleString()}` : 'Price on request';
@@ -1317,13 +1336,21 @@ function renderListings() {
                         ${mediaIndicators}
                         
                         <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #f1f5f9;">
-                            <div style="display:flex; gap:8px; justify-content:space-between;">
+                            <div style="display:flex; gap:8px; justify-content:space-between; margin-bottom:0.5rem;">
                                 <button class="btn btn-outline btn-edit-listing" data-idx="${idx}" style="flex:1; padding:0.6rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:600;">
                                     ✏️ Edit
                                 </button>
                                 <button class="btn btn-outline btn-danger btn-delete-listing" data-id="${listing.id}" style="flex:1; padding:0.6rem 1rem; border-radius:8px; font-size:0.85rem; font-weight:600;">
                                     🗑️ Delete
                                 </button>
+                            </div>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <label style="font-size:0.8rem; color:#64748b; font-weight:600;">Status:</label>
+                                <select class="status-select" data-listing-id="${listing.id}" style="flex:1; padding:0.4rem; border-radius:6px; border:1px solid #e5e7eb; font-size:0.8rem; background:#fff;">
+                                    <option value="available" ${listing.status === 'available' ? 'selected' : ''}>🟢 Available</option>
+                                    <option value="reserved" ${listing.status === 'reserved' ? 'selected' : ''}>🟡 Reserved</option>
+                                    <option value="sold" ${listing.status === 'sold' ? 'selected' : ''}>🔴 Sold</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -1378,6 +1405,127 @@ function renderListings() {
             }
         });
     });
+    
+    // Add status change listeners
+    document.querySelectorAll('.status-select').forEach(select => {
+        select.addEventListener('change', async function(e) {
+            e.stopPropagation();
+            const listingId = this.getAttribute('data-listing-id');
+            const newStatus = this.value;
+            console.log('Status changed for listing:', listingId, 'to:', newStatus);
+            
+            try {
+                const response = await authFetch(`/api/listings/${listingId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showMessage(`Status updated to ${newStatus}!`, 'success');
+                    // Update the status badge on the card
+                    const card = this.closest('.listing-card');
+                    if (card) {
+                        const badge = card.querySelector('[style*="position:absolute"]');
+                        if (badge) {
+                            const statusColors = {
+                                'available': '#27ae60',
+                                'reserved': '#f39c12',
+                                'sold': '#e74c3c'
+                            };
+                            const statusLabels = {
+                                'available': 'Available',
+                                'reserved': 'Reserved',
+                                'sold': 'Sold'
+                            };
+                            badge.style.background = statusColors[newStatus];
+                            badge.textContent = statusLabels[newStatus];
+                        }
+                    }
+                } else {
+                    showMessage('Failed to update status', 'error');
+                    // Revert the select to previous value
+                    this.value = this.getAttribute('data-original-status') || 'available';
+                }
+            } catch (error) {
+                console.error('Status update error:', error);
+                showMessage('Failed to update status: ' + error.message, 'error');
+                // Revert the select to previous value
+                this.value = this.getAttribute('data-original-status') || 'available';
+            }
+        });
+        
+        // Store original status for reverting on error
+        select.setAttribute('data-original-status', select.value);
+    });
+    
+    // Add tab functionality for status filtering
+    const tabButtons = document.querySelectorAll('#listingsTabs .tab-btn');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all tabs
+            tabButtons.forEach(b => b.classList.remove('active'));
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            const status = this.getAttribute('data-tab');
+            console.log('Status tab clicked:', status);
+            
+            // Filter listings by status
+            const statusFilter = document.getElementById('dashboardStatusFilter');
+            if (statusFilter) {
+                if (status === 'all') {
+                    statusFilter.value = '';
+                } else {
+                    statusFilter.value = status;
+                }
+                // Trigger filter
+                filterListings();
+            }
+        });
+    });
+    
+    // Add event listeners for dashboard filters
+    const dashboardFilters = [
+        'dashboardSearchInput',
+        'dashboardStatusFilter', 
+        'dashboardLandTypeFilter',
+        'dashboardMinPriceFilter',
+        'dashboardMaxPriceFilter',
+        'dashboardMinSizeFilter',
+        'dashboardMaxSizeFilter'
+    ];
+    
+    dashboardFilters.forEach(filterId => {
+        const filter = document.getElementById(filterId);
+        if (filter) {
+            filter.addEventListener('input', () => {
+                console.log('Dashboard filter changed:', filterId);
+                filterListings();
+            });
+        }
+    });
+    
+    // Add reset filters button listener
+    const resetBtn = document.getElementById('dashboardResetFiltersBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            dashboardFilters.forEach(filterId => {
+                const filter = document.getElementById(filterId);
+                if (filter) filter.value = '';
+            });
+            // Reset tab selection
+            tabButtons.forEach(b => b.classList.remove('active'));
+            const allTab = document.querySelector('#listingsTabs .tab-btn[data-tab="all"]');
+            if (allTab) allTab.classList.add('active');
+            filterListings();
+        });
+    }
     
     // Add a test button to the page for debugging
     const testButton = document.createElement('button');
@@ -1571,6 +1719,14 @@ function openEditListingModal(listing) {
                     <input type="checkbox" name="price_negotiable" ${listing.price_negotiable ? 'checked' : ''} style="margin:0;">
                     Price is negotiable
                 </label>
+            </div>
+            <div style="margin-top:1rem;">
+                <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Status*</label>
+                <select name="status" required style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #e5e7eb; font-size:1rem;">
+                    <option value="available" ${listing.status === 'available' ? 'selected' : ''}>🟢 Available</option>
+                    <option value="reserved" ${listing.status === 'reserved' ? 'selected' : ''}>🟡 Reserved</option>
+                    <option value="sold" ${listing.status === 'sold' ? 'selected' : ''}>🔴 Sold</option>
+                </select>
             </div>
         </div>
 
