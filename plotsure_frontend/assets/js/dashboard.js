@@ -1606,21 +1606,26 @@ function openEditListingModal(listing) {
                 console.log(key, value);
             }
             
+            // Check if we have a valid token
+            const token = localStorage.getItem('token');
+            console.log('Token exists:', !!token);
+            
             const response = await authFetch(`/api/listings/${listingId}`, {
                 method: 'PUT',
                 body: formData,
             });
-            const result = await response.json();
             
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            const result = await response.json();
             console.log('Update response:', result);
             
             if (result.success) {
                 showMessage('Listing updated successfully!', 'success');
                 hideModal('editListingModal');
                 // Refresh listings
-                if (typeof fetchAndRenderDashboardListings === 'function') {
-                    fetchAndRenderDashboardListings(1);
-                }
+                location.reload();
             } else {
                 if (result.errors && result.errors.length > 0) {
                     const errorMessages = result.errors.map(err => `${err.path}: ${err.msg}`).join('\n');
@@ -1631,7 +1636,8 @@ function openEditListingModal(listing) {
             }
         } catch (error) {
             console.error('Update listing error:', error);
-            showMessage('Failed to update listing', 'error');
+            console.error('Error details:', error.message);
+            showMessage('Failed to update listing: ' + error.message, 'error');
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = '✅ Update Listing';
