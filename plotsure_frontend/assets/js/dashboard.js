@@ -1527,11 +1527,58 @@ function openEditListingModal(listing) {
             <label>Landowner ID Number*</label>
             <input type="text" name="landowner_id_number" value="${listing.landowner_id_number || ''}" required style="width:100%; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb; margin-bottom:1rem;">
         </div>
-        <div style="margin-top:1.5rem; font-weight:600; color:#27ae60;">Existing Documents</div>
-        ${renderFileList('documents', listing.documents || [])}
-        <div style="margin-bottom:1rem;">
-            <label>Upload New Documents (PDF, DOC, Images)</label>
-            <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,image/*" style="display:block; margin-bottom:0.5rem;">
+        <!-- Current Files Section -->
+        <div style="background:#f8fafc; padding:1.5rem; border-radius:12px; border-left:4px solid #27ae60; margin-bottom:1.5rem;">
+            <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">📁 Current Files</div>
+            ${listing.documents && listing.documents.length > 0 ? `
+                <div style="margin-bottom:1rem;">
+                    <h4 style="font-weight:600; color:#374151; margin-bottom:0.5rem;">Documents (${listing.documents.length})</h4>
+                    ${renderFileList('documents', listing.documents)}
+                </div>
+            ` : ''}
+            ${listing.media && listing.media.filter(m => m.media_type === 'image').length > 0 ? `
+                <div style="margin-bottom:1rem;">
+                    <h4 style="font-weight:600; color:#374151; margin-bottom:0.5rem;">Images (${listing.media.filter(m => m.media_type === 'image').length})</h4>
+                    ${renderFileList('images', listing.media.filter(m => m.media_type === 'image'))}
+                </div>
+            ` : ''}
+            ${listing.media && listing.media.filter(m => m.media_type === 'video').length > 0 ? `
+                <div style="margin-bottom:1rem;">
+                    <h4 style="font-weight:600; color:#374151; margin-bottom:0.5rem;">Videos (${listing.media.filter(m => m.media_type === 'video').length})</h4>
+                    ${renderFileList('videos', listing.media.filter(m => m.media_type === 'video'))}
+                </div>
+            ` : ''}
+        </div>
+
+        <!-- Upload New Files Section -->
+        <div style="background:#f8fafc; padding:1.5rem; border-radius:12px; border-left:4px solid #27ae60; margin-bottom:1.5rem;">
+            <div style="font-weight:700; color:#27ae60; margin-bottom:1rem; font-size:1.1rem;">📁 Upload New Files</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Documents</label>
+                    <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
+                        <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,image/*" style="display:none;" onchange="previewFiles(this, 'editDocumentsPreview')">
+                        <span>📄 Upload Documents</span>
+                    </label>
+                    <div id="editDocumentsPreview" style="margin-top:0.5rem;"></div>
+                </div>
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Images</label>
+                    <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
+                        <input type="file" name="images" multiple accept="image/*" style="display:none;" onchange="previewFiles(this, 'editImagesPreview')">
+                        <span>🖼️ Upload Images</span>
+                    </label>
+                    <div id="editImagesPreview" style="margin-top:0.5rem;"></div>
+                </div>
+                <div>
+                    <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Videos</label>
+                    <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
+                        <input type="file" name="videos" multiple accept="video/*" style="display:none;" onchange="previewFiles(this, 'editVideosPreview')">
+                        <span>🎥 Upload Videos</span>
+                    </label>
+                    <div id="editVideosPreview" style="margin-top:0.5rem;"></div>
+                </div>
+            </div>
         </div>
         <div style="margin-top:1.5rem; font-weight:600; color:#27ae60;">Existing Images</div>
         ${renderFileList('images', (listing.media || []).filter(m => m.media_type === 'image'))}
@@ -1545,12 +1592,14 @@ function openEditListingModal(listing) {
             <label>Upload New Videos (MP4, WebM, MOV)</label>
             <input type="file" name="videos" multiple accept="video/*" style="display:block; margin-bottom:0.5rem;">
         </div>
-        <div style="display:flex; gap:1rem; justify-content:flex-end;">
-            <button type="button" id="cancelEditListing" class="btn btn-outline" style="border-color:#27ae60; color:#27ae60;">Cancel</button>
-            <button type="submit" class="btn btn-primary" style="background:#27ae60; color:#fff;">Update</button>
+        <div style="display:flex; gap:1rem; justify-content:center; margin-top:2rem; padding-top:2rem; border-top:1px solid #e5e7eb;">
+            <button type="button" id="cancelEditListing" class="btn btn-outline" style="border-color:#64748b; color:#64748b; padding:1rem 2rem; font-weight:600; border-radius:10px; min-width:120px;">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="background:#27ae60; color:#fff; padding:1rem 2rem; font-weight:600; border-radius:10px; min-width:120px; border:none; font-size:1.1rem;">✅ Update Listing</button>
         </div>
     `;
-    modal.style.display = 'flex';
+    
+    // Show the modal
+    showModal('editListingModal');
     // Remove file logic
     form.querySelectorAll('.remove-file-btn').forEach(btn => {
         btn.addEventListener('click', function() {
