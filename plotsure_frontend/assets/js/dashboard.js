@@ -1172,9 +1172,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial render
     showSection('listings');
     renderListings();
-    renderInquiries();
-    renderContacts();
-    renderProfile();
+    // renderInquiries(); // Removed - function is inside DashboardManager class
+    // renderContacts(); // Removed - function is inside DashboardManager class
+    // renderProfile(); // Removed - function is inside DashboardManager class
 
     // Add event listener for edit form submission
     const editForm = document.getElementById('editListingForm');
@@ -1637,4 +1637,10 @@ function openEditListingModal(listing) {
             submitBtn.textContent = '✅ Update Listing';
         }
     });
+}
+
+// Simple function to refresh dashboard listings
+function fetchAndRenderDashboardListings(page = 1) {
+    console.log('Refreshing dashboard listings...');
+    location.reload(); // Simple page refresh for now
 }
