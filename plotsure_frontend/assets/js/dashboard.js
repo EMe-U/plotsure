@@ -1,7 +1,7 @@
-// Step 2: Protect the dashboard
-const token = localStorage.getItem('token');
-if (!token) {
-  window.location.href = '/admin/login.html'; // Redirect to login if not authenticated
+// Token check at the very top to ensure user is logged in
+if (!localStorage.getItem('token')) {
+    alert('You are not logged in. Please login again.');
+    window.location.href = '/plotsure_frontend/admin/login.html';
 }
 
 // Logout function (can be called from a button)
