@@ -10,17 +10,23 @@ exports.deleteFile = (filePath) => {
 
     const fullPath = path.join(__dirname, '..', filePath);
     
+    // Check if file exists first
     fs.access(fullPath, fs.constants.F_OK, (err) => {
       if (err) {
         // File doesn't exist, consider it deleted
+        console.log(`File not found (already deleted?): ${fullPath}`);
         return resolve(true);
       }
 
+      // File exists, try to delete it
       fs.unlink(fullPath, (unlinkErr) => {
         if (unlinkErr) {
           console.error('Error deleting file:', unlinkErr);
-          return reject(unlinkErr);
+          // Don't reject, just log the error and resolve
+          // This prevents the entire operation from failing due to one missing file
+          return resolve(false);
         }
+        console.log(`Successfully deleted file: ${fullPath}`);
         resolve(true);
       });
     });

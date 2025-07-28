@@ -315,35 +315,54 @@ exports.updateListing = async (req, res) => {
     const removeVideos = req.body.remove_videos ? JSON.parse(req.body.remove_videos) : [];
     const removeDocuments = req.body.remove_documents ? JSON.parse(req.body.remove_documents) : [];
     const filePathsToDelete = [];
+    
     // Remove images
     if (removeImages.length > 0) {
       const images = listing.media.filter(m => m.media_type === 'image' && removeImages.includes(m.id.toString()));
       for (const img of images) {
-        filePathsToDelete.push(img.file_path);
+        if (img.file_path) {
+          filePathsToDelete.push(img.file_path);
+        }
         await img.destroy();
       }
     }
+    
     // Remove videos
     if (removeVideos.length > 0) {
       const videos = listing.media.filter(m => m.media_type === 'video' && removeVideos.includes(m.id.toString()));
       for (const vid of videos) {
-        filePathsToDelete.push(vid.file_path);
+        if (vid.file_path) {
+          filePathsToDelete.push(vid.file_path);
+        }
         await vid.destroy();
       }
     }
+    
     // Remove documents
     if (removeDocuments.length > 0) {
       const docs = listing.documents.filter(d => removeDocuments.includes(d.id.toString()));
       for (const doc of docs) {
-        filePathsToDelete.push(doc.file_path);
+        if (doc.file_path) {
+          filePathsToDelete.push(doc.file_path);
+        }
         await doc.destroy();
       }
     }
+    
     // Delete files from storage (async, don't block response)
     if (filePathsToDelete.length > 0) {
-      fileHelper.deleteFiles(filePathsToDelete).catch(err =>
-        console.error('Failed to delete some files:', err)
-      );
+      // Use Promise.allSettled to handle individual file deletion failures gracefully
+      Promise.allSettled(
+        filePathsToDelete.map(filePath => fileHelper.deleteFile(filePath))
+      ).then(results => {
+        const failed = results.filter(result => result.status === 'rejected');
+        if (failed.length > 0) {
+          console.log(`Failed to delete ${failed.length} files (they may not exist):`, 
+            failed.map(r => r.reason.message));
+        }
+      }).catch(err => {
+        console.error('Error in file deletion process:', err);
+      });
     }
 
     // Update listing fields
@@ -465,17 +484,34 @@ exports.deleteListing = async (req, res) => {
 
     // Collect file paths for deletion
     const filePaths = [];
-    listing.documents.forEach(doc => filePaths.push(doc.file_path));
-    listing.media.forEach(media => filePaths.push(media.file_path));
+    listing.documents.forEach(doc => {
+      if (doc.file_path) {
+        filePaths.push(doc.file_path);
+      }
+    });
+    listing.media.forEach(media => {
+      if (media.file_path) {
+        filePaths.push(media.file_path);
+      }
+    });
 
     // Delete listing (will cascade to documents and media due to foreign key constraints)
     await listing.destroy();
 
     // Delete associated files (don't wait for this)
     if (filePaths.length > 0) {
-      fileHelper.deleteFiles(filePaths).catch(err => 
-        console.error('Failed to delete some files:', err)
-      );
+      // Use Promise.allSettled to handle individual file deletion failures gracefully
+      Promise.allSettled(
+        filePaths.map(filePath => fileHelper.deleteFile(filePath))
+      ).then(results => {
+        const failed = results.filter(result => result.status === 'rejected');
+        if (failed.length > 0) {
+          console.log(`Failed to delete ${failed.length} files during listing deletion (they may not exist):`, 
+            failed.map(r => r.reason.message));
+        }
+      }).catch(err => {
+        console.error('Error in file deletion process during listing deletion:', err);
+      });
     }
 
     res.status(200).json({
