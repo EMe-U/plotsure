@@ -554,23 +554,26 @@
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Documents</label>
                                     <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
-                                        <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,image/*" style="display:none;">
+                                        <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,image/*" style="display:none;" onchange="previewFiles(this, 'documentsPreview')">
                                         <span>📄 Upload Documents</span>
                                     </label>
+                                    <div id="documentsPreview" style="margin-top:0.5rem;"></div>
                                 </div>
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Images</label>
                                     <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
-                                        <input type="file" name="images" multiple accept="image/*" style="display:none;">
+                                        <input type="file" name="images" multiple accept="image/*" style="display:none;" onchange="previewFiles(this, 'imagesPreview')">
                                         <span>🖼️ Upload Images</span>
                                     </label>
+                                    <div id="imagesPreview" style="margin-top:0.5rem;"></div>
                                 </div>
                                 <div>
                                     <label style="font-weight:600; color:#374151; margin-bottom:0.5rem; display:block;">Videos</label>
                                     <label class="btn btn-outline" style="display:block; border-color:#27ae60; color:#27ae60; cursor:pointer; text-align:center; padding:0.8rem; border-radius:8px; transition:all 0.3s; border:2px solid #27ae60;">
-                                        <input type="file" name="videos" multiple accept="video/*" style="display:none;">
+                                        <input type="file" name="videos" multiple accept="video/*" style="display:none;" onchange="previewFiles(this, 'videosPreview')">
                                         <span>🎥 Upload Videos</span>
                                     </label>
+                                    <div id="videosPreview" style="margin-top:0.5rem;"></div>
                                 </div>
                             </div>
                         </div>

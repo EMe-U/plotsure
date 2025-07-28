@@ -13,9 +13,23 @@ window.logout = function() {
 // Helper for authenticated fetch requests
 function authFetch(url, options = {}) {
     const token = localStorage.getItem('token');
+    if (!token) {
+        alert('You are not logged in. Please login again.');
+        window.location.href = '/plotsure_frontend/admin/login.html';
+        return Promise.reject(new Error('No token found'));
+    }
     if (!options.headers) options.headers = {};
     options.headers['Authorization'] = 'Bearer ' + token;
-    return fetch(url, options);
+    return fetch(url, options).then(response => {
+        if (response.status === 401) {
+            // Token is invalid, logout user
+            localStorage.removeItem('token');
+            alert('Your session has expired. Please login again.');
+            window.location.href = '/plotsure_frontend/admin/login.html';
+            return Promise.reject(new Error('Invalid token'));
+        }
+        return response;
+    });
 }
 
 // Dashboard Management
@@ -797,6 +811,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (addListingForm) {
             addListingForm.reset();
+            // Clear file previews
+            ['documentsPreview', 'imagesPreview', 'videosPreview'].forEach(previewId => {
+                const preview = document.getElementById(previewId);
+                if (preview) preview.innerHTML = '';
+            });
         }
     }
     
@@ -1432,4 +1451,81 @@ document.getElementById('dashboardResetFiltersBtn').addEventListener('click', fu
 // Initial fetch for dashboard listings
 if (document.getElementById('dashboardSearchInput')) {
     fetchAndRenderDashboardListings(1);
+}
+
+// File preview function
+function previewFiles(input, previewId) {
+    const preview = document.getElementById(previewId);
+    preview.innerHTML = '';
+    
+    if (input.files && input.files.length > 0) {
+        Array.from(input.files).forEach((file, index) => {
+            const fileDiv = document.createElement('div');
+            fileDiv.style.cssText = `
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-bottom: 0.5rem;
+                padding: 0.5rem;
+                background: #f1f5f9;
+                border-radius: 6px;
+                border: 1px solid #e2e8f0;
+            `;
+            
+            // Create file icon or thumbnail
+            let fileIcon = '📄';
+            if (file.type.startsWith('image/')) {
+                fileIcon = '🖼️';
+                // Create thumbnail for images
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.style.cssText = 'width: 30px; height: 30px; object-fit: cover; border-radius: 4px;';
+                fileDiv.appendChild(img);
+            } else if (file.type.startsWith('video/')) {
+                fileIcon = '🎥';
+            }
+            
+            // File info
+            const fileInfo = document.createElement('div');
+            fileInfo.style.cssText = 'flex: 1; font-size: 0.9rem;';
+            fileInfo.innerHTML = `
+                <div style="font-weight: 600; color: #374151;">${file.name}</div>
+                <div style="font-size: 0.8rem; color: #64748b;">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+            `;
+            fileDiv.appendChild(fileInfo);
+            
+            // Remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.innerHTML = '❌';
+            removeBtn.style.cssText = `
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 1rem;
+                color: #ef4444;
+                padding: 0.2rem;
+                border-radius: 4px;
+                transition: background 0.2s;
+            `;
+            removeBtn.onclick = function() {
+                // Remove file from input
+                const dt = new DataTransfer();
+                Array.from(input.files).forEach((f, i) => {
+                    if (i !== index) dt.items.add(f);
+                });
+                input.files = dt.files;
+                // Remove preview
+                fileDiv.remove();
+            };
+            removeBtn.onmouseover = function() {
+                this.style.background = '#fee2e2';
+            };
+            removeBtn.onmouseout = function() {
+                this.style.background = 'none';
+            };
+            fileDiv.appendChild(removeBtn);
+            
+            preview.appendChild(fileDiv);
+        });
+    }
 }
