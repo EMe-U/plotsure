@@ -718,13 +718,13 @@
                     <div style="font-size: 2.2rem; color: #27ae60; margin-bottom: 0.7rem;"><svg width="32" height="32" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#27ae60" opacity=".15"/><path d="M12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z" fill="#27ae60"/></svg></div>
                     <div style="font-weight: 700; color: #fff; font-size: 1.15rem; margin-bottom: 0.5rem;">Diaspora Friendly</div>
                     <div style="color: #e6f9e6; font-size: 1rem;">Purchase land remotely with complete confidence and transparency</div>
-                </div>
+            </div>
                 <div style="backdrop-filter: blur(8px); background: rgba(34, 49, 34, 0.35); border-radius: 18px; border: 1.5px solid rgba(39,174,96,0.18); min-width: 260px; max-width: 320px; padding: 2rem 1.5rem; box-shadow: 0 4px 24px rgba(39,174,96,0.10);">
                     <div style="font-size: 2.2rem; color: #27ae60; margin-bottom: 0.7rem;"><svg width="32" height="32" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#27ae60" opacity=".15"/><path d="M7 17V7h10v10H7zm2-2h6V9H9v6z" fill="#27ae60"/></svg></div>
                     <div style="font-weight: 700; color: #fff; font-size: 1.15rem; margin-bottom: 0.5rem;">Complete Transparency</div>
                     <div style="color: #e6f9e6; font-size: 1rem;">Photos, videos, and documents for every listing</div>
-                </div>
-            </div>
+                        </div>
+                        </div>
             <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
                 <a href="#listings" class="btn btn-primary btn-hero" style="background: #27ae60; color: #fff; font-size: 1.15rem; min-width: 200px;">Start Browsing</a>
                 <a href="#about" class="btn btn-outline btn-hero" style="border-color: #27ae60; color: #27ae60; font-size: 1.15rem; min-width: 200px; background: rgba(255,255,255,0.08);">Learn More</a>
@@ -755,12 +755,12 @@
                 <input id="minSizeFilter" type="number" placeholder="Min Size (sqm)" style="width:120px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
                 <input id="maxSizeFilter" type="number" placeholder="Max Size (sqm)" style="width:120px; padding:0.7rem; border-radius:8px; border:1px solid #e5e7eb;">
                 <button id="resetFiltersBtn" class="btn btn-outline" style="border-color:#27ae60; color:#27ae60;">Reset</button>
-            </div>
+                    </div>
             <div class="listings-grid" id="listingsGrid">
                 <!-- Listing cards will be rendered here by JS -->
-            </div>
+                        </div>
             <div id="listingsPagination" style="text-align:center; margin-top:2rem;"></div>
-        </div>
+                        </div>
     </section>
 
     <!-- About Us Section -->
@@ -768,7 +768,7 @@
         <div class="features-container" style="max-width: 900px; margin: 0 auto; text-align: center;">
             <h2 style="font-size: 2.5rem; color: #27ae60; margin-bottom: 1.5rem;">About Us</h2>
             <p style="font-size: 1.2rem; color: #475569;">PlotSure Connect is Rwanda's trusted platform for verified land listings in Bugesera District. Our mission is to make land transactions transparent, secure, and accessible for everyone. We work with local experts and verified brokers to ensure every plot is genuine and every buyer is confident.</p>
-        </div>
+                    </div>
     </section>
 
     <!-- Contact Section -->
@@ -881,134 +881,134 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Intersection Observer for animations
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -100px 0px'
-            };
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.animation = 'fadeInUp 0.8s ease-out forwards';
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
-
-            // Observe all feature cards and listing cards
-            document.querySelectorAll('.feature-card, .listing-card').forEach(card => {
-                card.style.opacity = '0';
-                observer.observe(card);
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.8s ease-out forwards';
+                    observer.unobserve(entry.target);
+                }
             });
+        }, observerOptions);
 
-            // Add hover effect to listing cards
-            document.querySelectorAll('.listing-card').forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-10px) scale(1.02)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0) scale(1)';
-                });
+        // Observe all feature cards and listing cards
+        document.querySelectorAll('.feature-card, .listing-card').forEach(card => {
+            card.style.opacity = '0';
+            observer.observe(card);
+        });
+
+        // Add hover effect to listing cards
+        document.querySelectorAll('.listing-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
             });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
 
-            // Mobile menu toggle
-            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-            const navLinks = document.querySelector('.nav-links');
-            const navButtons = document.querySelector('.nav-buttons');
+        // Mobile menu toggle
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        const navButtons = document.querySelector('.nav-buttons');
 
             if (mobileMenuToggle) {
-                mobileMenuToggle.addEventListener('click', () => {
-                    // This is a simple toggle - in production, you'd create a proper mobile menu
-                    alert('Mobile menu would open here!');
-                });
+        mobileMenuToggle.addEventListener('click', () => {
+            // This is a simple toggle - in production, you'd create a proper mobile menu
+            alert('Mobile menu would open here!');
+        });
             }
 
-            // Add parallax effect to hero section
-            window.addEventListener('scroll', () => {
-                const scrolled = window.pageYOffset;
-                const parallax = document.querySelector('.hero-bg');
+        // Add parallax effect to hero section
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.hero-bg');
                 if (parallax) {
-                    parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+            parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+                }
+        });
+
+        // Counter animation for statistics
+        function animateCounter(element, target) {
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current) + (element.textContent.includes('+') ? '+' : '');
+            }, 30);
+        }
+
+        // Trigger counter animation when stats are in view
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const statNumbers = entry.target.querySelectorAll('.stat-number');
+                    statNumbers.forEach(stat => {
+                        const target = parseInt(stat.textContent);
+                        animateCounter(stat, target);
+                    });
+                    statsObserver.unobserve(entry.target);
                 }
             });
+        }, { threshold: 0.5 });
 
-            // Counter animation for statistics
-            function animateCounter(element, target) {
-                let current = 0;
-                const increment = target / 50;
-                const timer = setInterval(() => {
-                    current += increment;
-                    if (current >= target) {
-                        current = target;
-                        clearInterval(timer);
-                    }
-                    element.textContent = Math.floor(current) + (element.textContent.includes('+') ? '+' : '');
-                }, 30);
-            }
+        const statGrid = document.querySelector('.stat-grid');
+        if (statGrid) {
+            statsObserver.observe(statGrid);
+        }
 
-            // Trigger counter animation when stats are in view
-            const statsObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const statNumbers = entry.target.querySelectorAll('.stat-number');
-                        statNumbers.forEach(stat => {
-                            const target = parseInt(stat.textContent);
-                            animateCounter(stat, target);
-                        });
-                        statsObserver.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.5 });
-
-            const statGrid = document.querySelector('.stat-grid');
-            if (statGrid) {
-                statsObserver.observe(statGrid);
-            }
-
-            // Add some interactive elements
-            document.querySelectorAll('.btn').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    // Create ripple effect
-                    const ripple = document.createElement('span');
-                    const rect = this.getBoundingClientRect();
-                    const size = Math.max(rect.width, rect.height);
-                    const x = e.clientX - rect.left - size / 2;
-                    const y = e.clientY - rect.top - size / 2;
-                    
-                    ripple.style.cssText = `
-                        position: absolute;
-                        width: ${size}px;
-                        height: ${size}px;
-                        background: rgba(255,255,255,0.5);
-                        border-radius: 50%;
-                        transform: scale(0);
-                        animation: ripple 0.6s ease-out;
-                        pointer-events: none;
-                        top: ${y}px;
-                        left: ${x}px;
-                    `;
-                    
-                    this.style.position = 'relative';
-                    this.style.overflow = 'hidden';
-                    this.appendChild(ripple);
-                    
-                    setTimeout(() => ripple.remove(), 600);
-                });
+        // Add some interactive elements
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: rgba(255,255,255,0.5);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                    top: ${y}px;
+                    left: ${x}px;
+                `;
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
             });
+        });
 
-            // Add CSS for ripple effect
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes ripple {
-                    to {
-                        transform: scale(4);
-                        opacity: 0;
-                    }
+        // Add CSS for ripple effect
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
                 }
-            `;
-            document.head.appendChild(style);
+            }
+        `;
+        document.head.appendChild(style);
 
             // Add event listeners to all 'Send Inquiry' buttons
             document.querySelectorAll('.btn-inquiry').forEach(btn => {
@@ -1164,6 +1164,6 @@ document.getElementById('resetFiltersBtn').addEventListener('click', function() 
 });
 // Initial fetch
 fetchAndRenderListings(1);
-</script>
+    </script>
 </body>
 </html>
