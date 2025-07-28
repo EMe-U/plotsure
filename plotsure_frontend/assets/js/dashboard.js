@@ -1470,6 +1470,9 @@ function openEditListingModal(listing) {
     }
     
     console.log('Opening edit modal for listing:', listing);
+    console.log('Listing title:', listing.title);
+    console.log('Listing price:', listing.price);
+    console.log('Listing plot_size:', listing.plot_size);
     
     // Build form fields (pre-filled)
     form.innerHTML = `
@@ -1608,6 +1611,9 @@ function openEditListingModal(listing) {
             <button type="submit" class="btn btn-primary" style="background:#27ae60; color:#fff; padding:1rem 2rem; font-weight:600; border-radius:10px; min-width:120px; border:none; font-size:1.1rem;">✅ Update Listing</button>
         </div>
     `;
+    
+    console.log('Form HTML generated, length:', form.innerHTML.length);
+    console.log('Form first 500 chars:', form.innerHTML.substring(0, 500));
     
     // Show the modal
     showModal('editListingModal');
