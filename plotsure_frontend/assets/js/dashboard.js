@@ -1196,11 +1196,14 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const result = await listingsAPI.update(listingId, updateData);
                 
-                if (result.success) {
-                    showMessage('Listing updated successfully!', 'success');
-                    hideModal('editListingModal');
-                    dashboardManager.loadListings();
-                } else {
+                            if (result.success) {
+                showMessage('Listing updated successfully!', 'success');
+                hideModal('editListingModal');
+                // Refresh listings
+                if (typeof fetchAndRenderDashboardListings === 'function') {
+                    fetchAndRenderDashboardListings(1);
+                }
+            } else {
                     if (result.errors && result.errors.length > 0) {
                         const errorMessages = result.errors.map(err => `${err.path}: ${err.msg}`).join('\n');
                         showMessage(`Validation failed:\n${errorMessages}`, 'error');
