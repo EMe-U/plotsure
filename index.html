@@ -1258,6 +1258,9 @@ async function fetchAndRenderListings(page=1) {
     const maxPrice = document.getElementById('maxPriceFilter').value;
     const minSize = document.getElementById('minSizeFilter').value;
     const maxSize = document.getElementById('maxSizeFilter').value;
+    
+    console.log('🔍 Filter values:', { search, status, landType, minPrice, maxPrice, minSize, maxSize });
+    
     // Build query params
     const params = new URLSearchParams();
     params.append('page', page);
@@ -1269,16 +1272,24 @@ async function fetchAndRenderListings(page=1) {
     if (maxPrice) params.append('max_price', maxPrice);
     if (minSize) params.append('min_size', minSize);
     if (maxSize) params.append('max_size', maxSize);
+    
+    console.log('📡 API URL:', `/api/listings?${params.toString()}`);
+    
     // Fetch listings
     try {
         const res = await fetch(`/api/listings?${params.toString()}`);
         const data = await res.json();
+        console.log('📊 API Response:', data);
+        
         if (!data.success || !data.data || !data.data.listings) {
             grid.innerHTML = '<div>No listings found.</div>';
             pagination.innerHTML = '';
             return;
         }
         const listings = data.data.listings;
+        console.log('📋 Listings found:', listings.length);
+        console.log('📋 Listing statuses:', listings.map(l => ({ id: l.id, status: l.status, title: l.title })));
+        
         if (listings.length === 0) {
             grid.innerHTML = '<div>No listings found.</div>';
             pagination.innerHTML = '';
@@ -1296,8 +1307,8 @@ async function fetchAndRenderListings(page=1) {
                     <h3 class="listing-title">${listing.title}</h3>
                     <div class="listing-location">📍 ${listing.sector || ''}, ${listing.district || ''}</div>
                     <div class="listing-details">
-                        <div class="listing-price">${listing.price_amount} ${listing.price_currency || 'RWF'}</div>
-                        <div class="listing-size">${listing.land_size_value} ${listing.land_size_unit || 'sqm'}</div>
+                        <div class="listing-price">${listing.price || listing.price_amount || 'N/A'} ${listing.price_currency || 'RWF'}</div>
+                        <div class="listing-size">${listing.plot_size || listing.land_size_value || 'N/A'} ${listing.plot_size_unit || listing.land_size_unit || 'sqm'}</div>
                     </div>
                     <div class="listing-features">
                         ${(listing.amenities || []).map(a => `<span class="feature-tag">${a}</span>`).join('')}
@@ -1325,6 +1336,7 @@ async function fetchAndRenderListings(page=1) {
             });
         });
     } catch (err) {
+        console.error('Error fetching listings:', err);
         grid.innerHTML = '<div>Error loading listings.</div>';
         pagination.innerHTML = '';
     }
@@ -1407,11 +1419,11 @@ fetchAndRenderListings(1);
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
                                 <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
                                     <div style="font-weight: 600; color: #27ae60;">Land Size</div>
-                                    <div>${listing.land_size_value || 'N/A'} ${listing.land_size_unit || 'sqm'}</div>
+                                    <div>${listing.plot_size || listing.land_size_value || 'N/A'} ${listing.plot_size_unit || listing.land_size_unit || 'sqm'}</div>
                                 </div>
                                 <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
                                     <div style="font-weight: 600; color: #27ae60;">Price</div>
-                                    <div>${listing.price_amount || 'N/A'} ${listing.price_currency || 'RWF'} ${listing.price_negotiable ? '(Negotiable)' : ''}</div>
+                                    <div>${listing.price || listing.price_amount || 'N/A'} ${listing.price_currency || 'RWF'} ${listing.price_negotiable ? '(Negotiable)' : ''}</div>
                                 </div>
                                 <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
                                     <div style="font-weight: 600; color: #27ae60;">Landowner</div>

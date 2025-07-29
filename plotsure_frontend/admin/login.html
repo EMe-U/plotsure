@@ -54,17 +54,6 @@
       background: #9ca3af;
       cursor: not-allowed;
     }
-    .test-credentials {
-      background: #f3f4f6;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: #6b7280;
-    }
-    .test-credentials strong {
-      color: #374151;
-    }
   </style>
 </head>
 <body>
@@ -77,12 +66,6 @@
     </form>
     <div id="loginError" style="color:#ef4444; margin-top:1rem; text-align:center;"></div>
     <div id="loginSuccess" style="color:#27ae60; margin-top:1rem; text-align:center;"></div>
-    
-    <div class="test-credentials">
-      <strong>Test Credentials:</strong><br>
-      Email: <strong>broker@plotsure.com</strong><br>
-      Password: <strong>password123</strong>
-    </div>
   </div>
   
   <script>
@@ -143,19 +126,6 @@
         loginBtn.textContent = 'Login';
       }
     };
-    
-    // Auto-fill test credentials for convenience
-    document.getElementById('email').addEventListener('focus', function() {
-      if (!this.value) {
-        this.value = 'broker@plotsure.com';
-      }
-    });
-    
-    document.getElementById('password').addEventListener('focus', function() {
-      if (!this.value) {
-        this.value = 'password123';
-      }
-    });
   </script>
 </body>
 </html>
