@@ -754,6 +754,18 @@ class DashboardManager {
         if (result.success) {
             this.listings = result.data.listings;
             console.log('Loaded listings:', this.listings);
+            
+            // Debug: Check status fields for each listing
+            this.listings.forEach((listing, index) => {
+                console.log(`Listing ${index + 1}:`, {
+                    id: listing.id,
+                    title: listing.title,
+                    status: listing.status,
+                    Status: listing.Status,
+                    status_type: listing.status_type
+                });
+            });
+            
             this.renderListings();
             this.setupStatusTabs();
         } else {
@@ -770,9 +782,18 @@ class DashboardManager {
         // Update tab counts
         const counts = {
             all: this.listings.length,
-            available: this.listings.filter(l => l.status === 'available').length,
-            reserved: this.listings.filter(l => l.status === 'reserved').length,
-            sold: this.listings.filter(l => l.status === 'sold').length
+            available: this.listings.filter(l => {
+                const status = l.status || l.Status || l.status_type || 'available';
+                return status.toLowerCase() === 'available';
+            }).length,
+            reserved: this.listings.filter(l => {
+                const status = l.status || l.Status || l.status_type || 'available';
+                return status.toLowerCase() === 'reserved';
+            }).length,
+            sold: this.listings.filter(l => {
+                const status = l.status || l.Status || l.status_type || 'available';
+                return status.toLowerCase() === 'sold';
+            }).length
         };
         
         tabs.forEach(tab => {
@@ -805,12 +826,21 @@ class DashboardManager {
     }
 
     filterListingsByStatus(status) {
+        console.log('Filtering listings by status:', status);
+        console.log('All listings:', this.listings);
+        
         let filteredListings = this.listings;
         
         if (status !== 'all') {
-            filteredListings = this.listings.filter(listing => listing.status === status);
+            filteredListings = this.listings.filter(listing => {
+                // Handle different possible status field names and values
+                const listingStatus = listing.status || listing.Status || listing.status_type || 'available';
+                console.log(`Listing ${listing.id}: status = "${listingStatus}"`);
+                return listingStatus.toLowerCase() === status.toLowerCase();
+            });
         }
         
+        console.log('Filtered listings:', filteredListings);
         this.renderListings(filteredListings);
     }
 
@@ -820,9 +850,18 @@ class DashboardManager {
         // Update tab counts
         const counts = {
             all: this.listings.length,
-            available: this.listings.filter(l => l.status === 'available').length,
-            reserved: this.listings.filter(l => l.status === 'reserved').length,
-            sold: this.listings.filter(l => l.status === 'sold').length
+            available: this.listings.filter(l => {
+                const status = l.status || l.Status || l.status_type || 'available';
+                return status.toLowerCase() === 'available';
+            }).length,
+            reserved: this.listings.filter(l => {
+                const status = l.status || l.Status || l.status_type || 'available';
+                return status.toLowerCase() === 'reserved';
+            }).length,
+            sold: this.listings.filter(l => {
+                const status = l.status || l.Status || l.status_type || 'available';
+                return status.toLowerCase() === 'sold';
+            }).length
         };
         
         tabs.forEach(tab => {
@@ -868,8 +907,8 @@ class DashboardManager {
             <div class="listing-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
                 <div class="listing-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 style="color: #27ae60; font-weight: 700; margin: 0;">${this.escapeHtml(listing.title)}</h3>
-                    <span class="status-badge" style="background: ${listing.status === 'available' ? '#27ae60' : listing.status === 'reserved' ? '#f39c12' : '#e74c3c'}; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
-                        ${listing.status}
+                    <span class="status-badge" style="background: ${(listing.status || listing.Status || listing.status_type || 'available') === 'available' ? '#27ae60' : (listing.status || listing.Status || listing.status_type || 'available') === 'reserved' ? '#f39c12' : '#e74c3c'}; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                        ${listing.status || listing.Status || listing.status_type || 'available'}
                     </span>
                 </div>
                 <div class="listing-location" style="color: #64748b; margin-bottom: 1rem;">
@@ -887,9 +926,9 @@ class DashboardManager {
                     <button class="btn btn-small btn-outline" onclick="showListingDetails(${JSON.stringify(listing).replace(/"/g, '&quot;')})" style="border-color: #27ae60; color: #27ae60;">View</button>
                     <button class="btn btn-small btn-outline" onclick="openEditListingModal(${JSON.stringify(listing).replace(/"/g, '&quot;')})" style="border-color: #27ae60; color: #27ae60;">Edit</button>
                     <select class="status-select" data-listing-id="${listing.id}" style="padding: 0.3rem; border-radius: 4px; border: 1px solid #e5e7eb; font-size: 0.8rem; background: white;">
-                        <option value="available" ${listing.status === 'available' ? 'selected' : ''}>🟢 Available</option>
-                        <option value="reserved" ${listing.status === 'reserved' ? 'selected' : ''}>🟡 Reserved</option>
-                        <option value="sold" ${listing.status === 'sold' ? 'selected' : ''}>🔴 Sold</option>
+                        <option value="available" ${(listing.status || listing.Status || listing.status_type || 'available') === 'available' ? 'selected' : ''}>🟢 Available</option>
+                        <option value="reserved" ${(listing.status || listing.Status || listing.status_type || 'available') === 'reserved' ? 'selected' : ''}>🟡 Reserved</option>
+                        <option value="sold" ${(listing.status || listing.Status || listing.status_type || 'available') === 'sold' ? 'selected' : ''}>🔴 Sold</option>
                     </select>
                     <button class="btn btn-small btn-danger" onclick="deleteListing(${listing.id})" style="border-color: #ef4444; color: #ef4444;">Delete</button>
                 </div>
