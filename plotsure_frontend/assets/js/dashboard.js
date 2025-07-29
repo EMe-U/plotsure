@@ -421,6 +421,42 @@ class DashboardManager {
         document.getElementById('inquiryPriorityFilter')?.addEventListener('change', () => this.filterInquiries());
         document.getElementById('contactStatusFilter')?.addEventListener('change', () => this.filterContacts());
         document.getElementById('contactPriorityFilter')?.addEventListener('change', () => this.filterContacts());
+        
+        // Modal close buttons
+        const closeViewListingBtn = document.getElementById('closeViewListingModal');
+        if (closeViewListingBtn) {
+            closeViewListingBtn.addEventListener('click', () => {
+                hideModal('viewListingModal');
+            });
+        }
+        
+        // Close modal when clicking outside
+        const viewListingModal = document.getElementById('viewListingModal');
+        if (viewListingModal) {
+            viewListingModal.addEventListener('click', (e) => {
+                if (e.target === viewListingModal) {
+                    hideModal('viewListingModal');
+                }
+            });
+        }
+        
+        // Add Listing modal close button
+        const closeAddListingBtn = document.getElementById('closeAddListingModal');
+        if (closeAddListingBtn) {
+            closeAddListingBtn.addEventListener('click', () => {
+                hideModal('addListingModal');
+            });
+        }
+        
+        // Close Add Listing modal when clicking outside
+        const addListingModal = document.getElementById('addListingModal');
+        if (addListingModal) {
+            addListingModal.addEventListener('click', (e) => {
+                if (e.target === addListingModal) {
+                    hideModal('addListingModal');
+                }
+            });
+        }
     }
 
     async loadUserInfo() {
@@ -1048,6 +1084,19 @@ class DashboardManager {
         div.textContent = text;
         return div.innerHTML;
     }
+}
+
+// Debounce utility function
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
 
 // Global functions
@@ -1782,9 +1831,9 @@ function showListingDetails(listing) {
         </div>
         <div style="color:#475569; margin-bottom:1rem;">${listing.sector}, ${listing.cell}, ${listing.village}, ${listing.district}</div>
         <div style="margin-bottom:1rem;">${listing.description}</div>
-        <div style="margin-bottom:1rem;"><b>Land Size:</b> ${listing.land_size_value} ${listing.land_size_unit} &nbsp; <b>Price:</b> ${listing.price_amount} ${listing.price_currency} ${listing.price_negotiable ? '(Negotiable)' : ''}</div>
-        <div style="margin-bottom:1rem;"><b>Landowner:</b> ${listing.landowner_name} &nbsp; <b>Phone:</b> ${listing.landowner_phone} &nbsp; <b>ID:</b> ${listing.landowner_id_number}</div>
-        <div style="margin-bottom:1rem;"><b>Status:</b> ${listing.status || 'Available'} &nbsp; <b>Created:</b> ${new Date(listing.created_at).toLocaleDateString()}</div>
+        <div style="margin-bottom:1rem;"><b>Land Size:</b> ${listing.plot_size || listing.land_size_value || 'N/A'} ${listing.plot_size_unit || listing.land_size_unit || 'sqm'} &nbsp; <b>Price:</b> ${listing.price || listing.price_amount || 'N/A'} ${listing.price_currency || 'RWF'} ${listing.price_negotiable ? '(Negotiable)' : ''}</div>
+        <div style="margin-bottom:1rem;"><b>Landowner:</b> ${listing.landowner_name || 'N/A'} &nbsp; <b>Phone:</b> ${listing.landowner_phone || 'N/A'} &nbsp; <b>ID:</b> ${listing.landowner_id_number || 'N/A'}</div>
+        <div style="margin-bottom:1rem;"><b>Status:</b> ${listing.status || 'Available'} &nbsp; <b>Created:</b> ${listing.created_at ? new Date(listing.created_at).toLocaleDateString() : 'N/A'}</div>
         ${images}
         ${videos}
         ${docs}
@@ -1797,12 +1846,14 @@ function showListingDetails(listing) {
             deleteListing(listing.id);
         });
     }
+    
     // Add edit listener in modal
     const editBtnModal = document.querySelector('.btn-edit-listing-modal');
     if (editBtnModal) {
         editBtnModal.addEventListener('click', function() {
             console.log('Edit button in modal clicked for listing:', listing);
             openEditListingModal(listing);
+            hideModal('viewListingModal');
         });
     }
 }
