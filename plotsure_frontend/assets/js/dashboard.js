@@ -457,6 +457,62 @@ class DashboardManager {
                 }
             });
         }
+
+        // Status tab buttons
+        const tabButtons = document.querySelectorAll('#listingsTabs .tab-btn');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                // Remove active class from all tabs
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    // Reset styling for all tabs
+                    const status = btn.getAttribute('data-tab');
+                    if (status === 'all') {
+                        btn.style.background = 'transparent';
+                        btn.style.color = '#27ae60';
+                        btn.style.border = '1px solid #27ae60';
+                    } else if (status === 'available') {
+                        btn.style.background = 'transparent';
+                        btn.style.color = '#27ae60';
+                        btn.style.border = '1px solid #27ae60';
+                    } else if (status === 'reserved') {
+                        btn.style.background = 'transparent';
+                        btn.style.color = '#f39c12';
+                        btn.style.border = '1px solid #f39c12';
+                    } else if (status === 'sold') {
+                        btn.style.background = 'transparent';
+                        btn.style.color = '#e74c3c';
+                        btn.style.border = '1px solid #e74c3c';
+                    }
+                });
+                
+                // Add active class to clicked tab
+                e.target.classList.add('active');
+                
+                // Style the active tab
+                const status = e.target.getAttribute('data-tab');
+                if (status === 'all') {
+                    e.target.style.background = '#27ae60';
+                    e.target.style.color = 'white';
+                    e.target.style.border = 'none';
+                } else if (status === 'available') {
+                    e.target.style.background = '#27ae60';
+                    e.target.style.color = 'white';
+                    e.target.style.border = 'none';
+                } else if (status === 'reserved') {
+                    e.target.style.background = '#f39c12';
+                    e.target.style.color = 'white';
+                    e.target.style.border = 'none';
+                } else if (status === 'sold') {
+                    e.target.style.background = '#e74c3c';
+                    e.target.style.color = 'white';
+                    e.target.style.border = 'none';
+                }
+                
+                // Filter listings based on selected tab
+                this.filterListingsByStatus(status);
+            });
+        });
     }
 
     async loadUserInfo() {
@@ -688,13 +744,66 @@ class DashboardManager {
             this.listings = result.data.listings;
             console.log('Loaded listings:', this.listings);
             this.renderListings();
+            this.setupStatusTabs();
         } else {
             console.error('Failed to load listings:', result);
             showMessage('Failed to load listings', 'error');
         }
     }
 
-    renderListings() {
+    setupStatusTabs() {
+        const tabs = document.querySelectorAll('#listingsTabs .tab-btn');
+        const activeTab = document.querySelector('#listingsTabs .tab-btn.active');
+        const currentStatus = activeTab ? activeTab.getAttribute('data-tab') : 'all';
+        
+        // Update tab counts
+        const counts = {
+            all: this.listings.length,
+            available: this.listings.filter(l => l.status === 'available').length,
+            reserved: this.listings.filter(l => l.status === 'reserved').length,
+            sold: this.listings.filter(l => l.status === 'sold').length
+        };
+        
+        tabs.forEach(tab => {
+            const status = tab.getAttribute('data-tab');
+            const count = counts[status];
+            tab.innerHTML = `${status.charAt(0).toUpperCase() + status.slice(1)} (${count})`;
+            
+            // Style tabs based on status
+            if (status === 'all') {
+                tab.style.background = activeTab === tab ? '#27ae60' : 'transparent';
+                tab.style.color = activeTab === tab ? 'white' : '#27ae60';
+                tab.style.border = activeTab === tab ? 'none' : '1px solid #27ae60';
+            } else if (status === 'available') {
+                tab.style.background = activeTab === tab ? '#27ae60' : 'transparent';
+                tab.style.color = activeTab === tab ? 'white' : '#27ae60';
+                tab.style.border = activeTab === tab ? 'none' : '1px solid #27ae60';
+            } else if (status === 'reserved') {
+                tab.style.background = activeTab === tab ? '#f39c12' : 'transparent';
+                tab.style.color = activeTab === tab ? 'white' : '#f39c12';
+                tab.style.border = activeTab === tab ? 'none' : '1px solid #f39c12';
+            } else if (status === 'sold') {
+                tab.style.background = activeTab === tab ? '#e74c3c' : 'transparent';
+                tab.style.color = activeTab === tab ? 'white' : '#e74c3c';
+                tab.style.border = activeTab === tab ? 'none' : '1px solid #e74c3c';
+            }
+        });
+        
+        // Filter listings based on current tab
+        this.filterListingsByStatus(currentStatus);
+    }
+
+    filterListingsByStatus(status) {
+        let filteredListings = this.listings;
+        
+        if (status !== 'all') {
+            filteredListings = this.listings.filter(listing => listing.status === status);
+        }
+        
+        this.renderListings(filteredListings);
+    }
+
+    renderListings(listingsToRender = null) {
         const container = document.getElementById('listingsGrid');
         
         if (!container) {
@@ -702,18 +811,31 @@ class DashboardManager {
             return;
         }
         
-        if (this.listings.length === 0) {
+        const listings = listingsToRender || this.listings;
+        
+        if (listings.length === 0) {
+            const activeTab = document.querySelector('#listingsTabs .tab-btn.active');
+            const currentStatus = activeTab ? activeTab.getAttribute('data-tab') : 'all';
+            
+            let message = 'No listings yet';
+            let description = 'Create your first listing to get started';
+            
+            if (currentStatus !== 'all') {
+                message = `No ${currentStatus} listings`;
+                description = `You don't have any ${currentStatus} listings yet`;
+            }
+            
             container.innerHTML = `
                 <div class="empty-state" style="text-align: center; padding: 2rem; color: #64748b;">
-                    <h3>No listings yet</h3>
-                    <p>Create your first listing to get started</p>
-                    <button class="btn btn-primary" onclick="showCreateListingModal()">Create Listing</button>
+                    <h3>${message}</h3>
+                    <p>${description}</p>
+                    ${currentStatus === 'all' ? '<button class="btn btn-primary" onclick="showCreateListingModal()">Create Listing</button>' : ''}
                 </div>
             `;
             return;
         }
 
-        container.innerHTML = this.listings.map(listing => `
+        container.innerHTML = listings.map(listing => `
             <div class="listing-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
                 <div class="listing-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 style="color: #27ae60; font-weight: 700; margin: 0;">${this.escapeHtml(listing.title)}</h3>
