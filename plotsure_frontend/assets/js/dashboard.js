@@ -1288,9 +1288,9 @@ window.logout = () => {
     // Show logout message
     showMessage('Logged out successfully', 'success');
     
-    // Redirect to login page after a short delay
+    // Redirect to homepage after a short delay
     setTimeout(() => {
-        window.location.href = '/plotsure_frontend/admin/login.html';
+        window.location.href = '/';
     }, 1000);
 };
 
