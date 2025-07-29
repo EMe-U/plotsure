@@ -540,6 +540,17 @@ class DashboardManager {
         if (updateNameEl) updateNameEl.value = user.name;
         if (updateEmailEl) updateEmailEl.value = user.email;
         if (updatePhoneEl) updatePhoneEl.value = user.phone || '';
+
+        // Update topbar user info
+        const topbarAvatar = document.querySelector('.topbar-avatar');
+        const topbarUserName = document.querySelector('.user-avatar span');
+        if (topbarAvatar) {
+            const initials = user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'BR';
+            topbarAvatar.textContent = initials;
+        }
+        if (topbarUserName) {
+            topbarUserName.textContent = user.name || 'Broker';
+        }
     }
 
     navigateToPage(page) {
@@ -1269,6 +1280,20 @@ window.showCreateListingModal = () => {
     showModal('createListingModal');
 };
 
+window.logout = () => {
+    // Clear authentication data
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Show logout message
+    showMessage('Logged out successfully', 'success');
+    
+    // Redirect to login page after a short delay
+    setTimeout(() => {
+        window.location.href = '/plotsure_frontend/admin/login.html';
+    }, 1000);
+};
+
 window.showListingDetails = (listing) => {
     if (typeof listing === 'string') {
         listing = JSON.parse(listing);
@@ -1936,45 +1961,7 @@ function renderListings() {
         });
     }
     
-    // Add test buttons to the page for debugging
-    const testButton = document.createElement('button');
-    testButton.textContent = 'Test Edit Modal';
-    testButton.style.cssText = 'position:fixed; top:10px; right:10px; z-index:9999; background:#27ae60; color:#fff; padding:10px; border:none; border-radius:5px; cursor:pointer;';
-    testButton.onclick = function() {
-        console.log('Test button clicked');
-        if (listings && listings.length > 0) {
-            console.log('Testing with first listing:', listings[0]);
-            openEditListingModal(listings[0]);
-        } else {
-            console.error('No listings available for test');
-        }
-    };
-    document.body.appendChild(testButton);
-    
-    // Add status test button
-    const statusTestButton = document.createElement('button');
-    statusTestButton.textContent = 'Test Status Change';
-    statusTestButton.style.cssText = 'position:fixed; top:50px; right:10px; z-index:9999; background:#f39c12; color:#fff; padding:10px; border:none; border-radius:5px; cursor:pointer;';
-    statusTestButton.onclick = function() {
-        console.log('Status test button clicked');
-        const statusSelects = document.querySelectorAll('.status-select');
-        console.log('Found status selects:', statusSelects.length);
-        statusSelects.forEach((select, index) => {
-            console.log(`Status select ${index}:`, select.value, 'listing ID:', select.getAttribute('data-listing-id'));
-        });
-        
-        // Test status change on first listing
-        if (statusSelects.length > 0 && listings && listings.length > 0) {
-            const firstSelect = statusSelects[0];
-            const listingId = firstSelect.getAttribute('data-listing-id');
-            console.log('Testing status change for listing:', listingId);
-            
-            // Manually trigger status change
-            firstSelect.value = 'reserved';
-            firstSelect.dispatchEvent(new Event('change'));
-        }
-    };
-    document.body.appendChild(statusTestButton);
+    // Test buttons removed - functionality is now properly integrated
         })
         .catch(() => {
             grid.innerHTML = '<div style="text-align:center; padding:3rem; color:#ef4444; font-size:1.1rem;">Error loading listings.</div>';

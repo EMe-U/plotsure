@@ -555,12 +555,22 @@
                     <button id="mobileMenuToggle" class="mobile-menu-toggle" style="display:none; background:none; border:none; font-size:1.5rem; color:var(--primary); cursor:pointer; margin-right:1rem;">☰</button>
                     <span class="section-title" id="sectionTitle">Listings</span>
                 </div>
-            <div class="topbar-right">
-                <button class="topbar-icon-btn"><span>🔔</span><span class="badge">3</span></button>
-                <div class="topbar-avatar">BR</div>
-                <button onclick="logout()" style="margin-left:1.5rem; background:#ef4444; color:#fff; border:2px solid #ef4444; border-radius:8px; padding:0.5rem 1.2rem; font-weight:600; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.background='#dc2626'; this.style.borderColor='#dc2626';" onmouseout="this.style.background='#ef4444'; this.style.borderColor='#ef4444';">🚪 Logout</button>
+                <div class="topbar-right">
+                    <div class="user-info" style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="notification-btn" style="position: relative;">
+                            <button class="topbar-icon-btn" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 0.5rem; border-radius: 50%; transition: all 0.3s;" onmouseover="this.style.background='#f1f5f9';" onmouseout="this.style.background='transparent';">
+                                🔔
+                                <span class="badge" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center;">3</span>
+                            </button>
+                        </div>
+                        <div class="user-avatar" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div class="topbar-avatar" style="width: 35px; height: 35px; background: #27ae60; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem;">BR</div>
+                            <span style="font-weight: 600; color: #374151; font-size: 0.9rem;">Broker</span>
+                        </div>
+                        <button onclick="logout()" style="background:#ef4444; color:#fff; border:2px solid #ef4444; border-radius:8px; padding:0.5rem 1.2rem; font-weight:600; cursor:pointer; transition:all 0.3s; font-size: 0.9rem;" onmouseover="this.style.background='#dc2626'; this.style.borderColor='#dc2626';" onmouseout="this.style.background='#ef4444'; this.style.borderColor='#ef4444';">🚪 Logout</button>
+                    </div>
+                </div>
             </div>
-        </div>
         <div class="dashboard-content">
             <!-- Dashboard Section (add this for dashboard overview) -->
             <div id="section-dashboard" class="dashboard-section" style="display: none;">
