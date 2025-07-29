@@ -813,10 +813,10 @@
             </div>
         </div>
     </div>
-    <script src="../assets/js/dashboard.js?v=4&t=<?php echo time(); ?>"></script>
+    <script src="../assets/js/dashboard.js?v=6&t=<?php echo time(); ?>"></script>
     <script>
         // Debug script loading
-        console.log('Dashboard HTML loaded - v4');
+        console.log('Dashboard HTML loaded - v6');
         console.log('Token available:', !!localStorage.getItem('token'));
         
         // Force cache refresh
@@ -824,6 +824,11 @@
             caches.keys().then(function(names) {
                 for (let name of names) caches.delete(name);
             });
+        }
+        
+        // Force reload if still on old version
+        if (window.location.href.includes('v=4')) {
+            window.location.reload(true);
         }
     </script>
 </body>

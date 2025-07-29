@@ -421,19 +421,27 @@ class DashboardManager {
         const user = authAPI.getCurrentUser();
         if (!user) return;
 
-        // Update user info in sidebar
-        document.getElementById('userName').textContent = user.name;
-        document.getElementById('userRole').textContent = user.role;
+        // Update user info in sidebar (only if elements exist)
+        const userNameEl = document.getElementById('userName');
+        const userRoleEl = document.getElementById('userRole');
+        if (userNameEl) userNameEl.textContent = user.name;
+        if (userRoleEl) userRoleEl.textContent = user.role;
 
-        // Update profile page
-        document.getElementById('profileName').textContent = user.name;
-        document.getElementById('profileEmail').textContent = user.email;
-        document.getElementById('profileRole').textContent = user.role;
+        // Update profile page (only if elements exist)
+        const profileNameEl = document.getElementById('profileName');
+        const profileEmailEl = document.getElementById('profileEmail');
+        const profileRoleEl = document.getElementById('profileRole');
+        if (profileNameEl) profileNameEl.textContent = user.name;
+        if (profileEmailEl) profileEmailEl.textContent = user.email;
+        if (profileRoleEl) profileRoleEl.textContent = user.role;
 
-        // Pre-fill profile form
-        document.getElementById('updateName').value = user.name;
-        document.getElementById('updateEmail').value = user.email;
-        document.getElementById('updatePhone').value = user.phone || '';
+        // Pre-fill profile form (only if elements exist)
+        const updateNameEl = document.getElementById('updateName');
+        const updateEmailEl = document.getElementById('updateEmail');
+        const updatePhoneEl = document.getElementById('updatePhone');
+        if (updateNameEl) updateNameEl.value = user.name;
+        if (updateEmailEl) updateEmailEl.value = user.email;
+        if (updatePhoneEl) updatePhoneEl.value = user.phone || '';
     }
 
     navigateToPage(page) {
