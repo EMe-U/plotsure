@@ -1333,18 +1333,21 @@ window.logout = () => {
     }, 1000);
 };
 
+// Global function wrappers for onclick handlers
 window.showListingDetails = (listing) => {
     if (typeof listing === 'string') {
         listing = JSON.parse(listing);
     }
-    showListingDetails(listing);
+    // Call the actual implementation function
+    showListingDetailsImpl(listing);
 };
 
 window.openEditListingModal = (listing) => {
     if (typeof listing === 'string') {
         listing = JSON.parse(listing);
     }
-    openEditListingModal(listing);
+    // Call the actual implementation function
+    openEditListingModalImpl(listing);
 };
 
 window.editListing = async (id) => {
@@ -1858,7 +1861,7 @@ function renderListings() {
             console.log('Listings length:', listings.length);
             if (listings && listings[idx]) {
                 console.log('Opening edit modal for listing:', listings[idx]);
-                openEditListingModal(listings[idx]);
+                openEditListingModalImpl(listings[idx]);
             } else {
                 console.error('Listing not found at index:', idx);
                 console.error('Available listings:', listings);
@@ -2008,7 +2011,7 @@ function renderListings() {
 }
 
 // Edit button in details modal
-function showListingDetails(listing) {
+function showListingDetailsImpl(listing) {
     const modal = document.getElementById('viewListingModal');
     const content = document.getElementById('viewListingContent');
     if (!modal || !content) return;
@@ -2065,7 +2068,7 @@ function showListingDetails(listing) {
     if (editBtnModal) {
         editBtnModal.addEventListener('click', function() {
             console.log('Edit button in modal clicked for listing:', listing);
-            openEditListingModal(listing);
+            openEditListingModalImpl(listing);
             hideModal('viewListingModal');
         });
     }
@@ -2073,7 +2076,7 @@ function showListingDetails(listing) {
 
 // Open Edit Listing modal and populate form
 // Working Edit Modal Function - Replace the current one in dashboard.js
-function openEditListingModal(listing) {
+function openEditListingModalImpl(listing) {
     console.log('openEditListingModal called with listing:', listing);
     const modal = document.getElementById('editListingModal');
     const form = document.getElementById('editListingForm');
