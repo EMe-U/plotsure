@@ -803,6 +803,24 @@ class DashboardManager {
         this.renderListings(filteredListings);
     }
 
+    updateTabCounts() {
+        const tabs = document.querySelectorAll('#listingsTabs .tab-btn');
+        
+        // Update tab counts
+        const counts = {
+            all: this.listings.length,
+            available: this.listings.filter(l => l.status === 'available').length,
+            reserved: this.listings.filter(l => l.status === 'reserved').length,
+            sold: this.listings.filter(l => l.status === 'sold').length
+        };
+        
+        tabs.forEach(tab => {
+            const status = tab.getAttribute('data-tab');
+            const count = counts[status];
+            tab.innerHTML = `${status.charAt(0).toUpperCase() + status.slice(1)} (${count})`;
+        });
+    }
+
     renderListings(listingsToRender = null) {
         const container = document.getElementById('listingsGrid');
         
@@ -857,6 +875,11 @@ class DashboardManager {
                 <div class="listing-actions" style="display: flex; gap: 0.5rem; margin-top: 1rem;">
                     <button class="btn btn-small btn-outline" onclick="showListingDetails(${JSON.stringify(listing).replace(/"/g, '&quot;')})" style="border-color: #27ae60; color: #27ae60;">View</button>
                     <button class="btn btn-small btn-outline" onclick="openEditListingModal(${JSON.stringify(listing).replace(/"/g, '&quot;')})" style="border-color: #27ae60; color: #27ae60;">Edit</button>
+                    <select class="status-select" data-listing-id="${listing.id}" style="padding: 0.3rem; border-radius: 4px; border: 1px solid #e5e7eb; font-size: 0.8rem; background: white;">
+                        <option value="available" ${listing.status === 'available' ? 'selected' : ''}>🟢 Available</option>
+                        <option value="reserved" ${listing.status === 'reserved' ? 'selected' : ''}>🟡 Reserved</option>
+                        <option value="sold" ${listing.status === 'sold' ? 'selected' : ''}>🔴 Sold</option>
+                    </select>
                     <button class="btn btn-small btn-danger" onclick="deleteListing(${listing.id})" style="border-color: #ef4444; color: #ef4444;">Delete</button>
                 </div>
             </div>
@@ -1102,7 +1125,18 @@ class DashboardManager {
                 document.getElementById('createListingForm').reset();
                 hideModal('createListingModal');
                 console.log('Listing created successfully, refreshing listings...');
+                
+                // Ensure we're on the listings page
+                this.navigateToPage('listings');
+                
+                // Refresh listings and update tabs
                 await this.loadListings();
+                
+                // Show the new listing in the "All" tab
+                const allTab = document.querySelector('#listingsTabs .tab-btn[data-tab="all"]');
+                if (allTab) {
+                    allTab.click();
+                }
             } else {
                 // Show specific validation errors if available
                 if (result.errors && result.errors.length > 0) {
@@ -1793,6 +1827,14 @@ function renderListings() {
                 
                 if (result.success) {
                     showMessage(`Status updated to ${newStatus}!`, 'success');
+                    
+                    // Refresh the listings to update tab counts and filtering
+                    // Use the global dashboardManager instance
+                    if (window.dashboardManager) {
+                        await window.dashboardManager.loadListings();
+                        window.dashboardManager.updateTabCounts();
+                    }
+                    
                     // Update the status badge on the card
                     const card = this.closest('.listing-card');
                     if (card) {
