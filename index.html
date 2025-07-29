@@ -191,6 +191,55 @@
             box-shadow: 0 10px 20px rgba(39,174,96,0.3);
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 800px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(39,174,96,0.15);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #64748b;
+            cursor: pointer;
+            z-index: 10;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #f1f5f9;
+            color: #374151;
+        }
+
         /* Hero Section */
         .hero {
             padding-top: 100px;
@@ -843,9 +892,9 @@
     </footer>
 
     <!-- Inquiry/Reservation Modal (hidden by default) -->
-    <div id="inquiryModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.25); z-index:3000; align-items:center; justify-content:center;">
-      <div style="background:#fff; border-radius:16px; max-width:500px; width:95%; margin:2rem auto; padding:2rem; position:relative; box-shadow:0 8px 32px rgba(39,174,96,0.15);">
-        <button id="closeInquiryModal" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.5rem; color:#64748b; cursor:pointer;">&times;</button>
+    <div id="inquiryModal" class="modal">
+      <div class="modal-content" style="max-width:500px; padding:2rem;">
+        <button id="closeInquiryModal" class="close-btn">&times;</button>
         <h2 style="color:#27ae60; font-weight:800; margin-bottom:1.5rem;">Send Inquiry / Reservation</h2>
         <form id="inquiryForm">
           <input type="hidden" name="listing_id" id="inquiryListingId">
@@ -1029,10 +1078,19 @@
             const closeBtn = document.getElementById('closeInquiryModal');
             const cancelBtn = document.getElementById('cancelInquiry');
             const modal = document.getElementById('inquiryModal');
-            if (closeBtn) closeBtn.onclick = () => { modal.style.display = 'none'; };
-            if (cancelBtn) cancelBtn.onclick = () => { modal.style.display = 'none'; };
+            if (closeBtn) closeBtn.onclick = () => { 
+                modal.style.display = 'none'; 
+                document.body.style.overflow = ''; // Restore scrolling
+            };
+            if (cancelBtn) cancelBtn.onclick = () => { 
+                modal.style.display = 'none'; 
+                document.body.style.overflow = ''; // Restore scrolling
+            };
             window.addEventListener('click', function(e) {
-                if (e.target === modal) modal.style.display = 'none';
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = ''; // Restore scrolling
+                }
             });
             // Form submit logic
             const form = document.getElementById('inquiryForm');
@@ -1116,7 +1174,7 @@ async function fetchAndRenderListings(page=1) {
             return;
         }
         grid.innerHTML = listings.map(listing => `
-            <div class="listing-card">
+            <div class="listing-card" onclick="viewListingDetails(${listing.id})" style="cursor: pointer;">
                 <div class="listing-image" style="background-image: url('${listing.media && listing.media.length > 0 ? '/uploads/images/' + listing.media[0].file_name : 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80'}'); background-size: cover; background-position: center;">
                     <span class="listing-badge" style="background: ${listing.status === 'available' ? '#27ae60' : listing.status === 'reserved' ? '#f39c12' : '#e74c3c'}; color: #fff; padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; position: absolute; top: 1rem; right: 1rem;">
                         ${listing.status === 'available' ? '🟢 Available' : listing.status === 'reserved' ? '🟡 Reserved' : '🔴 Sold'}
@@ -1133,7 +1191,7 @@ async function fetchAndRenderListings(page=1) {
                     <div class="listing-features">
                         ${(listing.amenities || []).map(a => `<span class="feature-tag">${a}</span>`).join('')}
                     </div>
-                    <button class="btn btn-primary btn-inquiry" data-listing-id="${listing.id}" style="width: 100%; margin-bottom:0.5rem;">Send Inquiry/Reservation</button>
+                    <button class="btn btn-primary btn-inquiry" data-listing-id="${listing.id}" style="width: 100%; margin-bottom:0.5rem;" onclick="event.stopPropagation();">Send Inquiry/Reservation</button>
                 </div>
             </div>
         `).join('');
@@ -1176,6 +1234,148 @@ document.getElementById('resetFiltersBtn').addEventListener('click', function() 
 });
 // Initial fetch
 fetchAndRenderListings(1);
+    </script>
+    
+    <!-- Listing Details Modal -->
+    <div id="listingDetailsModal" class="modal">
+        <div class="modal-content" style="padding: 2rem;">
+            <button id="closeListingModal" class="close-btn">&times;</button>
+            <h2 id="listingModalTitle" style="color:#27ae60; font-weight:800; margin-bottom:1.5rem;">Listing Details</h2>
+            <div id="listingModalContent">
+                <!-- Content will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add modal close functionality
+        document.getElementById('closeListingModal').addEventListener('click', function() {
+            document.getElementById('listingDetailsModal').style.display = 'none';
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('listingDetailsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('listingDetailsModal');
+                if (modal.style.display !== 'none') {
+                    modal.style.display = 'none';
+                }
+            }
+        });
+        
+        // Function to view listing details
+        window.viewListingDetails = async function(listingId) {
+            try {
+                const response = await fetch(`/api/listings/${listingId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const listing = data.data.listing;
+                    const modal = document.getElementById('listingDetailsModal');
+                    const title = document.getElementById('listingModalTitle');
+                    const content = document.getElementById('listingModalContent');
+                    
+                    if (modal && title && content) {
+                        title.textContent = listing.title;
+                        
+                        // Create a simple listing details view
+                        content.innerHTML = `
+                            <div style="margin-bottom: 2rem;">
+                                <h3 style="color: #27ae60; margin-bottom: 1rem;">${listing.title}</h3>
+                                <p style="color: #64748b; margin-bottom: 1rem;">📍 ${listing.sector || ''}, ${listing.cell || ''}, ${listing.village || ''}, ${listing.district || ''}</p>
+                                <p style="color: #64748b; margin-bottom: 1rem;">${listing.description || 'No description available'}</p>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                                <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
+                                    <div style="font-weight: 600; color: #27ae60;">Land Size</div>
+                                    <div>${listing.land_size_value || 'N/A'} ${listing.land_size_unit || 'sqm'}</div>
+                                </div>
+                                <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
+                                    <div style="font-weight: 600; color: #27ae60;">Price</div>
+                                    <div>${listing.price_amount || 'N/A'} ${listing.price_currency || 'RWF'} ${listing.price_negotiable ? '(Negotiable)' : ''}</div>
+                                </div>
+                                <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
+                                    <div style="font-weight: 600; color: #27ae60;">Landowner</div>
+                                    <div>${listing.landowner_name || 'N/A'}</div>
+                                </div>
+                                <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
+                                    <div style="font-weight: 600; color: #27ae60;">Phone</div>
+                                    <div>${listing.landowner_phone || 'N/A'}</div>
+                                </div>
+                                <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
+                                    <div style="font-weight: 600; color: #27ae60;">ID</div>
+                                    <div>${listing.landowner_id_number || 'N/A'}</div>
+                                </div>
+                                <div style="background: #f8fafc; padding: 1rem; border-radius: 8px;">
+                                    <div style="font-weight: 600; color: #27ae60;">Status</div>
+                                    <div>${listing.status || 'N/A'}</div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+                                <div style="font-weight: 600; color: #27ae60; margin-bottom: 0.5rem;">Created</div>
+                                <div>${new Date(listing.created_at).toLocaleDateString()}</div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                <button class="btn btn-outline" onclick="hideModal('listingDetailsModal')" style="border-color: #27ae60; color: #27ae60;">Close</button>
+                                <button class="btn btn-primary" onclick="inquireAboutListing(${listing.id}, '${listing.title}')" style="background: #27ae60; color: #fff;">Send Inquiry</button>
+                            </div>
+                        `;
+                        
+                        // Show the modal
+                        modal.style.display = 'flex';
+                        modal.style.alignItems = 'center';
+                        modal.style.justifyContent = 'center';
+                        document.body.style.overflow = 'hidden';
+                    }
+                } else {
+                    alert('Failed to load listing details');
+                }
+            } catch (error) {
+                console.error('Error loading listing details:', error);
+                alert('Error loading listing details');
+            }
+        };
+        
+        // Global function to hide modal
+        window.hideModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+        };
+        
+        // Function to handle inquiry about listing
+        window.inquireAboutListing = function(listingId, listingTitle = '') {
+            // Set the listing ID in the inquiry form
+            const inquiryListingId = document.getElementById('inquiryListingId');
+            if (inquiryListingId) {
+                inquiryListingId.value = listingId;
+            }
+            
+            // Pre-fill the message with listing reference
+            const inquiryMessage = document.querySelector('#inquiryForm textarea[name="message"]');
+            if (inquiryMessage && listingTitle) {
+                inquiryMessage.value = `I am interested in the plot: "${listingTitle}". Please provide more information.`;
+            }
+            
+            // Show the inquiry modal
+            const inquiryModal = document.getElementById('inquiryModal');
+            if (inquiryModal) {
+                inquiryModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        };
     </script>
 </body>
 </html>

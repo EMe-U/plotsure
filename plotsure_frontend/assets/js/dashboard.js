@@ -296,8 +296,14 @@ if (!localStorage.getItem('token')) {
 
 // Logout function (can be called from a button)
 window.logout = function() {
-  localStorage.removeItem('token');
-  window.location.href = '/admin/login.html';
+  if (confirm('Are you sure you want to logout?')) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userData');
+    showMessage('Logging out...', 'info');
+    setTimeout(() => {
+      window.location.href = '/plotsure_frontend/admin/login.html';
+    }, 1000);
+  }
 };
 
 // Helper for authenticated fetch requests

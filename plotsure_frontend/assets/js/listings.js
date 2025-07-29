@@ -261,12 +261,21 @@ class ListingsManager {
         const title = document.getElementById('listingModalTitle');
         const content = document.getElementById('listingModalContent');
 
-        if (!modal || !title || !content) return;
+        if (!modal || !title || !content) {
+            console.error('Modal elements not found');
+            return;
+        }
 
         title.textContent = listing.title;
         content.innerHTML = this.renderListingDetails(listing);
         
-        showModal('listingDetailsModal');
+        // Show the modal
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        
+        // Prevent background scrolling
+        document.body.style.overflow = 'hidden';
     }
 
     renderListingDetails(listing) {
@@ -418,6 +427,15 @@ class ListingsManager {
         return div.innerHTML;
     }
 }
+
+// Global function to hide modal
+window.hideModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+};
 
 // Global functions for button clicks
 window.viewListing = (id) => {
