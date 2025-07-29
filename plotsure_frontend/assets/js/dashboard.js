@@ -117,7 +117,7 @@ const listingsAPI = {
     
     async getBrokerListings(params = {}) {
         const queryString = new URLSearchParams(params).toString();
-        const response = await authFetch(`/api/listings/broker?${queryString}`);
+        const response = await authFetch(`/api/listings/broker/my-listings?${queryString}`);
         return response.json();
     },
     
@@ -165,7 +165,9 @@ const listingsAPI = {
     
     async getStats() {
         try {
-            const response = await authFetch('/api/listings/stats');
+            console.log('Calling listings stats endpoint: /api/listings/stats/overview');
+            const response = await authFetch('/api/listings/stats/overview');
+            console.log('Listings stats response:', response);
             return response.json();
         } catch (error) {
             console.warn('Stats endpoint not available, returning default stats');
@@ -191,7 +193,9 @@ const inquiriesAPI = {
     
     async getStats() {
         try {
+            console.log('Calling inquiries stats endpoint: /api/inquiries/stats');
             const response = await authFetch('/api/inquiries/stats');
+            console.log('Inquiries stats response:', response);
             return response.json();
         } catch (error) {
             console.warn('Inquiry stats endpoint not available, returning default stats');
@@ -260,14 +264,27 @@ function hideModal(modalId) {
 }
 
 function showModal(modalId) {
-    const modal = document.getElementById(modalId);
     console.log('showModal called for:', modalId);
+    const modal = document.getElementById(modalId);
     console.log('Modal element found:', !!modal);
+    
     if (modal) {
         modal.style.display = 'flex';
+        modal.style.alignItems = 'flex-start';
+        modal.style.justifyContent = 'center';
         console.log('Modal should now be visible');
-    } else {
-        console.error('Modal not found:', modalId);
+        
+        // For edit modal, ensure proper scrolling
+        if (modalId === 'editListingModal') {
+            modal.style.overflowY = 'auto';
+            modal.style.padding = '20px';
+            
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.style.maxHeight = '90vh';
+                modalContent.style.overflowY = 'auto';
+            }
+        }
     }
 }
 
@@ -513,8 +530,8 @@ class DashboardManager {
                 
                 if (totalInquiriesEl) {
                     totalInquiriesEl.textContent = 
-                        inquiryStats.data.new_inquiries + inquiryStats.data.in_progress + 
-                        inquiryStats.data.responded + inquiryStats.data.converted;
+                    inquiryStats.data.new_inquiries + inquiryStats.data.in_progress + 
+                    inquiryStats.data.responded + inquiryStats.data.converted;
                 }
                 if (inquiryBadgeEl) {
                     inquiryBadgeEl.textContent = inquiryStats.data.new_inquiries;
@@ -531,10 +548,10 @@ class DashboardManager {
             // Load recent items (only if we're on the dashboard page)
             const dashboardSection = document.getElementById('section-dashboard');
             if (dashboardSection && dashboardSection.style.display !== 'none') {
-                await Promise.all([
-                    this.loadRecentInquiries(),
-                    this.loadRecentListings()
-                ]);
+            await Promise.all([
+                this.loadRecentInquiries(),
+                this.loadRecentListings()
+            ]);
             }
 
         } catch (error) {
@@ -545,32 +562,32 @@ class DashboardManager {
 
     async loadRecentInquiries() {
         try {
-            const result = await inquiriesAPI.getAll({ limit: 5 });
-            
-            if (result.success) {
-                const container = document.getElementById('recentInquiries');
+        const result = await inquiriesAPI.getAll({ limit: 5 });
+        
+        if (result.success) {
+            const container = document.getElementById('recentInquiries');
                 
                 if (!container) {
                     console.log('Recent inquiries container not found');
                     return;
                 }
-                
-                if (result.data.inquiries.length === 0) {
-                    container.innerHTML = '<p class="empty-state">No recent inquiries</p>';
-                    return;
-                }
+            
+            if (result.data.inquiries.length === 0) {
+                container.innerHTML = '<p class="empty-state">No recent inquiries</p>';
+                return;
+            }
 
-                container.innerHTML = result.data.inquiries.map(inquiry => `
-                    <div class="inquiry-item-small">
-                        <div>
-                            <div class="inquirer-name">${this.escapeHtml(inquiry.inquirer_name)}</div>
-                            <div class="inquiry-type">${this.formatInquiryType(inquiry.inquiry_type)}</div>
-                        </div>
-                        <div>
-                            <span class="status-${inquiry.status}">${inquiry.status}</span>
-                        </div>
+            container.innerHTML = result.data.inquiries.map(inquiry => `
+                <div class="inquiry-item-small">
+                    <div>
+                        <div class="inquirer-name">${this.escapeHtml(inquiry.inquirer_name)}</div>
+                        <div class="inquiry-type">${this.formatInquiryType(inquiry.inquiry_type)}</div>
                     </div>
-                `).join('');
+                    <div>
+                        <span class="status-${inquiry.status}">${inquiry.status}</span>
+                    </div>
+                </div>
+            `).join('');
             }
         } catch (error) {
             console.error('Error loading recent inquiries:', error);
@@ -579,32 +596,32 @@ class DashboardManager {
 
     async loadRecentListings() {
         try {
-            const result = await listingsAPI.getBrokerListings({ limit: 5 });
-            
-            if (result.success) {
-                const container = document.getElementById('recentListings');
+        const result = await listingsAPI.getBrokerListings({ limit: 5 });
+        
+        if (result.success) {
+            const container = document.getElementById('recentListings');
                 
                 if (!container) {
                     console.log('Recent listings container not found');
                     return;
                 }
-                
-                if (result.data.listings.length === 0) {
-                    container.innerHTML = '<p class="empty-state">No recent listings</p>';
-                    return;
-                }
+            
+            if (result.data.listings.length === 0) {
+                container.innerHTML = '<p class="empty-state">No recent listings</p>';
+                return;
+            }
 
-                container.innerHTML = result.data.listings.map(listing => `
-                    <div class="listing-item-small">
-                        <div>
-                            <div class="listing-title">${this.escapeHtml(listing.title)}</div>
-                            <div class="listing-location">${this.escapeHtml(listing.sector)}, ${this.escapeHtml(listing.district)}</div>
-                        </div>
-                        <div>
-                            <span class="status-${listing.status}">${listing.status}</span>
-                        </div>
+            container.innerHTML = result.data.listings.map(listing => `
+                <div class="listing-item-small">
+                    <div>
+                        <div class="listing-title">${this.escapeHtml(listing.title)}</div>
+                        <div class="listing-location">${this.escapeHtml(listing.sector)}, ${this.escapeHtml(listing.district)}</div>
                     </div>
-                `).join('');
+                    <div>
+                        <span class="status-${listing.status}">${listing.status}</span>
+                    </div>
+                </div>
+            `).join('');
             }
         } catch (error) {
             console.error('Error loading recent listings:', error);
@@ -1949,14 +1966,6 @@ function openEditListingModal(listing) {
     showModal('editListingModal');
     console.log('Modal should be visible now');
     
-    // Fix modal styling for proper scrolling
-    const editModal = document.getElementById('editListingModal');
-    if (editModal) {
-        editModal.style.overflowY = 'auto';
-        editModal.style.alignItems = 'flex-start';
-        editModal.style.padding = '20px';
-    }
-    
     // Add a small delay to ensure modal is rendered
     setTimeout(() => {
         console.log('Modal after timeout:', editModal);
@@ -2017,28 +2026,36 @@ function openEditListingModal(listing) {
             const token = localStorage.getItem('token');
             console.log('Token exists:', !!token);
             
-            const response = await authFetch(`/api/listings/${listingId}`, {
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+            
+            const response = await fetch(`https://plotsure-connect.onrender.com/api/listings/${listingId}`, {
                 method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
                 body: formData,
             });
             
             console.log('Response status:', response.status);
-            console.log('Response headers:', response.headers);
             
             const result = await response.json();
             console.log('Update response:', result);
             
-            if (result.success) {
+            if (response.ok && result.success) {
                 showMessage('Listing updated successfully!', 'success');
                 hideModal('editListingModal');
                 // Refresh listings
-                location.reload();
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
             } else {
                 if (result.errors && result.errors.length > 0) {
                     const errorMessages = result.errors.map(err => `${err.path}: ${err.msg}`).join('\n');
                     showMessage(`Validation failed:\n${errorMessages}`, 'error');
                 } else {
-                    showMessage(result.error || 'Failed to update listing', 'error');
+                    showMessage(result.message || result.error || 'Failed to update listing', 'error');
                 }
             }
         } catch (error) {

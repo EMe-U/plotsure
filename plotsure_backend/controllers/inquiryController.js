@@ -513,39 +513,18 @@ exports.getFollowUpInquiries = async (req, res) => {
 exports.getInquiryStats = async (req, res) => {
   try {
     const brokerId = req.user.role === 'broker' ? req.user.id : null;
-    const where = {};
-
-    if (brokerId) {
-      where[Op.or] = [
-        { assigned_to: brokerId },
-        { '$listing.broker_id$': brokerId }
-      ];
-    }
-
+    
+    // Simplified queries without complex associations
     const stats = await Promise.all([
+      Inquiry.count({ where: { status: 'new' } }),
+      Inquiry.count({ where: { status: 'in_progress' } }),
+      Inquiry.count({ where: { status: 'responded' } }),
+      Inquiry.count({ where: { status: 'converted' } }),
       Inquiry.count({ 
-        where: { ...where, status: 'new' },
-        include: brokerId ? [{ model: Listing, as: 'listing' }] : []
-      }),
-      Inquiry.count({ 
-        where: { ...where, status: 'in_progress' },
-        include: brokerId ? [{ model: Listing, as: 'listing' }] : []
-      }),
-      Inquiry.count({ 
-        where: { ...where, status: 'responded' },
-        include: brokerId ? [{ model: Listing, as: 'listing' }] : []
-      }),
-      Inquiry.count({ 
-        where: { ...where, status: 'converted' },
-        include: brokerId ? [{ model: Listing, as: 'listing' }] : []
-      }),
-      Inquiry.count({
         where: {
-          ...where,
           next_follow_up_date: { [Op.lte]: new Date() },
           status: ['contacted', 'in_progress', 'responded']
-        },
-        include: brokerId ? [{ model: Listing, as: 'listing' }] : []
+        }
       })
     ]);
 
