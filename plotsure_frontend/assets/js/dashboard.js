@@ -679,22 +679,32 @@ class DashboardManager {
     }
 
     async loadListings() {
+        console.log('Loading listings...');
         const result = await listingsAPI.getBrokerListings();
+        
+        console.log('Listings API result:', result);
         
         if (result.success) {
             this.listings = result.data.listings;
+            console.log('Loaded listings:', this.listings);
             this.renderListings();
         } else {
+            console.error('Failed to load listings:', result);
             showMessage('Failed to load listings', 'error');
         }
     }
 
     renderListings() {
-        const container = document.getElementById('listingsContainer');
+        const container = document.getElementById('listingsGrid');
+        
+        if (!container) {
+            console.error('Listings container not found');
+            return;
+        }
         
         if (this.listings.length === 0) {
             container.innerHTML = `
-                <div class="empty-state">
+                <div class="empty-state" style="text-align: center; padding: 2rem; color: #64748b;">
                     <h3>No listings yet</h3>
                     <p>Create your first listing to get started</p>
                     <button class="btn btn-primary" onclick="showCreateListingModal()">Create Listing</button>
@@ -704,30 +714,28 @@ class DashboardManager {
         }
 
         container.innerHTML = this.listings.map(listing => `
-            <div class="listing-item">
-                <div class="listing-image">
-                    ${listing.media?.length > 0 ? 
-                        `<img src="${API_CONFIG.BASE_URL.replace('/api', '')}/${listing.media[0].file_path}" alt="${listing.title}">` : 
-                        '🏞️'
-                    }
+            <div class="listing-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                <div class="listing-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="color: #27ae60; font-weight: 700; margin: 0;">${this.escapeHtml(listing.title)}</h3>
+                    <span class="status-badge" style="background: ${listing.status === 'available' ? '#27ae60' : listing.status === 'reserved' ? '#f39c12' : '#e74c3c'}; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                        ${listing.status}
+                    </span>
                 </div>
-                <div class="listing-info">
-                    <div class="listing-title">${this.escapeHtml(listing.title)}</div>
-                    <div class="listing-location">${this.getFullLocation(listing)}</div>
-                    <div class="listing-meta">
-                        <span class="listing-price">${this.formatPrice(listing.price_amount, listing.price_currency)}</span>
-                        <span class="listing-size">${listing.land_size_value} ${listing.land_size_unit}</span>
-                        <span class="listing-views">👁️ ${listing.views_count || 0} views</span>
-                        <span class="listing-inquiries">💬 ${listing.inquiries_count || 0} inquiries</span>
+                <div class="listing-location" style="color: #64748b; margin-bottom: 1rem;">
+                    📍 ${this.getFullLocation(listing)}
+                </div>
+                <div class="listing-details" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <strong>Price:</strong> ${this.formatPrice(listing.price || listing.price_amount, listing.price_currency)}
+                    </div>
+                    <div>
+                        <strong>Size:</strong> ${listing.plot_size || listing.land_size_value || 'N/A'} ${listing.plot_size_unit || listing.land_size_unit || 'sqm'}
                     </div>
                 </div>
-                <div class="listing-status status-${listing.status}">
-                    ${listing.status}
-                </div>
-                <div class="listing-actions">
-                    <button class="btn btn-small btn-outline" onclick="editListing(${listing.id})">Edit</button>
-                    <button class="btn btn-small btn-outline" onclick="viewListingStats(${listing.id})">Stats</button>
-                    <button class="btn btn-small btn-danger" onclick="deleteListing(${listing.id})">Delete</button>
+                <div class="listing-actions" style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                    <button class="btn btn-small btn-outline" onclick="showListingDetails(${JSON.stringify(listing).replace(/"/g, '&quot;')})" style="border-color: #27ae60; color: #27ae60;">View</button>
+                    <button class="btn btn-small btn-outline" onclick="openEditListingModal(${JSON.stringify(listing).replace(/"/g, '&quot;')})" style="border-color: #27ae60; color: #27ae60;">Edit</button>
+                    <button class="btn btn-small btn-danger" onclick="deleteListing(${listing.id})" style="border-color: #ef4444; color: #ef4444;">Delete</button>
                 </div>
             </div>
         `).join('');
@@ -971,7 +979,8 @@ class DashboardManager {
                 showMessage(APP_CONFIG.SUCCESS_MESSAGES.LISTING_CREATED, 'success');
                 document.getElementById('createListingForm').reset();
                 hideModal('createListingModal');
-                this.loadListings();
+                console.log('Listing created successfully, refreshing listings...');
+                await this.loadListings();
             } else {
                 // Show specific validation errors if available
                 if (result.errors && result.errors.length > 0) {
@@ -1102,6 +1111,20 @@ function debounce(func, wait) {
 // Global functions
 window.showCreateListingModal = () => {
     showModal('createListingModal');
+};
+
+window.showListingDetails = (listing) => {
+    if (typeof listing === 'string') {
+        listing = JSON.parse(listing);
+    }
+    showListingDetails(listing);
+};
+
+window.openEditListingModal = (listing) => {
+    if (typeof listing === 'string') {
+        listing = JSON.parse(listing);
+    }
+    openEditListingModal(listing);
 };
 
 window.editListing = async (id) => {
