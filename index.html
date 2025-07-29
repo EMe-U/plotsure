@@ -664,17 +664,26 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            .nav-container {
+                padding: 1rem 1.5rem;
+            }
+            
             .nav-links, .nav-buttons {
                 display: none;
             }
 
             .mobile-menu-toggle {
-                display: block;
+                display: block !important;
+            }
+
+            .logo span:last-child {
+                font-size: 1.2rem;
             }
 
             .hero-content {
                 grid-template-columns: 1fr;
                 text-align: center;
+                padding: 2rem 1rem;
             }
 
             .hero-text h1 {
@@ -699,6 +708,41 @@
 
             .cta-content h2 {
                 font-size: 2rem;
+            }
+
+            /* Mobile menu styles */
+            .mobile-menu {
+                animation: slideDown 0.3s ease-out;
+            }
+
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-container {
+                padding: 1rem;
+            }
+            
+            .logo span:last-child {
+                font-size: 1rem;
+            }
+
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
             }
         }
 
@@ -744,6 +788,19 @@
             <div class="nav-buttons" style="display: flex; gap: 1rem;">
                 <a href="/plotsure_frontend/admin/login.html" class="btn btn-outline" id="loginBtn" style="border-color: #27ae60; color: #27ae60; background: transparent;"> <svg style="vertical-align: middle; margin-right: 0.3em;" width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#27ae60"/></svg>Broker Login</a>
                 <a href="#contact" class="btn btn-primary" style="background: #27ae60; color: #fff;"> <svg style="vertical-align: middle; margin-right: 0.3em;" width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M21 8V7l-3 2.29V8c0-3.31-2.69-6-6-6S3 4.69 3 8v8c0 3.31 2.69 6 6 6s6-2.69 6-6v-1.29l3 2.29V16c0 2.21-1.79 4-4 4H7c-2.21 0-4-1.79-4-4V8c0-2.21 1.79-4 4-4h10c2.21 0 4 1.79 4 4z" fill="#fff"/></svg>Get in Touch</a>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" style="display: none; background: none; border: none; font-size: 1.5rem; color: #27ae60; cursor: pointer; padding: 0.5rem; border-radius: 8px; transition: all 0.3s;">☰</button>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); border-top: 1px solid #e5e7eb; box-shadow: 0 4px 20px rgba(0,0,0,0.1); z-index: 999;">
+            <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                <a href="#listings" style="color: #0b0b0b; font-weight: 500; text-decoration: none; padding: 0.75rem 1rem; border-radius: 8px; transition: all 0.3s;" onmouseover="this.style.background='#f1f5f9';" onmouseout="this.style.background='transparent';">Browse Listings</a>
+                <a href="#about" style="color: #0b0b0b; font-weight: 500; text-decoration: none; padding: 0.75rem 1rem; border-radius: 8px; transition: all 0.3s;" onmouseover="this.style.background='#f1f5f9';" onmouseout="this.style.background='transparent';">About Us</a>
+                <a href="#contact" style="color: #0b0b0b; font-weight: 500; text-decoration: none; padding: 0.75rem 1rem; border-radius: 8px; transition: all 0.3s;" onmouseover="this.style.background='#f1f5f9';" onmouseout="this.style.background='transparent';">Contact</a>
+                <div style="border-top: 1px solid #e5e7eb; margin: 0.5rem 0; padding-top: 1rem;">
+                    <a href="/plotsure_frontend/admin/login.html" style="display: block; background: #27ae60; color: #fff; text-decoration: none; padding: 0.75rem 1rem; border-radius: 8px; text-align: center; font-weight: 600; margin-bottom: 0.5rem;">Broker Login</a>
+                    <a href="#contact" style="display: block; background: transparent; color: #27ae60; text-decoration: none; padding: 0.75rem 1rem; border: 2px solid #27ae60; border-radius: 8px; text-align: center; font-weight: 600;">Get in Touch</a>
+                </div>
             </div>
         </div>
     </nav>
@@ -972,13 +1029,41 @@
         const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
         const navLinks = document.querySelector('.nav-links');
         const navButtons = document.querySelector('.nav-buttons');
+        const mobileMenu = document.getElementById('mobileMenu');
 
-            if (mobileMenuToggle) {
-        mobileMenuToggle.addEventListener('click', () => {
-            // This is a simple toggle - in production, you'd create a proper mobile menu
-            alert('Mobile menu would open here!');
-        });
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', () => {
+                const isOpen = mobileMenu.style.display === 'block';
+                mobileMenu.style.display = isOpen ? 'none' : 'block';
+                document.body.style.overflow = isOpen ? '' : 'hidden';
+                
+                // Change hamburger to X when open
+                mobileMenuToggle.textContent = isOpen ? '☰' : '✕';
+            });
+        }
+
+        // Close mobile menu when clicking on a link
+        const mobileMenuLinks = mobileMenu?.querySelectorAll('a');
+        if (mobileMenuLinks) {
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.style.display = 'none';
+                    document.body.style.overflow = '';
+                    mobileMenuToggle.textContent = '☰';
+                });
+            });
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (mobileMenu && mobileMenu.style.display === 'block' && 
+                !mobileMenu.contains(e.target) && 
+                !mobileMenuToggle.contains(e.target)) {
+                mobileMenu.style.display = 'none';
+                document.body.style.overflow = '';
+                mobileMenuToggle.textContent = '☰';
             }
+        });
 
         // Add parallax effect to hero section
         window.addEventListener('scroll', () => {
