@@ -89,4 +89,70 @@ router.get('/users', requireRole(['admin']), authController.getAllUsers);
 router.put('/users/:userId/deactivate', requireRole(['admin']), authController.deactivateUser);
 router.put('/users/:userId/activate', requireRole(['admin']), authController.activateUser);
 
+// One-time initialization endpoint to create default users
+router.post('/init-users', async (req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    const { User } = require('../models');
+    
+    let createdUsers = [];
+    
+    // Check and create admin user
+    const adminExists = await User.findOne({ where: { email: 'admin@plotsure.com' } });
+    if (!adminExists) {
+      const adminPassword = await bcrypt.hash('admin123', 10);
+      const admin = await User.create({
+        name: 'System Administrator',
+        email: 'admin@plotsure.com',
+        password: adminPassword,
+        phone: '+250 791 000 000',
+        role: 'admin',
+        is_active: true,
+        verified: true
+      });
+      createdUsers.push({ email: 'admin@plotsure.com', password: 'admin123', role: 'admin' });
+    }
+    
+    // Check and create broker user
+    const brokerExists = await User.findOne({ where: { email: 'broker@plotsure.com' } });
+    if (!brokerExists) {
+      const brokerPassword = await bcrypt.hash('password123', 10);
+      const broker = await User.create({
+        name: 'Test Broker',
+        email: 'broker@plotsure.com',
+        password: brokerPassword,
+        phone: '+250 791 845 708',
+        role: 'broker',
+        is_active: true,
+        verified: true
+      });
+      createdUsers.push({ email: 'broker@plotsure.com', password: 'password123', role: 'broker' });
+    }
+    
+    if (createdUsers.length > 0) {
+      res.json({
+        success: true,
+        message: 'Default users created successfully',
+        users: createdUsers
+      });
+    } else {
+      res.json({
+        success: true,
+        message: 'Default users already exist',
+        users: [
+          { email: 'admin@plotsure.com', password: 'admin123', role: 'admin' },
+          { email: 'broker@plotsure.com', password: 'password123', role: 'broker' }
+        ]
+      });
+    }
+  } catch (error) {
+    console.error('Error creating default users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create default users',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
