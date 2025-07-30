@@ -104,8 +104,8 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Compare password
-    const isPasswordValid = await user.comparePassword(password);
+    // Compare password using direct bcrypt comparison
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,

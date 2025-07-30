@@ -13,7 +13,8 @@
     "check-db": "node checkDatabase.js",
     "fix-listings": "node fixListingStatuses.js",
     "init-system": "node initSystem.js",
-    "test-login": "node testLogin.js"
+    "test-login": "node testLogin.js",
+    "debug-login": "node debugLogin.js"
   },
   "dependencies": {
     "express": "^4.18.2",
