@@ -1,6 +1,5 @@
 const { ActivityLog, User, Listing, Inquiry } = require('../models');
 const { Op } = require('sequelize');
-const { Parser } = require('json2csv');
 
 // Get activity logs with filtering
 exports.getActivityLogs = async (req, res) => {
@@ -114,38 +113,15 @@ exports.exportActivityLogs = async (req, res) => {
     });
 
     // Transform data for CSV export
-    const csvData = logs.map(log => ({
-      Date: log.created_at.toISOString(),
-      Action: log.action,
-      Entity: log.entity,
-      EntityID: log.entity_id,
-      User: log.user ? log.user.name : 'Anonymous',
-      Email: log.user ? log.user.email : '',
-      Role: log.user ? log.user.role : '',
-      IPAddress: log.ip_address,
-      Details: log.details,
-      UserAgent: log.user_agent
-    }));
-
-    const fields = [
-      'Date',
-      'Action',
-      'Entity',
-      'EntityID',
-      'User',
-      'Email',
-      'Role',
-      'IPAddress',
-      'Details',
-      'UserAgent'
-    ];
-
-    const json2csvParser = new Parser({ fields });
-    const csv = json2csvParser.parse(csvData);
+    const csvHeaders = 'Date,Action,Entity,EntityID,User,Email,Role,IPAddress,Details,UserAgent\n';
+    const csvData = logs.map(log => {
+      const user = log.user || {};
+      return `"${log.created_at.toISOString()}","${log.action || ''}","${log.entity || ''}","${log.entity_id || ''}","${user.name || 'Anonymous'}","${user.email || ''}","${user.role || ''}","${log.ip_address || ''}","${log.details || ''}","${log.user_agent || ''}"`;
+    }).join('\n');
 
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename=activity-logs-${new Date().toISOString().split('T')[0]}.csv`);
-    res.send(csv);
+    res.send(csvHeaders + csvData);
 
   } catch (error) {
     console.error('Export activity logs error:', error);

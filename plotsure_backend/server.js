@@ -3,7 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
-const hpp = require('hpp');
+
 const compression = require('compression');
 require('dotenv').config();
 
@@ -28,7 +28,6 @@ app.use(helmet({
 }));
 
 // Additional security middleware
-app.use(hpp());
 app.use(compression());
 
 // Rate limiting
