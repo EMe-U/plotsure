@@ -76,20 +76,7 @@ const changePasswordValidation = [
 router.post('/register', registerValidation, authController.register);
 router.post('/login', loginValidation, authController.login);
 
-// Protected routes (require authentication)
-router.use(authenticateToken); // All routes below require authentication
-
-router.get('/profile', authController.getProfile);
-router.put('/profile', updateProfileValidation, authController.updateProfile);
-router.put('/change-password', changePasswordValidation, authController.changePassword);
-router.post('/logout', authController.logout);
-
-// Admin only routes
-router.get('/users', requireRole(['admin']), authController.getAllUsers);
-router.put('/users/:userId/deactivate', requireRole(['admin']), authController.deactivateUser);
-router.put('/users/:userId/activate', requireRole(['admin']), authController.activateUser);
-
-// One-time initialization endpoint to create default users
+// One-time initialization endpoint to create default users (public)
 router.post('/init-users', async (req, res) => {
   try {
     const bcrypt = require('bcryptjs');
@@ -154,5 +141,18 @@ router.post('/init-users', async (req, res) => {
     });
   }
 });
+
+// Protected routes (require authentication)
+router.use(authenticateToken); // All routes below require authentication
+
+router.get('/profile', authController.getProfile);
+router.put('/profile', updateProfileValidation, authController.updateProfile);
+router.put('/change-password', changePasswordValidation, authController.changePassword);
+router.post('/logout', authController.logout);
+
+// Admin only routes
+router.get('/users', requireRole(['admin']), authController.getAllUsers);
+router.put('/users/:userId/deactivate', requireRole(['admin']), authController.deactivateUser);
+router.put('/users/:userId/activate', requireRole(['admin']), authController.activateUser);
 
 module.exports = router;
