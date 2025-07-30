@@ -152,6 +152,52 @@ router.get('/init-users', async (req, res) => {
   }
 });
 
+// Test password endpoint (public)
+router.get('/test-password', async (req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    const { User } = require('../models');
+    
+    // Find the broker user
+    const user = await User.findOne({ 
+      where: { email: 'broker@plotsure.com' },
+      attributes: { include: ['password'] }
+    });
+    
+    if (!user) {
+      return res.json({
+        success: false,
+        message: 'User not found',
+        testPassword: 'password123'
+      });
+    }
+    
+    // Test password comparison
+    const testPassword = 'password123';
+    const isValid = await bcrypt.compare(testPassword, user.password);
+    
+    res.json({
+      success: true,
+      message: 'Password test completed',
+      data: {
+        userEmail: user.email,
+        testPassword: testPassword,
+        passwordValid: isValid,
+        passwordHash: user.password.substring(0, 20) + '...',
+        userActive: user.is_active,
+        userVerified: user.verified
+      }
+    });
+  } catch (error) {
+    console.error('Password test error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Password test failed',
+      error: error.message
+    });
+  }
+});
+
 // Protected routes (require authentication)
 router.use(authenticateToken); // All routes below require authentication
 
