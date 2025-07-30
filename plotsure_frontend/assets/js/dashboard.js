@@ -1182,10 +1182,20 @@ class DashboardManager {
                 // Refresh listings and update tabs
                 await this.loadListings();
                 
+                // Update tab counts after loading listings
+                this.updateTabCounts();
+                
                 // Show the new listing in the "All" tab
                 const allTab = document.querySelector('#listingsTabs .tab-btn[data-tab="all"]');
                 if (allTab) {
                     allTab.click();
+                }
+                
+                // Force refresh the current tab to show the new listing
+                const activeTab = document.querySelector('#listingsTabs .tab-btn.active');
+                if (activeTab) {
+                    const currentStatus = activeTab.getAttribute('data-tab');
+                    this.filterListingsByStatus(currentStatus);
                 }
             } else {
                 // Show specific validation errors if available
@@ -1953,15 +1963,8 @@ function renderListings() {
             console.log('Status tab clicked:', status);
             
             // Filter listings by status
-            const statusFilter = document.getElementById('dashboardStatusFilter');
-            if (statusFilter) {
-                if (status === 'all') {
-                    statusFilter.value = '';
-                } else {
-                    statusFilter.value = status;
-                }
-                // Trigger filter
-                filterListings();
+            if (window.dashboardManager) {
+                window.dashboardManager.filterListingsByStatus(status);
             }
         });
     });
