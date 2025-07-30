@@ -61,6 +61,18 @@ module.exports = (sequelize, DataTypes) => {
         last_login: {
             type: DataTypes.DATE,
             allowNull: true
+        },
+        two_factor_secret: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        two_factor_enabled: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        },
+        backup_codes: {
+            type: DataTypes.TEXT,
+            allowNull: true
         }
     }, {
         tableName: 'users',

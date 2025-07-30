@@ -3,6 +3,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const xss = require('xss-clean');
+const hpp = require('hpp');
+const compression = require('compression');
 require('dotenv').config();
 
 // Import database models
@@ -14,6 +17,8 @@ const listingRoutes = require('./routes/listings');
 const inquiryRoutes = require('./routes/inquiries');
 const contactRoutes = require('./routes/contact');
 const adminRoutes = require('./routes/admin');
+const twoFactorRoutes = require('./routes/twoFactor');
+const reportsRoutes = require('./routes/reports');
 
 const app = express();
 
@@ -22,6 +27,11 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: false, // Disable CSP for development
 }));
+
+// Additional security middleware
+app.use(xss());
+app.use(hpp());
+app.use(compression());
 
 // Rate limiting
 const limiter = rateLimit({
@@ -85,6 +95,8 @@ app.use('/api/listings', listingRoutes);
 app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/2fa', twoFactorRoutes);
+app.use('/api/reports', reportsRoutes);
 
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
