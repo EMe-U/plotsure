@@ -21,6 +21,9 @@ const reportsRoutes = require('./routes/reports');
 
 const app = express();
 
+// Trust proxy for rate limiting behind reverse proxy (Render)
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
