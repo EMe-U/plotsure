@@ -267,6 +267,92 @@ router.get('/force-reset-users', async (req, res) => {
   }
 });
 
+// Comprehensive debug endpoint (public)
+router.get('/debug-login', async (req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    const { User } = require('../models');
+    
+    // 1. Check if users exist
+    const broker = await User.findOne({ 
+      where: { email: 'broker@plotsure.com' },
+      attributes: { include: ['password'] }
+    });
+    
+    const admin = await User.findOne({ 
+      where: { email: 'admin@plotsure.com' },
+      attributes: { include: ['password'] }
+    });
+    
+    // 2. Test password comparison
+    let brokerTest = null;
+    let adminTest = null;
+    
+    if (broker) {
+      brokerTest = {
+        exists: true,
+        email: broker.email,
+        isActive: broker.is_active,
+        isVerified: broker.verified,
+        passwordHash: broker.password.substring(0, 20) + '...',
+        passwordValid: await bcrypt.compare('password123', broker.password)
+      };
+    } else {
+      brokerTest = { exists: false };
+    }
+    
+    if (admin) {
+      adminTest = {
+        exists: true,
+        email: admin.email,
+        isActive: admin.is_active,
+        isVerified: admin.verified,
+        passwordHash: admin.password.substring(0, 20) + '...',
+        passwordValid: await bcrypt.compare('admin123', admin.password)
+      };
+    } else {
+      adminTest = { exists: false };
+    }
+    
+    // 3. Test login simulation
+    let loginSimulation = null;
+    if (broker) {
+      const testPassword = 'password123';
+      const isPasswordValid = await bcrypt.compare(testPassword, broker.password);
+      loginSimulation = {
+        email: 'broker@plotsure.com',
+        password: testPassword,
+        userFound: true,
+        userActive: broker.is_active,
+        passwordValid: isPasswordValid,
+        wouldLogin: isPasswordValid && broker.is_active
+      };
+    }
+    
+    res.json({
+      success: true,
+      message: 'Debug information',
+      data: {
+        broker: brokerTest,
+        admin: adminTest,
+        loginSimulation: loginSimulation,
+        environment: {
+          nodeEnv: process.env.NODE_ENV,
+          databaseType: 'SQLite',
+          bcryptRounds: 10
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Debug error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Debug failed',
+      error: error.message
+    });
+  }
+});
+
 // Protected routes (require authentication)
 router.use(authenticateToken); // All routes below require authentication
 
