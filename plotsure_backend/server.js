@@ -184,6 +184,48 @@ const startServer = async () => {
             console.log('⚠️ Database sync warning (continuing anyway):', syncError.message);
         }
         
+        // Initialize default users if they don't exist
+        try {
+            const bcrypt = require('bcryptjs');
+            const { User } = require('./models');
+            
+            // Check and create admin user
+            const adminExists = await User.findOne({ where: { email: 'admin@plotsure.com' } });
+            if (!adminExists) {
+                const adminPassword = await bcrypt.hash('admin123', 10);
+                await User.create({
+                    name: 'System Administrator',
+                    email: 'admin@plotsure.com',
+                    password: adminPassword,
+                    phone: '+250 791 000 000',
+                    role: 'admin',
+                    is_active: true,
+                    verified: true
+                });
+                console.log('✅ Admin user created: admin@plotsure.com / admin123');
+            }
+            
+            // Check and create broker user
+            const brokerExists = await User.findOne({ where: { email: 'broker@plotsure.com' } });
+            if (!brokerExists) {
+                const brokerPassword = await bcrypt.hash('password123', 10);
+                await User.create({
+                    name: 'Test Broker',
+                    email: 'broker@plotsure.com',
+                    password: brokerPassword,
+                    phone: '+250 791 845 708',
+                    role: 'broker',
+                    is_active: true,
+                    verified: true
+                });
+                console.log('✅ Broker user created: broker@plotsure.com / password123');
+            }
+            
+            console.log('🎯 Default users ready for login!');
+        } catch (userError) {
+            console.log('⚠️ User initialization warning (continuing anyway):', userError.message);
+        }
+        
         app.listen(PORT, () => {
             console.log(`🚀 PlotSure Connect API Server running on port ${PORT}`);
             console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
