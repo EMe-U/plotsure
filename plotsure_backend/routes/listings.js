@@ -130,11 +130,58 @@ router.get('/',
   listingController.getAllListings
 );
 
-router.get('/:id', 
-  idValidation, 
-  optionalAuth, 
-  listingController.getListingById
-);
+// Get listing by ID
+router.get('/:id', idValidation, listingController.getListingById);
+
+// Debug endpoint to check listings
+router.get('/debug/listings', async (req, res) => {
+  try {
+    const { Listing, User } = require('../models');
+    
+    // Get all listings
+    const listings = await Listing.findAll({
+      include: [
+        {
+          model: User,
+          as: 'broker',
+          attributes: ['id', 'name', 'email']
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+    
+    // Get listing count
+    const totalCount = await Listing.count();
+    const availableCount = await Listing.count({ where: { status: 'available' } });
+    const reservedCount = await Listing.count({ where: { status: 'reserved' } });
+    const soldCount = await Listing.count({ where: { status: 'sold' } });
+    
+    res.json({
+      success: true,
+      message: 'Debug listings information',
+      data: {
+        totalListings: totalCount,
+        availableListings: availableCount,
+        reservedListings: reservedCount,
+        soldListings: soldCount,
+        listings: listings.map(listing => ({
+          id: listing.id,
+          title: listing.title,
+          status: listing.status,
+          created_at: listing.created_at,
+          broker: listing.broker ? listing.broker.name : 'No broker'
+        }))
+      }
+    });
+  } catch (error) {
+    console.error('Debug listings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Debug failed',
+      error: error.message
+    });
+  }
+});
 
 // Protected routes (require authentication)
 router.use(authenticateToken);
