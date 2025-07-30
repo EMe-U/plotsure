@@ -291,7 +291,7 @@ function showModal(modalId) {
 // Token check at the very top to ensure user is logged in
 if (!localStorage.getItem('token')) {
     alert('You are not logged in. Please login again.');
-    window.location.href = '/plotsure_frontend/admin/login.html';
+    window.location.href = '/admin/login.html';
 }
 
 // Logout function (can be called from a button)
@@ -301,7 +301,7 @@ window.logout = function() {
     localStorage.removeItem('userData');
     showMessage('Logging out...', 'info');
     setTimeout(() => {
-      window.location.href = '/plotsure_frontend/admin/login.html';
+      window.location.href = '/admin/login.html';
     }, 1000);
   }
 };
@@ -311,7 +311,7 @@ function authFetch(url, options = {}) {
     const token = localStorage.getItem('token');
     if (!token) {
         alert('You are not logged in. Please login again.');
-        window.location.href = '/plotsure_frontend/admin/login.html';
+        window.location.href = '/admin/login.html';
         return Promise.reject(new Error('No token found'));
     }
     if (!options.headers) options.headers = {};
@@ -321,7 +321,7 @@ function authFetch(url, options = {}) {
             // Token is invalid, logout user
             localStorage.removeItem('token');
             alert('Your session has expired. Please login again.');
-            window.location.href = '/plotsure_frontend/admin/login.html';
+            window.location.href = '/admin/login.html';
             return Promise.reject(new Error('Invalid token'));
         }
         return response;
@@ -342,7 +342,7 @@ class DashboardManager {
     async init() {
         // Check authentication
         if (!authAPI.isAuthenticated()) {
-            window.location.href = '../index.html';
+            window.location.href = './index.html';
             return;
         }
 
