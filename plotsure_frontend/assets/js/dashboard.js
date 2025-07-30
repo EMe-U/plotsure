@@ -913,14 +913,14 @@ class DashboardManager {
                 </div>
                 <div class="listing-location" style="color: #64748b; margin-bottom: 1rem;">
                     📍 ${this.getFullLocation(listing)}
-                </div>
+                    </div>
                 <div class="listing-details" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                     <div>
                         <strong>Price:</strong> ${this.formatPrice(listing.price || listing.price_amount, listing.price_currency)}
-                    </div>
+                </div>
                     <div>
                         <strong>Size:</strong> ${listing.plot_size || listing.land_size_value || 'N/A'} ${listing.plot_size_unit || listing.land_size_unit || 'sqm'}
-                    </div>
+                </div>
                 </div>
                 <div class="listing-actions" style="display: flex; gap: 0.5rem; margin-top: 1rem;">
                     <button class="btn btn-small btn-outline" onclick="showListingDetails(${JSON.stringify(listing).replace(/"/g, '&quot;')})" style="border-color: #27ae60; color: #27ae60;">View</button>
