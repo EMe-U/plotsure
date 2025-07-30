@@ -198,6 +198,75 @@ router.get('/test-password', async (req, res) => {
   }
 });
 
+// Force reset users endpoint (public)
+router.get('/force-reset-users', async (req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    const { User } = require('../models');
+    
+    // Delete existing users
+    await User.destroy({
+      where: {
+        email: {
+          [require('sequelize').Op.in]: ['admin@plotsure.com', 'broker@plotsure.com']
+        }
+      }
+    });
+    
+    // Create admin user with correct password
+    const adminPassword = await bcrypt.hash('admin123', 10);
+    const admin = await User.create({
+      name: 'System Administrator',
+      email: 'admin@plotsure.com',
+      password: adminPassword,
+      phone: '+250 791 000 000',
+      role: 'admin',
+      is_active: true,
+      verified: true
+    });
+    
+    // Create broker user with correct password
+    const brokerPassword = await bcrypt.hash('password123', 10);
+    const broker = await User.create({
+      name: 'Test Broker',
+      email: 'broker@plotsure.com',
+      password: brokerPassword,
+      phone: '+250 791 845 708',
+      role: 'broker',
+      is_active: true,
+      verified: true
+    });
+    
+    // Test the passwords
+    const adminValid = await bcrypt.compare('admin123', admin.password);
+    const brokerValid = await bcrypt.compare('password123', broker.password);
+    
+    res.json({
+      success: true,
+      message: 'Users force reset successfully',
+      data: {
+        admin: {
+          email: admin.email,
+          passwordValid: adminValid,
+          passwordHash: admin.password.substring(0, 20) + '...'
+        },
+        broker: {
+          email: broker.email,
+          passwordValid: brokerValid,
+          passwordHash: broker.password.substring(0, 20) + '...'
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Force reset error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Force reset failed',
+      error: error.message
+    });
+  }
+});
+
 // Protected routes (require authentication)
 router.use(authenticateToken); // All routes below require authentication
 
