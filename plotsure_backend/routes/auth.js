@@ -98,6 +98,11 @@ router.get('/init-users', async (req, res) => {
         verified: true
       });
       createdUsers.push({ email: 'admin@plotsure.com', password: 'admin123', role: 'admin' });
+    } else {
+      // Update admin password to ensure it's correct
+      const adminPassword = await bcrypt.hash('admin123', 10);
+      await adminExists.update({ password: adminPassword });
+      createdUsers.push({ email: 'admin@plotsure.com', password: 'admin123', role: 'admin' });
     }
     
     // Check and create broker user
@@ -114,12 +119,17 @@ router.get('/init-users', async (req, res) => {
         verified: true
       });
       createdUsers.push({ email: 'broker@plotsure.com', password: 'password123', role: 'broker' });
+    } else {
+      // Update broker password to ensure it's correct
+      const brokerPassword = await bcrypt.hash('password123', 10);
+      await brokerExists.update({ password: brokerPassword });
+      createdUsers.push({ email: 'broker@plotsure.com', password: 'password123', role: 'broker' });
     }
     
     if (createdUsers.length > 0) {
       res.json({
         success: true,
-        message: 'Default users created successfully',
+        message: 'Default users created/updated successfully',
         users: createdUsers
       });
     } else {
