@@ -77,7 +77,7 @@ router.post('/register', registerValidation, authController.register);
 router.post('/login', loginValidation, authController.login);
 
 // One-time initialization endpoint to create default users (public)
-router.post('/init-users', async (req, res) => {
+router.get('/init-users', async (req, res) => {
   try {
     const bcrypt = require('bcryptjs');
     const { User } = require('../models');
