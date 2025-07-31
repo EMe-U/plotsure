@@ -272,7 +272,7 @@ function showAuthTab(tabName) {
     
     // Show selected tab content
     document.getElementById(`${tabName}Tab`).style.display = 'block';
-
+    
     // Add active class to clicked button
     event.target.classList.add('active');
 }
@@ -429,12 +429,7 @@ function showListingDetail(listing) {
             
             <div class="listing-documents">
                 <h4>Documents</h4>
-                <p><strong>Land Title:</strong> 
-                    ${listing.document_data ? 
-                        `<button onclick="openDocument('${listing.document}', '${listing.document_data}')" class="document-link">${listing.document} 📄</button>` : 
-                        listing.document
-                    }
-                </p>
+                <p><strong>Land Title:</strong> <a href="#" onclick="viewDocument('${listing.document}', '${listing.document_data || ''}')" style="color: var(--primary); text-decoration: underline;">${listing.document}</a></p>
             </div>
             
             <div class="listing-actions-full">
@@ -449,69 +444,6 @@ function showListingDetail(listing) {
     `;
     
     modal.classList.add('show');
-}
-
-// Document Viewer Function
-function openDocument(documentName, documentData) {
-    // Convert base64 to blob URL
-    const byteCharacters = atob(documentData.split(',')[1]);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: 'application/pdf' });
-    const blobUrl = URL.createObjectURL(blob);
-    
-    // Create document viewer modal
-    const modal = document.createElement('div');
-    modal.className = 'modal show';
-    modal.id = 'documentViewerModal';
-    
-    modal.innerHTML = `
-        <div class="modal-content modal-large">
-            <div class="modal-header">
-                <h3>${documentName}</h3>
-                <button class="modal-close" onclick="closeDocumentViewer()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="document-viewer">
-                    <iframe src="${blobUrl}" width="100%" height="600px" frameborder="0"></iframe>
-                </div>
-                <div class="document-actions">
-                    <button class="btn btn-primary" onclick="downloadDocument('${documentName}', '${blobUrl}')">
-                        📥 Download Document
-                    </button>
-                    <button class="btn btn-secondary" onclick="closeDocumentViewer()">
-                        Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-}
-
-function closeDocumentViewer() {
-    const modal = document.getElementById('documentViewerModal');
-    if (modal) {
-        // Clean up blob URL
-        const iframe = modal.querySelector('iframe');
-        if (iframe && iframe.src.startsWith('blob:')) {
-            URL.revokeObjectURL(iframe.src);
-        }
-        modal.remove();
-    }
-}
-
-function downloadDocument(documentName, blobUrl) {
-    const link = document.createElement('a');
-    link.href = blobUrl;
-    link.download = documentName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
 }
 
 // Search and Filter Functions
@@ -801,6 +733,60 @@ function setupNavigation() {
             navbar.classList.remove('scrolled');
         }
     });
+}
+
+// Document Viewing Function
+function viewDocument(documentName, documentData) {
+    // Create modal for viewing document
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.id = 'documentViewModal';
+    
+    let content = '';
+    
+    if (documentData && documentData.startsWith('data:application/pdf')) {
+        // If it's a PDF, display it in an iframe
+        content = `
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h3>${documentName}</h3>
+                    <button class="modal-close" onclick="closeModal('documentViewModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <iframe src="${documentData}" style="width: 100%; height: 600px; border: none;"></iframe>
+                </div>
+            </div>
+        `;
+    } else {
+        // For other document types or when no data is available
+        content = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>${documentName}</h3>
+                    <button class="modal-close" onclick="closeModal('documentViewModal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="document-info">
+                        <h4>Document Information</h4>
+                        <p><strong>File Name:</strong> ${documentName}</p>
+                        <p><strong>Status:</strong> Document uploaded by admin</p>
+                        <p><strong>Note:</strong> This document has been verified and uploaded by our admin team.</p>
+                        <div class="document-actions">
+                            <p>To view the actual document content, please contact the land broker directly:</p>
+                            <div class="contact-info">
+                                <p><strong>Contact:</strong> Available in the listing details</p>
+                                <p><strong>Email:</strong> plotsureconnect@gmail.com</p>
+                                <p><strong>Phone:</strong> +250 791 845 708</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    modal.innerHTML = content;
+    document.body.appendChild(modal);
 }
 
 // Add CSS for animations
