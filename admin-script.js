@@ -772,7 +772,7 @@ function viewListingDetails(listingId) {
                             <strong>Type:</strong> ${listing.land_type}
                         </div>
                         <div class="info-item">
-                            <strong>Broker:</strong> ${listing.landowner_name}
+                            <strong>Landowner:</strong> ${listing.landowner_name}
                         </div>
                         <div class="info-item">
                             <strong>Contact:</strong> ${listing.landowner_phone}
