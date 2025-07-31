@@ -118,6 +118,12 @@
 
                 <div class="listings-filters">
                     <input type="text" id="listingsSearch" placeholder="Search listings..." onkeyup="filterAdminListings()">
+                    <select id="listingsStatusFilter" onchange="filterAdminListings()">
+                        <option value="">All Status</option>
+                        <option value="available">Available</option>
+                        <option value="reserved">Reserved</option>
+                        <option value="sold">Sold</option>
+                    </select>
                     <select id="listingsTypeFilter" onchange="filterAdminListings()">
                         <option value="">All Types</option>
                         <option value="residential">Residential</option>
@@ -263,8 +269,7 @@
 
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
-                         <button type="submit" class="btn btn-primary">Add Listing</button>
-
+                        <button type="submit" class="btn btn-primary">Add Listing</button>
                     </div>
                 </form>
             </div>

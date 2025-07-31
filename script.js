@@ -429,7 +429,16 @@ function showListingDetail(listing) {
             
             <div class="listing-documents">
                 <h4>Documents</h4>
-                <p><strong>Land Title:</strong> <a href="#" onclick="viewDocument('${listing.document}', '${listing.document_data || ''}')" style="color: var(--primary); text-decoration: underline;">${listing.document}</a></p>
+                <p><strong>Land Title:</strong> ${listing.document}</p>
+                ${listing.document_data ? `
+                <div class="document-viewer">
+                    <button class="btn btn-primary btn-small" onclick="viewDocument('${listing.document}', '${listing.document_data}')">
+                        📄 View Document
+                    </button>
+                </div>
+                ` : `
+                <p><em>Document not available for viewing</em></p>
+                `}
             </div>
             
             <div class="listing-actions-full">
@@ -690,6 +699,120 @@ function scrollToSection(sectionId) {
     document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
 }
 
+// Document Viewer Function
+function viewDocument(documentName, documentData) {
+    try {
+        // Create a new window to display the document
+        const documentWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        
+        if (documentWindow) {
+            // Write the document content to the new window
+            documentWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>${documentName} - PlotSure Connect</title>
+                    <style>
+                        body {
+                            font-family: 'Inter', sans-serif;
+                            margin: 0;
+                            padding: 20px;
+                            background: #f8f9fa;
+                        }
+                        .document-header {
+                            background: white;
+                            padding: 20px;
+                            border-radius: 8px;
+                            margin-bottom: 20px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        }
+                        .document-title {
+                            font-size: 24px;
+                            font-weight: 600;
+                            color: #1f2937;
+                            margin-bottom: 10px;
+                        }
+                        .document-info {
+                            color: #6b7280;
+                            font-size: 14px;
+                        }
+                        .document-content {
+                            background: white;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            overflow: hidden;
+                        }
+                        .document-iframe {
+                            width: 100%;
+                            height: 70vh;
+                            border: none;
+                        }
+                        .close-btn {
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            background: #ef4444;
+                            color: white;
+                            border: none;
+                            padding: 10px 15px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            z-index: 1000;
+                        }
+                        .close-btn:hover {
+                            background: #dc2626;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <button class="close-btn" onclick="window.close()">✕ Close</button>
+                    <div class="document-header">
+                        <div class="document-title">${documentName}</div>
+                        <div class="document-info">PlotSure Connect - Land Title Document</div>
+                    </div>
+                    <div class="document-content">
+                        <iframe class="document-iframe" src="${documentData}"></iframe>
+                    </div>
+                </body>
+                </html>
+            `);
+            documentWindow.document.close();
+        } else {
+            // Fallback if popup is blocked
+            showErrorMessage('Please allow popups to view documents, or click the link below to open manually.');
+            
+            // Create a temporary link to download/view the document
+            const link = document.createElement('a');
+            link.href = documentData;
+            link.target = '_blank';
+            link.download = documentName;
+            link.textContent = 'Click here to view document';
+            link.style.cssText = `
+                display: block;
+                margin-top: 10px;
+                padding: 10px;
+                background: var(--primary);
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                text-align: center;
+            `;
+            
+            // Find the document viewer div and append the link
+            const documentViewer = document.querySelector('.document-viewer');
+            if (documentViewer) {
+                documentViewer.appendChild(link);
+            }
+        }
+    } catch (error) {
+        console.error('Error opening document:', error);
+        showErrorMessage('Unable to open document. Please try again.');
+    }
+}
+
 function setupNavigation() {
     // Smooth scrolling for navigation links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -733,60 +856,6 @@ function setupNavigation() {
             navbar.classList.remove('scrolled');
         }
     });
-}
-
-// Document Viewing Function
-function viewDocument(documentName, documentData) {
-    // Create modal for viewing document
-    const modal = document.createElement('div');
-    modal.className = 'modal show';
-    modal.id = 'documentViewModal';
-    
-    let content = '';
-    
-    if (documentData && documentData.startsWith('data:application/pdf')) {
-        // If it's a PDF, display it in an iframe
-        content = `
-            <div class="modal-content modal-large">
-                <div class="modal-header">
-                    <h3>${documentName}</h3>
-                    <button class="modal-close" onclick="closeModal('documentViewModal')">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <iframe src="${documentData}" style="width: 100%; height: 600px; border: none;"></iframe>
-                </div>
-            </div>
-        `;
-    } else {
-        // For other document types or when no data is available
-        content = `
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>${documentName}</h3>
-                    <button class="modal-close" onclick="closeModal('documentViewModal')">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="document-info">
-                        <h4>Document Information</h4>
-                        <p><strong>File Name:</strong> ${documentName}</p>
-                        <p><strong>Status:</strong> Document uploaded by admin</p>
-                        <p><strong>Note:</strong> This document has been verified and uploaded by our admin team.</p>
-                        <div class="document-actions">
-                            <p>To view the actual document content, please contact the land broker directly:</p>
-                            <div class="contact-info">
-                                <p><strong>Contact:</strong> Available in the listing details</p>
-                                <p><strong>Email:</strong> plotsureconnect@gmail.com</p>
-                                <p><strong>Phone:</strong> +250 791 845 708</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    
-    modal.innerHTML = content;
-    document.body.appendChild(modal);
 }
 
 // Add CSS for animations

@@ -311,7 +311,7 @@ function handleAddListing(e) {
     const isEditMode = form.dataset.editMode === 'true';
     const editId = parseInt(form.dataset.editId);
     
-    const imagePreview = document.getElementById('imagePreview'); const imageFile = document.getElementById('listingImage').files[0];
+    const imageFile = document.getElementById('listingImage').files[0];
     const documentFile = document.getElementById('listingDocument').files[0];
     
     // In edit mode, files are optional (keep existing if not uploaded)
@@ -387,16 +387,15 @@ function handleAddListing(e) {
 }
 
 function createNewListing(imageData, documentData, documentFileName) {
-    // Create a new listing object
-    const newListing = {
-        id: Date.now(), // unique ID using timestamp
+        const newListing = {
+        id: Date.now(), // Use timestamp for unique ID
         title: document.getElementById('listingTitle').value.trim(),
         description: document.getElementById('listingDescription').value.trim(),
         location: document.getElementById('listingLocation').value.trim(),
-        price: parseInt(document.getElementById('listingPrice').value),
-        plot_size: parseInt(document.getElementById('listingSize').value),
-        plot_size_unit: "sqm",
-        land_type: document.getElementById('listingType').value,
+            price: parseInt(document.getElementById('listingPrice').value),
+            plot_size: parseInt(document.getElementById('listingSize').value),
+            plot_size_unit: "sqm",
+            land_type: document.getElementById('listingType').value,
         landowner_name: document.getElementById('landownerName').value.trim(),
         landowner_phone: document.getElementById('landownerPhone').value.trim(),
         plot_number: document.getElementById('plotNumber').value.trim(),
@@ -404,35 +403,33 @@ function createNewListing(imageData, documentData, documentFileName) {
         cell: document.getElementById('cell').value.trim(),
         amenities: document.getElementById('amenities').value.trim(),
         infrastructure: document.getElementById('infrastructure').value.trim(),
-        price_negotiable: document.getElementById('priceNegotiable').checked,
-        land_title_available: document.getElementById('landTitleAvailable').checked,
-        image: imageData, // base64 or file path
+            price_negotiable: document.getElementById('priceNegotiable').checked,
+            land_title_available: document.getElementById('landTitleAvailable').checked,
+            image: imageData,
         document: documentFileName,
-        document_data: documentData, // base64 PDF
-        status: "available",
-        verified: true,
-        views: 0,
-        created_at: new Date().toISOString(),
-        user_id: currentAdmin.id
-    };
-
-    // Save to localStorage
-    listings.push(newListing);
-    localStorage.setItem('plotsure_listings', JSON.stringify(listings));
-
-    // Reset form and hide edit mode if any
+        document_data: documentData, // Store PDF data if available
+            status: "available",
+            verified: true,
+            views: 0,
+            created_at: new Date().toISOString(),
+            user_id: currentAdmin.id
+        };
+        
+        listings.push(newListing);
+        localStorage.setItem('plotsure_listings', JSON.stringify(listings));
+        
+    // Reset form and exit edit mode
     resetFormAndExitEditMode();
-
-    // Notify user
-    showSuccessMessage('✅ Listing added successfully! The new plot will appear on the dashboard.');
-
-    // Refresh stats
-    loadDashboardStats();
-
-    // Go to listings tab to show new listing
-    showAdminTab('listings');
+        
+        // Show success message
+    showSuccessMessage('Listing added successfully! The new plot will appear on the user dashboard.');
+        
+        // Reload dashboard stats
+        loadDashboardStats();
+        
+    // Switch to listings tab to show the new listing
+        showAdminTab('listings');
 }
-
 
 function handleEditListing(editId, imageFile, documentFile) {
     const existingListing = listings.find(l => l.id === editId);
@@ -816,6 +813,15 @@ function viewListingDetails(listingId) {
                     <div class="listing-documents">
                         <h4>Documents</h4>
                         <p><strong>Land Title:</strong> ${listing.document}</p>
+                        ${listing.document_data ? `
+                        <div class="document-viewer">
+                            <button class="btn btn-primary btn-small" onclick="viewDocument('${listing.document}', '${listing.document_data}')">
+                                📄 View Document
+                            </button>
+                        </div>
+                        ` : `
+                        <p><em>Document not available for viewing</em></p>
+                        `}
                     </div>
                     
                     <div class="listing-actions-full">
@@ -1146,6 +1152,120 @@ function showErrorMessage(message) {
 
 function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('show');
+}
+
+// Document Viewer Function
+function viewDocument(documentName, documentData) {
+    try {
+        // Create a new window to display the document
+        const documentWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        
+        if (documentWindow) {
+            // Write the document content to the new window
+            documentWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>${documentName} - PlotSure Connect</title>
+                    <style>
+                        body {
+                            font-family: 'Inter', sans-serif;
+                            margin: 0;
+                            padding: 20px;
+                            background: #f8f9fa;
+                        }
+                        .document-header {
+                            background: white;
+                            padding: 20px;
+                            border-radius: 8px;
+                            margin-bottom: 20px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        }
+                        .document-title {
+                            font-size: 24px;
+                            font-weight: 600;
+                            color: #1f2937;
+                            margin-bottom: 10px;
+                        }
+                        .document-info {
+                            color: #6b7280;
+                            font-size: 14px;
+                        }
+                        .document-content {
+                            background: white;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            overflow: hidden;
+                        }
+                        .document-iframe {
+                            width: 100%;
+                            height: 70vh;
+                            border: none;
+                        }
+                        .close-btn {
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            background: #ef4444;
+                            color: white;
+                            border: none;
+                            padding: 10px 15px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            z-index: 1000;
+                        }
+                        .close-btn:hover {
+                            background: #dc2626;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <button class="close-btn" onclick="window.close()">✕ Close</button>
+                    <div class="document-header">
+                        <div class="document-title">${documentName}</div>
+                        <div class="document-info">PlotSure Connect - Land Title Document</div>
+                    </div>
+                    <div class="document-content">
+                        <iframe class="document-iframe" src="${documentData}"></iframe>
+                    </div>
+                </body>
+                </html>
+            `);
+            documentWindow.document.close();
+        } else {
+            // Fallback if popup is blocked
+            showErrorMessage('Please allow popups to view documents, or click the link below to open manually.');
+            
+            // Create a temporary link to download/view the document
+            const link = document.createElement('a');
+            link.href = documentData;
+            link.target = '_blank';
+            link.download = documentName;
+            link.textContent = 'Click here to view document';
+            link.style.cssText = `
+                display: block;
+                margin-top: 10px;
+                padding: 10px;
+                background: var(--primary);
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                text-align: center;
+            `;
+            
+            // Find the document viewer div and append the link
+            const documentViewer = document.querySelector('.document-viewer');
+            if (documentViewer) {
+                documentViewer.appendChild(link);
+            }
+        }
+    } catch (error) {
+        console.error('Error opening document:', error);
+        showErrorMessage('Unable to open document. Please try again.');
+    }
 }
 
 function logout() {
