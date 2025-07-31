@@ -387,15 +387,16 @@ function handleAddListing(e) {
 }
 
 function createNewListing(imageData, documentData, documentFileName) {
-        const newListing = {
-        id: Date.now(), // Use timestamp for unique ID
+    // Create a new listing object
+    const newListing = {
+        id: Date.now(), // unique ID using timestamp
         title: document.getElementById('listingTitle').value.trim(),
         description: document.getElementById('listingDescription').value.trim(),
         location: document.getElementById('listingLocation').value.trim(),
-            price: parseInt(document.getElementById('listingPrice').value),
-            plot_size: parseInt(document.getElementById('listingSize').value),
-            plot_size_unit: "sqm",
-            land_type: document.getElementById('listingType').value,
+        price: parseInt(document.getElementById('listingPrice').value),
+        plot_size: parseInt(document.getElementById('listingSize').value),
+        plot_size_unit: "sqm",
+        land_type: document.getElementById('listingType').value,
         landowner_name: document.getElementById('landownerName').value.trim(),
         landowner_phone: document.getElementById('landownerPhone').value.trim(),
         plot_number: document.getElementById('plotNumber').value.trim(),
@@ -403,33 +404,35 @@ function createNewListing(imageData, documentData, documentFileName) {
         cell: document.getElementById('cell').value.trim(),
         amenities: document.getElementById('amenities').value.trim(),
         infrastructure: document.getElementById('infrastructure').value.trim(),
-            price_negotiable: document.getElementById('priceNegotiable').checked,
-            land_title_available: document.getElementById('landTitleAvailable').checked,
-            image: imageData,
+        price_negotiable: document.getElementById('priceNegotiable').checked,
+        land_title_available: document.getElementById('landTitleAvailable').checked,
+        image: imageData, // base64 or file path
         document: documentFileName,
-        document_data: documentData, // Store PDF data if available
-            status: "available",
-            verified: true,
-            views: 0,
-            created_at: new Date().toISOString(),
-            user_id: currentAdmin.id
-        };
-        
-        listings.push(newListing);
-        localStorage.setItem('plotsure_listings', JSON.stringify(listings));
-        
-    // Reset form and exit edit mode
+        document_data: documentData, // base64 PDF
+        status: "available",
+        verified: true,
+        views: 0,
+        created_at: new Date().toISOString(),
+        user_id: currentAdmin.id
+    };
+
+    // Save to localStorage
+    listings.push(newListing);
+    localStorage.setItem('plotsure_listings', JSON.stringify(listings));
+
+    // Reset form and hide edit mode if any
     resetFormAndExitEditMode();
-        
-        // Show success message
-    showSuccessMessage('Listing added successfully! The new plot will appear on the user dashboard.');
-        
-        // Reload dashboard stats
-        loadDashboardStats();
-        
-    // Switch to listings tab to show the new listing
-        showAdminTab('listings');
+
+    // Notify user
+    showSuccessMessage('✅ Listing added successfully! The new plot will appear on the dashboard.');
+
+    // Refresh stats
+    loadDashboardStats();
+
+    // Go to listings tab to show new listing
+    showAdminTab('listings');
 }
+
 
 function handleEditListing(editId, imageFile, documentFile) {
     const existingListing = listings.find(l => l.id === editId);
