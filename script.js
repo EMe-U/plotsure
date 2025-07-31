@@ -93,6 +93,12 @@ function setupEventListeners() {
         loginBtn.addEventListener('click', showLoginModal);
     }
     
+    // Mobile menu button
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+    }
+    
     // Search input
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
@@ -101,6 +107,17 @@ function setupEventListeners() {
                 searchListings();
             }
         });
+    }
+}
+
+// Mobile Menu Functions
+function toggleMobileMenu() {
+    const navLinks = document.querySelector('.nav-links');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    
+    if (navLinks && mobileMenuBtn) {
+        navLinks.classList.toggle('mobile-active');
+        mobileMenuBtn.classList.toggle('active');
     }
 }
 
