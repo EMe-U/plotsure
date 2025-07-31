@@ -431,7 +431,7 @@ function showListingDetail(listing) {
                 <h4>Documents</h4>
                 <p><strong>Land Title:</strong> 
                     ${listing.document_data ? 
-                        <button onclick="openDocument('${listing.document}', '${listing.document_data}')" class="document-link">${listing.document} 📄</button> : 
+                        `<button onclick="openDocument('${listing.document}', '${listing.document_data}')" class="document-link">${listing.document} 📄</button>` : 
                         listing.document
                     }
                 </p>
