@@ -311,7 +311,7 @@ function handleAddListing(e) {
     const isEditMode = form.dataset.editMode === 'true';
     const editId = parseInt(form.dataset.editId);
     
-    const imageFile = document.getElementById('listingImage').files[0];
+    const imagePreview = document.getElementById('imagePreview'); const imageFile = document.getElementById('listingImage').files[0];
     const documentFile = document.getElementById('listingDocument').files[0];
     
     // In edit mode, files are optional (keep existing if not uploaded)
