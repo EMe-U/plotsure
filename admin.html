@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlotSure Connect - Admin Dashboard</title>
+    <meta name="description" content="Admin dashboard for PlotSure Connect - Manage land listings and inquiries">
+    
+    <!-- Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+    <!-- Loading Animation -->
+    <div class="loader" id="loader">
+        <div class="loader-circle"></div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="admin-dashboard">
+        <!-- Admin Header -->
+        <header class="admin-header">
+            <div class="admin-header-content">
+                <div class="admin-logo">
+                    <span style="color: var(--primary);">Plot</span>Sure Connect
+                    <span class="admin-badge">Admin</span>
+                </div>
+                <div class="admin-user-info">
+                    <span id="adminUserName">Admin User</span>
+                    <button class="btn btn-secondary btn-small" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Admin Navigation -->
+        <nav class="admin-nav">
+            <div class="admin-nav-content">
+                <button class="nav-tab active" onclick="showAdminTab('dashboard')">
+                    📊 Dashboard
+                </button>
+                <button class="nav-tab" onclick="showAdminTab('listings')">
+                    🏠 Manage Listings
+                </button>
+                <button class="nav-tab" onclick="showAdminTab('add-listing')">
+                    ➕ Add New Listing
+                </button>
+                <button class="nav-tab" onclick="showAdminTab('inquiries')">
+                    📧 Inquiries
+                </button>
+                <button class="nav-tab" onclick="showAdminTab('users')">
+                    👥 Users
+                </button>
+                <button class="nav-tab" onclick="showAdminTab('settings')">
+                    ⚙️ Settings
+                </button>
+            </div>
+        </nav>
+
+        <!-- Admin Content -->
+        <main class="admin-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboardTab" class="admin-tab-content">
+                <div class="dashboard-header">
+                    <h1>Admin Dashboard</h1>
+                    <p>Welcome back, <span id="dashboardUserName">Admin</span>!</p>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">🏠</div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="totalListings">0</div>
+                            <div class="stat-label">Total Listings</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📧</div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="totalInquiries">0</div>
+                            <div class="stat-label">Total Inquiries</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="totalUsers">0</div>
+                            <div class="stat-label">Registered Users</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-recent">
+                    <div class="recent-listings">
+                        <h3>Recent Listings</h3>
+                        <div id="recentListingsList" class="recent-list">
+                            <!-- Recent listings will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="recent-inquiries">
+                        <h3>Recent Inquiries</h3>
+                        <div id="recentInquiriesList" class="recent-list">
+                            <!-- Recent inquiries will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Listings Tab -->
+            <div id="listingsTab" class="admin-tab-content" style="display: none;">
+                <div class="tab-header">
+                    <h2>Manage Land Listings</h2>
+                    <button class="btn btn-primary" onclick="showAdminTab('add-listing')">
+                        ➕ Add New Listing
+                    </button>
+                </div>
+
+                <div class="listings-filters">
+                    <input type="text" id="listingsSearch" placeholder="Search listings..." onkeyup="filterAdminListings()">
+                    <select id="listingsStatusFilter" onchange="filterAdminListings()">
+                        <option value="">All Status</option>
+                        <option value="available">Available</option>
+                        <option value="reserved">Reserved</option>
+                        <option value="sold">Sold</option>
+                    </select>
+                    <select id="listingsTypeFilter" onchange="filterAdminListings()">
+                        <option value="">All Types</option>
+                        <option value="residential">Residential</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="agricultural">Agricultural</option>
+                        <option value="industrial">Industrial</option>
+                    </select>
+                </div>
+
+                <div class="admin-listings-grid" id="adminListingsGrid">
+                    <!-- Admin listings will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Add New Listing Tab -->
+            <div id="addListingTab" class="admin-tab-content" style="display: none;">
+                <div class="tab-header">
+                    <h2>Add New Land Listing</h2>
+                    <button class="btn btn-secondary" onclick="showAdminTab('listings')">
+                        ← Back to Listings
+                    </button>
+                </div>
+
+                <form id="addListingForm" class="admin-form">
+                    <div class="form-section">
+                        <h3>Basic Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="listingTitle">Listing Title *</label>
+                                <input type="text" id="listingTitle" required placeholder="e.g., Beautiful Residential Plot in Nyamata">
+                            </div>
+                            <div class="form-group">
+                                <label for="listingLocation">Location *</label>
+                                <input type="text" id="listingLocation" required placeholder="e.g., Nyamata, Bugesera District">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="listingSize">Plot Size (sqm) *</label>
+                                <input type="number" id="listingSize" required placeholder="500">
+                            </div>
+                            <div class="form-group">
+                                <label for="listingPrice">Price (RWF) *</label>
+                                <input type="number" id="listingPrice" required placeholder="15000000">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="listingDescription">Description *</label>
+                            <textarea id="listingDescription" rows="4" required placeholder="Describe the land plot, its features, and any important details..."></textarea>
+                            <small>Provide a detailed description including plot features, accessibility, and any unique selling points.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Land Details</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="listingType">Land Type *</label>
+                                <select id="listingType" required>
+                                    <option value="">Select Land Type</option>
+                                    <option value="residential">Residential</option>
+                                    <option value="commercial">Commercial</option>
+                                    <option value="agricultural">Agricultural</option>
+                                    <option value="industrial">Industrial</option>
+                                    <option value="mixed">Mixed Use</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="landownerName">Land Broker Name *</label>
+                                <input type="text" id="landownerName" required placeholder="e.g., Jean Pierre Uwimana">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="landownerPhone">Land Broker Phone *</label>
+                                <input type="tel" id="landownerPhone" required placeholder="+250 791 234 567">
+                            </div>
+                            <div class="form-group">
+                                <label for="plotNumber">Plot Number</label>
+                                <input type="text" id="plotNumber" placeholder="e.g., PLT-001">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sector">Sector</label>
+                                <input type="text" id="sector" placeholder="e.g., Nyamata Sector">
+                            </div>
+                            <div class="form-group">
+                                <label for="cell">Cell</label>
+                                <input type="text" id="cell" placeholder="e.g., Nyamata Cell">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Media & Documents</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="listingImage">Plot Image *</label>
+                                <input type="file" id="listingImage" accept="image/*" required>
+                                <small>Upload a clear image of the land plot</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="listingDocument">Land Title Document *</label>
+                                <input type="file" id="listingDocument" accept=".pdf,.doc,.docx" required>
+                                <small>Upload the land title or ownership document</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="additionalImages">Additional Images</label>
+                            <input type="file" id="additionalImages" accept="image/*" multiple>
+                            <small>Upload additional images of the plot (optional)</small>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Additional Information</h3>
+                        <div class="form-row">
+                                                    <div class="form-group">
+                            <label for="amenities">Nearby Amenities</label>
+                            <textarea id="amenities" rows="3" placeholder="e.g., Schools, hospitals, markets, roads..."></textarea>
+                            <small>List nearby facilities that make this location attractive.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="infrastructure">Infrastructure</label>
+                            <textarea id="infrastructure" rows="3" placeholder="e.g., Water access, electricity, road access..."></textarea>
+                            <small>Describe available utilities and infrastructure on or near the plot.</small>
+                        </div>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="priceNegotiable">
+                                Price is negotiable
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="landTitleAvailable" checked>
+                                Land title is available
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+                        <button type="submit" class="btn btn-primary">Add Listing</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Inquiries Tab -->
+            <div id="inquiriesTab" class="admin-tab-content" style="display: none;">
+                <div class="tab-header">
+                    <h2>Manage Inquiries</h2>
+                    <div class="inquiry-filters">
+                        <input type="text" id="inquiriesSearch" placeholder="Search inquiries..." onkeyup="filterInquiries()">
+                        <select id="inquiriesStatusFilter" onchange="filterInquiries()">
+                            <option value="">All Status</option>
+                            <option value="new">New</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="responded">Responded</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="inquiries-list" id="inquiriesList">
+                    <!-- Inquiries will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="admin-tab-content" style="display: none;">
+                <div class="tab-header">
+                    <h2>Manage Users</h2>
+                    <button class="btn btn-primary" onclick="showAddUserModal()">
+                        ➕ Add User
+                    </button>
+                </div>
+
+                <div class="users-list" id="usersList">
+                    <!-- Users will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="admin-tab-content" style="display: none;">
+                <div class="tab-header">
+                    <h2>Admin Settings</h2>
+                </div>
+
+                <div class="settings-content">
+                    <div class="settings-section">
+                        <h3>Profile Settings</h3>
+                        <form id="profileForm" class="admin-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="adminName">Full Name</label>
+                                    <input type="text" id="adminName" value="Admin User">
+                                </div>
+                                <div class="form-group">
+                                    <label for="adminEmail">Email</label>
+                                    <input type="email" id="adminEmail" value="admin@plotsure.com">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="adminPhone">Phone</label>
+                                    <input type="tel" id="adminPhone" value="+250 791 845 708">
+                                </div>
+                                <div class="form-group">
+                                    <label for="adminPassword">New Password</label>
+                                    <input type="password" id="adminPassword" placeholder="Leave blank to keep current">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </form>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>System Settings</h3>
+                        <div class="settings-options">
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="emailNotifications" checked>
+                                    Enable email notifications
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="autoApproveListings">
+                                    Auto-approve new listings
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label>
+                                    <input type="checkbox" id="requireVerification" checked>
+                                    Require listing verification
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New User</h3>
+                <button class="modal-close" onclick="closeModal('addUserModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label for="newUserName">Full Name</label>
+                        <input type="text" id="newUserName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserEmail">Email</label>
+                        <input type="email" id="newUserEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserPhone">Phone</label>
+                        <input type="tel" id="newUserPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserPassword">Password</label>
+                        <input type="password" id="newUserPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserRole">Role</label>
+                        <select id="newUserRole" required>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin-script.js"></script>
+</body>
+</html> 

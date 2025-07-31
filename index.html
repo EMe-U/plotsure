@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlotSure Connect - Verified Land Listings in Bugesera</title>
+    <meta name="description" content="Combat land fraud with transparent, verified land listings in Bugesera, Rwanda. Complete documentation and visual proof for every plot.">
+    
+    <!-- Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Loading Animation -->
+    <div class="loader" id="loader">
+        <div class="loader-circle"></div>
+    </div>
+
+    <!-- Authentication Screen (shown by default) -->
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="logo">
+                    <span style="color: var(--primary);">Plot</span>Sure Connect
+                </div>
+                <h1>Welcome to PlotSure Connect</h1>
+                <p>Verified land listings in Bugesera, Rwanda</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" onclick="showAuthTab('login')">Login</button>
+                <button class="auth-tab-btn" onclick="showAuthTab('signup')">Sign Up</button>
+            </div>
+            
+            <div class="auth-content">
+                <!-- Login Form -->
+                <div id="loginTab" class="auth-tab-content">
+                    <form id="loginForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-large">Login</button>
+                    </form>
+                </div>
+                
+                <!-- Signup Form -->
+                <div id="signupTab" class="auth-tab-content" style="display: none;">
+                    <form id="signupForm" class="auth-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="signupName">Full Name</label>
+                                <input type="text" id="signupName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="signupPhone">Phone</label>
+                                <input type="tel" id="signupPhone" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="signupEmail">Email</label>
+                            <input type="email" id="signupEmail" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="signupPassword">Password</label>
+                                <input type="password" id="signupPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="signupConfirmPassword">Confirm Password</label>
+                                <input type="password" id="signupConfirmPassword" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-large">Sign Up</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="auth-footer">
+                <p>Default Admin Login:</p>
+                <p><strong>Email:</strong> admin@plotsure.com</p>
+                <p><strong>Password:</strong> admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application (hidden by default) -->
+    <div id="mainApp" class="main-app" style="display: none;">
+        <!-- Navigation -->
+        <nav id="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <span style="color: var(--primary);">Plot</span>Sure Connect
+                </div>
+                <div class="nav-links">
+                    <a href="#home" class="nav-link active">Home</a>
+                    <a href="#listings" class="nav-link">Listings</a>
+                    <a href="#about" class="nav-link">About</a>
+                    <a href="#contact" class="nav-link">Contact</a>
+                    <button class="btn btn-primary" id="loginBtn">Login</button>
+                    <button class="btn btn-secondary" id="logoutBtn" onclick="logout()" style="display: none;">Logout</button>
+                </div>
+                <div class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Hero Section -->
+            <section id="home" class="hero">
+                <div class="hero-content">
+                    <h1>Verified Land Listings in Bugesera</h1>
+                    <p>Combat land fraud with transparent, verified land listings. Complete documentation and visual proof for every plot.</p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary btn-large" onclick="scrollToSection('listings')">Browse Listings</button>
+                        <button class="btn btn-secondary btn-large" onclick="scrollToSection('about')">Learn More</button>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="hero-card">
+                        <div class="card-icon">🏠</div>
+                        <h3>Verified Properties</h3>
+                        <p>All listings come with complete documentation</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Listings Section -->
+            <section id="listings" class="listings">
+                <div class="container">
+                    <div class="section-header">
+                        <h2>Available Land Plots</h2>
+                        <p>Browse through our verified land listings in Bugesera</p>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="search-filter-container">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Search by location, size, or price...">
+                            <button class="search-btn" onclick="searchListings()">🔍</button>
+                        </div>
+                        <div class="filter-container">
+                            <select id="priceFilter" onchange="filterListings()">
+                                <option value="">All Prices</option>
+                                <option value="0-5000000">Under 5M RWF</option>
+                                <option value="5000000-10000000">5M - 10M RWF</option>
+                                <option value="10000000-20000000">10M - 20M RWF</option>
+                                <option value="20000000+">Over 20M RWF</option>
+                            </select>
+                            <select id="landTypeFilter" onchange="filterListings()">
+                                <option value="">All Types</option>
+                                <option value="residential">Residential</option>
+                                <option value="commercial">Commercial</option>
+                                <option value="agricultural">Agricultural</option>
+                                <option value="industrial">Industrial</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Listings Grid -->
+                    <div class="listings-grid" id="listingsGrid">
+                        <!-- Listings will be dynamically loaded here -->
+                    </div>
+
+                    <!-- Load More Button -->
+                    <div class="load-more-container">
+                        <button class="btn btn-secondary" id="loadMoreBtn" onclick="loadMoreListings()" style="display: none;">
+                            Load More Listings
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="about" class="about">
+                <div class="container">
+                    <div class="section-header">
+                        <h2>About PlotSure Connect</h2>
+                        <p>Transforming land transactions in Bugesera, Rwanda</p>
+                    </div>
+                    <div class="about-content">
+                        <div class="about-text">
+                            <h3>Our Mission</h3>
+                            <p>To combat land fraud and improve trust in land transactions in Bugesera, Rwanda, by providing a transparent, secure platform that showcases verified land listings with complete documentation.</p>
+                            
+                            <h3>Why Choose PlotSure Connect?</h3>
+                            <ul>
+                                <li>✅ Verified land listings with complete documentation</li>
+                                <li>✅ Transparent pricing and ownership information</li>
+                                <li>✅ Professional land brokers and agents</li>
+                                <li>✅ Secure and reliable platform</li>
+                                <li>✅ Mobile-friendly interface</li>
+                            </ul>
+                        </div>
+                        <div class="about-stats">
+                            <div class="stat-card">
+                                <div class="stat-number">20+</div>
+                                <div class="stat-label">Verified Listings</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">10+</div>
+                                <div class="stat-label">Happy Clients</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">2+</div>
+                                <div class="stat-label">Years Experience</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="contact">
+                <div class="container">
+                    <div class="section-header">
+                        <h2>Contact Us</h2>
+                        <p>Get in touch with our team</p>
+                    </div>
+                    <div class="contact-content">
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <div class="contact-icon">📧</div>
+                                <div>
+                                    <h4>Email</h4>
+                                    <p>plotsureconnect@gmail.com</p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-icon">📞</div>
+                                <div>
+                                    <h4>Phone</h4>
+                                    <p>+250 791 845 708</p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-icon">📍</div>
+                                <div>
+                                    <h4>Location</h4>
+                                    <p>Nyamata, Bugesera District, Rwanda</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="contact-form">
+                            <form id="contactForm">
+                                <div class="form-group">
+                                    <input type="text" id="contactName" placeholder="Your Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="email" id="contactEmail" placeholder="Your Email" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="tel" id="contactPhone" placeholder="Your Phone">
+                                </div>
+                                <div class="form-group">
+                                    <textarea id="contactMessage" placeholder="Your Message" rows="5" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Send Message</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h3>PlotSure Connect</h3>
+                        <p>Transforming land transactions in Bugesera, Rwanda with transparency and trust.</p>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="#home">Home</a></li>
+                            <li><a href="#listings">Listings</a></li>
+                            <li><a href="#about">About</a></li>
+                            <li><a href="#contact">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Contact Info</h4>
+                        <p>📧 plotsureconnect@gmail.com</p>
+                        <p>📞 +250 791 845 708</p>
+                        <p>📍 Nyamata, Bugesera District, Rwanda</p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2024 PlotSure Connect. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Listing Detail Modal -->
+        <div class="modal" id="listingDetailModal">
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h3 id="listingDetailTitle">Land Plot Details</h3>
+                    <button class="modal-close" onclick="closeModal('listingDetailModal')">&times;</button>
+                </div>
+                <div class="modal-body" id="listingDetailContent">
+                    <!-- Listing details will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
