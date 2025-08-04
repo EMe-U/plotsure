@@ -1168,7 +1168,39 @@ html {
 }
 
 .contact-info strong {
-    color: var(--dark);
+    color: var(--text-primary);
+}
+
+/* Document Link Styles */
+.document-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.document-link:hover {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: var(--primary);
+    text-decoration: none;
+    color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.document-link:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
 }
 
 /* Document Viewer Styles */

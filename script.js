@@ -846,16 +846,7 @@ function showListingDetail(listing) {
             
             <div class="listing-documents">
                 <h4>Documents</h4>
-                <p><strong>Land Title:</strong> ${listing.document || listing.document_url ? 'Document uploaded' : 'No document uploaded'}</p>
-                ${listing.document_url ? `
-                <div class="document-viewer">
-                    <button class="btn btn-primary btn-small" data-action="view-document" data-document-name="${listing.document || 'Document'}" data-document-url="${listing.document_url}">
-                        📄 View Document
-                    </button>
-                </div>
-                ` : `
-                <p><em>Document not available for viewing</em></p>
-                `}
+                <p><strong>Land Title:</strong> <a href="#" onclick="viewDocument('${listing.document}', '${listing.document_data || ''}')" style="color: var(--primary); text-decoration: underline;">${listing.document}</a></p>
             </div>
             
             <div class="listing-actions-full">
@@ -1119,17 +1110,6 @@ function showErrorMessage(message) {
 
 function scrollToSection(sectionId) {
     document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
-}
-
-// Document Viewer Function
-function viewDocument(documentName, documentUrl) {
-    try {
-        // Open document in new window
-        window.open(documentUrl, '_blank');
-    } catch (error) {
-        console.error('Error opening document:', error);
-        showErrorMessage('Unable to open document. Please try again.');
-    }
 }
 
 function setupNavigation() {

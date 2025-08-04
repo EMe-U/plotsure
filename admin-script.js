@@ -527,10 +527,7 @@ async function handleAddListing(e) {
     const isEditMode = form.dataset.editMode === 'true';
     const editId = form.dataset.editId;
     
-    console.log('📧 Form mode:', isEditMode ? 'Edit' : 'Add');
-    console.log('🎯 Edit ID:', editId);
-    
-    const imageFile = document.getElementById('listingImage').files[0];
+    const imagePreview = document.getElementById('imagePreview'); const imageFile = document.getElementById('listingImage').files[0];
     const documentFile = document.getElementById('listingDocument').files[0];
     
     console.log('📷 Image file:', imageFile ? imageFile.name : 'None');
@@ -575,164 +572,130 @@ async function handleAddListing(e) {
         return;
     }
     
-    try {
-        if (isEditMode) {
-            // Handle edit mode
-            await handleEditListing(editId, imageFile, documentFile);
-        } else {
-            // Handle add mode
-            if (!imageFile || !documentFile) {
-                showErrorMessage('Please select both image and document files');
-                return;
-            }
-            
-            await createNewListing(imageFile, documentFile);
-        }
-    } catch (error) {
-        console.error('Error handling listing:', error);
-        showErrorMessage('Error saving listing: ' + error.message);
-    }
-}
-
-async function createNewListing(imageFile, documentFile) {
-    try {
-        console.log('🔧 Creating new listing...');
-        
-        // Prepare listing data
-        const listingData = {
-            title: document.getElementById('listingTitle').value.trim(),
-            description: document.getElementById('listingDescription').value.trim(),
-            location: document.getElementById('listingLocation').value.trim(),
-            price: parseInt(document.getElementById('listingPrice').value),
-            size: parseInt(document.getElementById('listingSize').value),
-            size_unit: "sqm",
-            land_type: document.getElementById('listingType').value,
-            owner_name: document.getElementById('landownerName').value.trim(),
-            owner_phone: document.getElementById('landownerPhone').value.trim(),
-            plot_number: document.getElementById('plotNumber').value.trim(),
-            sector: document.getElementById('sector').value.trim(),
-            cell: document.getElementById('cell').value.trim(),
-            amenities: document.getElementById('amenities').value.trim(),
-            infrastructure: document.getElementById('infrastructure').value.trim(),
-            price_negotiable: document.getElementById('priceNegotiable').checked,
-            land_title_available: document.getElementById('landTitleAvailable').checked,
-            status: "active",
-            verified: true,
-            views: 0,
-            owner_id: currentAdmin.id
-        };
-        
-        console.log('📧 Listing data prepared:', listingData);
-        console.log('👤 Current admin:', currentAdmin);
-        
-        // Create listing in Firebase
-        console.log('🔥 Creating listing in Firebase...');
-        const listingRef = await dbService.listings.create(listingData);
-        const listingId = listingRef.id;
-        console.log('✅ Listing created with ID:', listingId);
-        
-        // Upload files if storage is available
-        let imageUrl = '';
-        let documentUrl = '';
-        
-        if (storageService.isStorageAvailable()) {
-            console.log('📁 Storage is available, uploading files...');
-            try {
-                if (imageFile) {
-                    console.log('📷 Uploading image...');
-                    imageUrl = await storageService.uploadListingImage(imageFile, listingId);
-                    console.log('✅ Image uploaded:', imageUrl);
-                }
-                if (documentFile) {
-                    console.log('📄 Uploading document...');
-                    documentUrl = await storageService.uploadDocument(documentFile, listingId);
-                    console.log('✅ Document uploaded:', documentUrl);
-                }
-            } catch (error) {
-                console.error('❌ Error uploading files:', error);
-                showErrorMessage('Warning: File upload failed. Listing created without files.');
-            }
-        } else {
-            console.log('⚠️ Storage is not enabled, skipping file uploads');
-            showErrorMessage('Warning: Storage is not enabled. File uploads skipped.');
-        }
-        
-        // Update listing with file URLs if any were uploaded
-        if (imageUrl || documentUrl) {
-            const updateData = {};
-            if (imageUrl) updateData.image_url = imageUrl;
-            if (documentUrl) updateData.document_url = documentUrl;
-            
-            await dbService.listings.update(listingId, updateData);
-        }
-        
-        // Reset form and exit edit mode
-        console.log('🔄 Resetting form...');
-        resetFormAndExitEditMode();
-        
-        // Show success message
-        console.log('✅ Showing success message...');
-        showSuccessMessage('Listing added successfully! The new plot will appear on the user dashboard.');
-        
-        // Reload data and dashboard stats
-        console.log('📊 Reloading admin data...');
-        await loadAdminData();
-        loadDashboardStats();
-        
-        // Switch to listings tab to show the new listing
-        console.log('🔄 Switching to listings tab...');
-        showAdminTab('listings');
-        
-        console.log('🎉 Listing creation completed successfully!');
-        
-    } catch (error) {
-        console.error('❌ Error creating listing:', error);
-        throw error;
-    }
-}
-
-async function handleEditListing(editId, imageFile, documentFile) {
-    try {
-        console.log('🔧 Handle edit listing called for ID:', editId);
-        
-        const existingListing = listings.find(l => l.id === editId);
-        if (!existingListing) {
-            console.log('❌ Existing listing not found for ID:', editId);
-            showErrorMessage('Listing not found');
+    if (isEditMode) {
+        // Handle edit mode
+        handleEditListing(editId, imageFile, documentFile);
+    } else {
+        // Handle add mode
+        if (!imageFile || !documentFile) {
+            showErrorMessage('Please select both image and document files');
             return;
         }
+    
+    // Convert image to base64
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const imageData = e.target.result;
         
-        console.log('✅ Found existing listing:', existingListing.title);
-        
-        // Prepare updated listing data
-        const updateData = {
-            title: document.getElementById('listingTitle').value.trim(),
-            description: document.getElementById('listingDescription').value.trim(),
-            location: document.getElementById('listingLocation').value.trim(),
-            price: parseInt(document.getElementById('listingPrice').value),
-            size: parseInt(document.getElementById('listingSize').value),
-            land_type: document.getElementById('listingType').value,
-            owner_name: document.getElementById('landownerName').value.trim(),
-            owner_phone: document.getElementById('landownerPhone').value.trim(),
-            plot_number: document.getElementById('plotNumber').value.trim(),
-            sector: document.getElementById('sector').value.trim(),
-            cell: document.getElementById('cell').value.trim(),
-            amenities: document.getElementById('amenities').value.trim(),
-            infrastructure: document.getElementById('infrastructure').value.trim(),
-            price_negotiable: document.getElementById('priceNegotiable').checked,
-            land_title_available: document.getElementById('landTitleAvailable').checked
+            // Convert document to base64 if it's a PDF
+            if (documentFile.type === 'application/pdf') {
+                const docReader = new FileReader();
+                docReader.onload = function(docEvent) {
+                    const documentData = docEvent.target.result;
+                    createNewListing(imageData, documentData, documentFile.name);
+                };
+                docReader.readAsDataURL(documentFile);
+            } else {
+                // For non-PDF files, just store the filename
+                createNewListing(imageData, null, documentFile.name);
+            }
         };
         
-        console.log('📧 Update data prepared:', updateData);
-        
-        // Upload files if provided and storage is available
-        if (storageService.isStorageAvailable()) {
-            console.log('📁 Storage is available, checking for file uploads...');
-            try {
-                if (imageFile) {
-                    console.log('📷 Uploading new image...');
-                    updateData.image_url = await storageService.uploadListingImage(imageFile, editId);
-                    console.log('✅ New image uploaded:', updateData.image_url);
+        reader.readAsDataURL(imageFile);
+    }
+}
+
+function createNewListing(imageData, documentData, documentFileName) {
+    // Create a new listing object
+    const newListing = {
+        id: Date.now(), // unique ID using timestamp
+        title: document.getElementById('listingTitle').value.trim(),
+        description: document.getElementById('listingDescription').value.trim(),
+        location: document.getElementById('listingLocation').value.trim(),
+        price: parseInt(document.getElementById('listingPrice').value),
+        plot_size: parseInt(document.getElementById('listingSize').value),
+        plot_size_unit: "sqm",
+        land_type: document.getElementById('listingType').value,
+        landowner_name: document.getElementById('landownerName').value.trim(),
+        landowner_phone: document.getElementById('landownerPhone').value.trim(),
+        plot_number: document.getElementById('plotNumber').value.trim(),
+        sector: document.getElementById('sector').value.trim(),
+        cell: document.getElementById('cell').value.trim(),
+        amenities: document.getElementById('amenities').value.trim(),
+        infrastructure: document.getElementById('infrastructure').value.trim(),
+        price_negotiable: document.getElementById('priceNegotiable').checked,
+        land_title_available: document.getElementById('landTitleAvailable').checked,
+        image: imageData, // base64 or file path
+        document: documentFileName,
+        document_data: documentData, // base64 PDF
+        status: "available",
+        verified: true,
+        views: 0,
+        created_at: new Date().toISOString(),
+        user_id: currentAdmin.id
+    };
+
+    // Save to localStorage
+    listings.push(newListing);
+    localStorage.setItem('plotsure_listings', JSON.stringify(listings));
+
+    // Reset form and hide edit mode if any
+    resetFormAndExitEditMode();
+
+    // Notify user
+    showSuccessMessage('✅ Listing added successfully! The new plot will appear on the dashboard.');
+
+    // Refresh stats
+    loadDashboardStats();
+
+    // Go to listings tab to show new listing
+    showAdminTab('listings');
+}
+
+function handleEditListing(editId, imageFile, documentFile) {
+    const existingListing = listings.find(l => l.id === editId);
+    if (!existingListing) {
+        showErrorMessage('Listing not found');
+        return;
+    }
+    
+    // Prepare updated listing data
+    const updatedListing = {
+        ...existingListing,
+        title: document.getElementById('listingTitle').value.trim(),
+        description: document.getElementById('listingDescription').value.trim(),
+        location: document.getElementById('listingLocation').value.trim(),
+        price: parseInt(document.getElementById('listingPrice').value),
+        plot_size: parseInt(document.getElementById('listingSize').value),
+        land_type: document.getElementById('listingType').value,
+        landowner_name: document.getElementById('landownerName').value.trim(),
+        landowner_phone: document.getElementById('landownerPhone').value.trim(),
+        plot_number: document.getElementById('plotNumber').value.trim(),
+        sector: document.getElementById('sector').value.trim(),
+        cell: document.getElementById('cell').value.trim(),
+        amenities: document.getElementById('amenities').value.trim(),
+        infrastructure: document.getElementById('infrastructure').value.trim(),
+        price_negotiable: document.getElementById('priceNegotiable').checked,
+        land_title_available: document.getElementById('landTitleAvailable').checked,
+        updated_at: new Date().toISOString()
+    };
+    
+    // Handle image update
+    if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            updatedListing.image = e.target.result;
+            
+            // Handle document update
+            if (documentFile) {
+                if (documentFile.type === 'application/pdf') {
+                    const docReader = new FileReader();
+                    docReader.onload = function(docEvent) {
+                        updatedListing.document = documentFile.name;
+                        updatedListing.document_data = docEvent.target.result;
+                        saveUpdatedListing(updatedListing);
+                    };
+                    docReader.readAsDataURL(documentFile);
                 } else {
                     console.log('📷 No new image uploaded, keeping existing');
                 }
@@ -743,6 +706,8 @@ async function handleEditListing(editId, imageFile, documentFile) {
                 } else {
                     console.log('📄 No new document uploaded, keeping existing');
                 }
+          try {
+               // ...     
             } catch (error) {
                 console.error('❌ Error uploading files:', error);
                 showErrorMessage('Warning: File upload failed.');
@@ -765,6 +730,7 @@ async function handleEditListing(editId, imageFile, documentFile) {
         console.log('✅ Showing success message...');
         showSuccessMessage('Listing updated successfully!');
         
+    try {    
         // Reload data and dashboard stats
         console.log('📊 Reloading admin data...');
         await loadAdminData();
@@ -781,7 +747,7 @@ async function handleEditListing(editId, imageFile, documentFile) {
         showErrorMessage('Error updating listing: ' + error.message);
     }
 }
-
+}
 function resetFormAndExitEditMode() {
     const form = document.getElementById('addListingForm');
     form.reset();
@@ -1073,16 +1039,7 @@ function viewListingDetails(listingId) {
                     
                     <div class="listing-documents">
                         <h4>Documents</h4>
-                        <p><strong>Land Title:</strong> ${listing.document || listing.document_url ? 'Document uploaded' : 'No document uploaded'}</p>
-                        ${listing.document_url ? `
-                        <div class="document-viewer">
-                            <button class="btn btn-primary btn-small" onclick="viewDocument('${listing.document || 'Document'}', '${listing.document_url}')">
-                                📄 View Document
-                            </button>
-                        </div>
-                        ` : `
-                        <p><em>Document not available for viewing</em></p>
-                        `}
+                        <p><strong>Land Title:</strong> ${listing.document}</p>
                     </div>
                     
                     <div class="listing-actions-full">
@@ -1460,15 +1417,121 @@ function closeModal(modalId) {
 }
 
 // Document Viewer Function
-function viewDocument(documentName, documentUrl) {
+function viewDocument(documentName, documentData) {
     try {
-        // Open document in new window
-        window.open(documentUrl, '_blank');
+        // Create a new window to display the document
+        const documentWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        
+        if (documentWindow) {
+            // Write the document content to the new window
+            documentWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>${documentName} - PlotSure Connect</title>
+                    <style>
+                        body {
+                            font-family: 'Inter', sans-serif;
+                            margin: 0;
+                            padding: 20px;
+                            background: #f8f9fa;
+                        }
+                        .document-header {
+                            background: white;
+                            padding: 20px;
+                            border-radius: 8px;
+                            margin-bottom: 20px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        }
+                        .document-title {
+                            font-size: 24px;
+                            font-weight: 600;
+                            color: #1f2937;
+                            margin-bottom: 10px;
+                        }
+                        .document-info {
+                            color: #6b7280;
+                            font-size: 14px;
+                        }
+                        .document-content {
+                            background: white;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            overflow: hidden;
+                        }
+                        .document-iframe {
+                            width: 100%;
+                            height: 70vh;
+                            border: none;
+                        }
+                        .close-btn {
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            background: #ef4444;
+                            color: white;
+                            border: none;
+                            padding: 10px 15px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            z-index: 1000;
+                        }
+                        .close-btn:hover {
+                            background: #dc2626;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <button class="close-btn" onclick="window.close()">✕ Close</button>
+                    <div class="document-header">
+                        <div class="document-title">${documentName}</div>
+                        <div class="document-info">PlotSure Connect - Land Title Document</div>
+                    </div>
+                    <div class="document-content">
+                        <iframe class="document-iframe" src="${documentData}"></iframe>
+                    </div>
+                </body>
+                </html>
+            `);
+            documentWindow.document.close();
+        } else {
+            // Fallback if popup is blocked
+            showErrorMessage('Please allow popups to view documents, or click the link below to open manually.');
+            
+            // Create a temporary link to download/view the document
+            const link = document.createElement('a');
+            link.href = documentData;
+            link.target = '_blank';
+            link.download = documentName;
+            link.textContent = 'Click here to view document';
+            link.style.cssText = `
+                display: block;
+                margin-top: 10px;
+                padding: 10px;
+                background: var(--primary);
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                text-align: center;
+            `;
+            
+            // Find the document viewer div and append the link
+            const documentViewer = document.querySelector('.document-viewer');
+            if (documentViewer) {
+                documentViewer.appendChild(link);
+            }
+        }
     } catch (error) {
         console.error('Error opening document:', error);
         showErrorMessage('Unable to open document. Please try again.');
     }
 }
+}
+
+
 
 async function logout() {
     try {
