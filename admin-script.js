@@ -652,7 +652,7 @@ function createNewListing(imageData, documentData, documentFileName) {
     showAdminTab('listings');
 }
 
-function handleEditListing(editId, imageFile, documentFile) {
+async function handleEditListing(editId, imageFile, documentFile) {
     const existingListing = listings.find(l => l.id === editId);
     if (!existingListing) {
         showErrorMessage('Listing not found');
@@ -680,41 +680,26 @@ function handleEditListing(editId, imageFile, documentFile) {
         updated_at: new Date().toISOString()
     };
     
-    // Handle image update
-    if (imageFile) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            updatedListing.image = e.target.result;
-            
-            // Handle document update
-            if (documentFile) {
-                if (documentFile.type === 'application/pdf') {
-                    const docReader = new FileReader();
-                    docReader.onload = function(docEvent) {
-                        updatedListing.document = documentFile.name;
-                        updatedListing.document_data = docEvent.target.result;
-                        saveUpdatedListing(updatedListing);
-                    };
-                    docReader.readAsDataURL(documentFile);
-                } else {
-                    console.log('📷 No new image uploaded, keeping existing');
-                }
-                if (documentFile) {
-                    console.log('📄 Uploading new document...');
-                    updateData.document_url = await storageService.uploadDocument(documentFile, editId);
-                    console.log('✅ New document uploaded:', updateData.document_url);
-                } else {
-                    console.log('📄 No new document uploaded, keeping existing');
-                }
-          try {
-               // ...     
-            } catch (error) {
-                console.error('❌ Error uploading files:', error);
-                showErrorMessage('Warning: File upload failed.');
-            }
+    // Handle file uploads and update
+    try {
+        let updateData = { ...updatedListing };
+        
+        // Handle image update
+        if (imageFile) {
+            console.log('📷 Uploading new image...');
+            updateData.image_url = await storageService.uploadImage(imageFile, editId);
+            console.log('✅ New image uploaded:', updateData.image_url);
         } else {
-            console.log('⚠️ Storage is not enabled, skipping file uploads');
-            showErrorMessage('Warning: Storage is not enabled. File uploads skipped.');
+            console.log('📷 No new image uploaded, keeping existing');
+        }
+        
+        // Handle document update
+        if (documentFile) {
+            console.log('📄 Uploading new document...');
+            updateData.document_url = await storageService.uploadDocument(documentFile, editId);
+            console.log('✅ New document uploaded:', updateData.document_url);
+        } else {
+            console.log('📄 No new document uploaded, keeping existing');
         }
         
         // Update listing in Firebase
@@ -730,7 +715,6 @@ function handleEditListing(editId, imageFile, documentFile) {
         console.log('✅ Showing success message...');
         showSuccessMessage('Listing updated successfully!');
         
-    try {    
         // Reload data and dashboard stats
         console.log('📊 Reloading admin data...');
         await loadAdminData();
@@ -746,7 +730,6 @@ function handleEditListing(editId, imageFile, documentFile) {
         console.error('❌ Error updating listing:', error);
         showErrorMessage('Error updating listing: ' + error.message);
     }
-}
 }
 function resetFormAndExitEditMode() {
     const form = document.getElementById('addListingForm');
@@ -1528,7 +1511,6 @@ function viewDocument(documentName, documentData) {
         console.error('Error opening document:', error);
         showErrorMessage('Unable to open document. Please try again.');
     }
-}
 }
 
 
