@@ -1,3 +1,95 @@
+/* Admin Login Screen Styles */
+.admin-login-screen {
+    min-height: 100vh;
+    background: var(--light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.admin-login-container {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 3rem;
+    box-shadow: var(--shadow);
+    max-width: 500px;
+    width: 100%;
+}
+
+.admin-login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.admin-login-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 1rem 0 0.5rem 0;
+    color: var(--dark);
+}
+
+.admin-login-header p {
+    color: var(--gray);
+    font-size: 1.1rem;
+}
+
+.admin-login-form {
+    margin-bottom: 2rem;
+}
+
+.admin-login-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.admin-login-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--dark);
+}
+
+.admin-login-form input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.admin-login-form input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.admin-login-info {
+    background: var(--light);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary);
+}
+
+.admin-login-info h3 {
+    margin: 0 0 1rem 0;
+    color: var(--dark);
+    font-size: 1.1rem;
+}
+
+.admin-login-info p {
+    margin: 0.5rem 0;
+    color: var(--gray);
+}
+
+.admin-login-info strong {
+    color: var(--dark);
+}
+
+.admin-login-info em {
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
 /* Admin Dashboard Styles */
 .admin-dashboard {
     min-height: 100vh;
@@ -696,13 +788,13 @@
 
 .info-item {
     padding: 0.75rem;
-    background: var(--light-bg);
+    background: var(--light);
     border-radius: 8px;
     border-left: 4px solid var(--primary);
 }
 
 .info-item strong {
-    color: var(--text-primary);
+    color: var(--dark);
     display: block;
     margin-bottom: 0.25rem;
 }
@@ -713,7 +805,7 @@
 .listing-documents {
     margin: 1.5rem 0;
     padding: 1rem;
-    background: var(--light-bg);
+    background: var(--light);
     border-radius: 8px;
 }
 
@@ -722,7 +814,7 @@
 .listing-infrastructure h4,
 .listing-documents h4 {
     margin: 0 0 0.5rem 0;
-    color: var(--text-primary);
+    color: var(--dark);
     font-size: 1.1rem;
 }
 
@@ -732,7 +824,7 @@
 .listing-documents p {
     margin: 0;
     line-height: 1.6;
-    color: var(--text-secondary);
+    color: var(--gray);
 }
 
 .listing-actions-full {
@@ -740,7 +832,7 @@
     gap: 1rem;
     margin-top: 2rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid #e2e8f0;
 }
 
 @media (max-width: 768px) {
@@ -751,4 +843,45 @@
     .listing-actions-full {
         flex-direction: column;
     }
+}
+
+/* Document Viewer Styles */
+.document-viewer {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--light);
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.document-viewer button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.document-viewer button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.listing-documents {
+    margin-bottom: 1.5rem;
+}
+
+.listing-documents h4 {
+    margin-bottom: 0.75rem;
+    color: var(--dark);
+    font-weight: 600;
+}
+
+.listing-documents p {
+    margin-bottom: 0.5rem;
+    color: var(--gray);
+}
+
+.listing-documents em {
+    color: #9ca3af;
+    font-style: italic;
 } 

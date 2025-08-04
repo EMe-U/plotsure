@@ -1,0 +1,14 @@
+{
+     "name": "plotsure",
+     "version": "1.0.0",
+     "description": "PlotSure Connect - Land Listing Platform",
+     "scripts": {
+          "start": "http-server -p 8080"
+     },
+     "dependencies": {
+          "firebase": "^12.0.0"
+     },
+     "devDependencies": {
+          "http-server": "^14.1.1"
+     }
+}

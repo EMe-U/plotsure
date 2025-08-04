@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <html lang="en">
+   <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlotSure Connect - Admin Dashboard</title>
     <meta name="description" content="Admin dashboard for PlotSure Connect - Manage land listings and inquiries">
     
@@ -10,12 +10,45 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="admin-styles.css">
-</head>
-<body>
+     <link rel="stylesheet" href="admin-styles.css">
+   </head>
+   <body>
     <!-- Loading Animation -->
     <div class="loader" id="loader">
         <div class="loader-circle"></div>
+    </div>
+
+        <!-- Admin Login Screen (shown when not authenticated) -->
+    <div id="adminLoginScreen" class="admin-login-screen" style="display: none;">
+        <div class="admin-login-container">
+            <div class="admin-login-header">
+                <div class="admin-logo">
+                    <span style="color: var(--primary);">Plot</span>Sure Connect
+                    <span class="admin-badge">Admin</span>
+                </div>
+                <h1>Admin Dashboard Login</h1>
+                <p>Enter admin credentials to access the dashboard</p>
+            </div>
+            
+            <form id="adminLoginForm" class="admin-login-form">
+                <div class="form-group">
+                    <label for="adminLoginEmail">Admin Email</label>
+                    <input type="email" id="adminLoginEmail" value="admin@plotsure.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminLoginPassword">Admin Password</label>
+                    <input type="password" id="adminLoginPassword" value="admin123" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-large">Login to Admin Dashboard</button>
+            </form>
+            
+            <div class="admin-login-info">
+                <h3>Admin Credentials:</h3>
+                <p><strong>Email:</strong> admin@plotsure.com</p>
+                <p><strong>Password:</strong> admin123</p>
+                <p><em>These credentials are for admin dashboard access only.</em></p>
+            </div>
+        </div>
     </div>
 
     <!-- Admin Dashboard -->
@@ -29,7 +62,7 @@
                 </div>
                 <div class="admin-user-info">
                     <span id="adminUserName">Admin User</span>
-                    <button class="btn btn-secondary btn-small" onclick="logout()">Logout</button>
+                    <button class="btn btn-secondary btn-small" id="adminLogoutBtn">Logout</button>
                 </div>
             </div>
         </header>
@@ -37,22 +70,22 @@
         <!-- Admin Navigation -->
         <nav class="admin-nav">
             <div class="admin-nav-content">
-                <button class="nav-tab active" onclick="showAdminTab('dashboard')">
+                <button class="nav-tab active" data-tab="dashboard">
                     📊 Dashboard
                 </button>
-                <button class="nav-tab" onclick="showAdminTab('listings')">
+                <button class="nav-tab" data-tab="listings">
                     🏠 Manage Listings
                 </button>
-                <button class="nav-tab" onclick="showAdminTab('add-listing')">
+                <button class="nav-tab" data-tab="add-listing">
                     ➕ Add New Listing
                 </button>
-                <button class="nav-tab" onclick="showAdminTab('inquiries')">
+                <button class="nav-tab" data-tab="inquiries">
                     📧 Inquiries
                 </button>
-                <button class="nav-tab" onclick="showAdminTab('users')">
+                <button class="nav-tab" data-tab="users">
                     👥 Users
                 </button>
-                <button class="nav-tab" onclick="showAdminTab('settings')">
+                <button class="nav-tab" data-tab="settings">
                     ⚙️ Settings
                 </button>
             </div>
@@ -111,13 +144,19 @@
             <div id="listingsTab" class="admin-tab-content" style="display: none;">
                 <div class="tab-header">
                     <h2>Manage Land Listings</h2>
-                    <button class="btn btn-primary" onclick="showAdminTab('add-listing')">
+                    <button class="btn btn-primary" id="addListingFromListingsBtn">
                         ➕ Add New Listing
                     </button>
                 </div>
 
                 <div class="listings-filters">
                     <input type="text" id="listingsSearch" placeholder="Search listings..." onkeyup="filterAdminListings()">
+                    <select id="listingsStatusFilter" onchange="filterAdminListings()">
+                        <option value="">All Status</option>
+                        <option value="available">Available</option>
+                        <option value="reserved">Reserved</option>
+                        <option value="sold">Sold</option>
+                    </select>
                     <select id="listingsTypeFilter" onchange="filterAdminListings()">
                         <option value="">All Types</option>
                         <option value="residential">Residential</option>
@@ -134,12 +173,12 @@
 
             <!-- Add New Listing Tab -->
             <div id="addListingTab" class="admin-tab-content" style="display: none;">
-                <div class="tab-header">
-                    <h2>Add New Land Listing</h2>
-                    <button class="btn btn-secondary" onclick="showAdminTab('listings')">
-                        ← Back to Listings
-                    </button>
-                </div>
+                            <div class="tab-header">
+                <h2>Add New Land Listing</h2>
+                <button class="btn btn-secondary" id="backToListingsBtn">
+                    ← Back to Listings
+                </button>
+            </div>
 
                 <form id="addListingForm" class="admin-form">
                     <div class="form-section">
@@ -178,12 +217,12 @@
                                 <label for="listingType">Land Type *</label>
                                 <select id="listingType" required>
                                     <option value="">Select Land Type</option>
-                                    <option value="residential">Residential</option>
-                                    <option value="commercial">Commercial</option>
-                                    <option value="agricultural">Agricultural</option>
+             <option value="residential">Residential</option>
+             <option value="commercial">Commercial</option>
+             <option value="agricultural">Agricultural</option>
                                     <option value="industrial">Industrial</option>
                                     <option value="mixed">Mixed Use</option>
-                                </select>
+           </select>
                             </div>
                             <div class="form-group">
                                 <label for="landownerName">Land Broker Name *</label>
@@ -236,16 +275,16 @@
                     <div class="form-section">
                         <h3>Additional Information</h3>
                         <div class="form-row">
-                                                    <div class="form-group">
-                            <label for="amenities">Nearby Amenities</label>
-                            <textarea id="amenities" rows="3" placeholder="e.g., Schools, hospitals, markets, roads..."></textarea>
-                            <small>List nearby facilities that make this location attractive.</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="infrastructure">Infrastructure</label>
-                            <textarea id="infrastructure" rows="3" placeholder="e.g., Water access, electricity, road access..."></textarea>
-                            <small>Describe available utilities and infrastructure on or near the plot.</small>
-                        </div>
+                            <div class="form-group">
+                                <label for="amenities">Nearby Amenities</label>
+                                <textarea id="amenities" rows="3" placeholder="e.g., Schools, hospitals, markets, roads..."></textarea>
+                                <small>List nearby facilities that make this location attractive.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="infrastructure">Infrastructure</label>
+                                <textarea id="infrastructure" rows="3" placeholder="e.g., Water access, electricity, road access..."></textarea>
+                                <small>Describe available utilities and infrastructure on or near the plot.</small>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>
@@ -263,10 +302,9 @@
 
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
-                         <button type="submit" class="btn btn-primary">Add Listing</button>
-
+                        <button type="submit" class="btn btn-primary">Add Listing</button>
                     </div>
-                </form>
+         </form>
             </div>
 
             <!-- Inquiries Tab -->
@@ -363,7 +401,7 @@
                     </div>
                 </div>
             </div>
-        </main>
+     </main>
     </div>
 
     <!-- Add User Modal -->
@@ -371,7 +409,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Add New User</h3>
-                <button class="modal-close" onclick="closeModal('addUserModal')">&times;</button>
+                <button class="modal-close" id="closeAddUserModal">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="addUserForm">
@@ -404,6 +442,8 @@
         </div>
     </div>
 
-    <script src="admin-script.js"></script>
-</body>
-</html> 
+    <!-- Firebase SDK v12 with ES6 modules -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="admin-script.js"></script>
+   </body>
+   </html>

@@ -1,237 +1,226 @@
-# PlotSure Connect - Pure HTML/CSS/JavaScript Version
+# PlotSure Connect - Land Listing Platform
 
-A comprehensive land listing platform designed to combat land fraud in Bugesera, Rwanda by providing transparent, verified land listings with complete documentation. This version is built entirely with HTML, CSS, and JavaScript - no backend required!
+A modern web application for connecting land buyers and sellers in Rwanda, built with Firebase backend.
 
-## 🎯 Mission
+## Features
 
-To combat land fraud and improve trust in land transactions in Bugesera, Rwanda, by providing a transparent, secure platform that showcases verified land listings with documentation.
+- **User Authentication**: Secure login/signup with Firebase Auth
+- **Land Listings**: Browse and search available land properties
+- **Admin Dashboard**: Manage listings and inquiries
+- **File Upload**: Upload images and documents to Firebase Storage
+- **Real-time Database**: Firestore for data storage
+- **Responsive Design**: Works on desktop and mobile devices
 
-## ✨ Features Implemented
+## Firebase Backend Setup
 
-### ✅ Core Features
+This application uses Firebase SDK v12 with the following services:
 
-#### **User Authentication**
-- ✅ **Login/Signup**: Users can create accounts and login
-- ✅ **Admin Dashboard**: Land brokers can access admin features
-- ✅ **Secure Logout**: Users can securely log out
+### Authentication
+- Email/password authentication
+- User role management (admin/user)
+- Session management
 
-#### **Land Listings Management**
-- ✅ **View Listings**: Users can browse all available land listings
-- ✅ **Search & Filter**: Search by location, size, price, and land type
-- ✅ **Listing Details**: Complete information with images and documents
-- ✅ **Contact Owners**: Submit inquiries to landowners
+### Firestore Database
+Collections:
+- `users`: User profiles and authentication data
+- `listings`: Land property listings
+- `inquiries`: User inquiries about listings
 
-#### **Admin Features**
-- ✅ **Add New Listings**: Upload land listings with images and documents
-- ✅ **Manage Listings**: Edit and delete existing listings
-- ✅ **View Inquiries**: See all inquiries from potential buyers
-- ✅ **Document Upload**: Upload land title documents and images
+### Storage
+- Image uploads for land listings
+- Document uploads for land titles
+- Secure file access
 
-#### **User Experience**
-- ✅ **Responsive Design**: Works on all devices and screen sizes
-- ✅ **Modern UI**: Beautiful, intuitive interface
-- ✅ **Real-time Search**: Instant search and filtering
-- ✅ **Contact Forms**: Easy communication between buyers and sellers
+## Project Structure
 
-## 🚀 Getting Started
+```
+plotsure/
+├── index.html              # Main application page
+├── admin.html              # Admin dashboard
+├── firebase-config.js      # Firebase configuration and services
+├── script.js               # Main application logic
+├── admin-script.js         # Admin dashboard logic
+├── styles.css              # Main styles
+├── admin-styles.css        # Admin styles
+├── test-firebase.html      # Firebase connection test
+├── package.json            # Dependencies
+└── README.md              # This file
+```
+
+## Getting Started
 
 ### Prerequisites
-- Any modern web browser (Chrome, Firefox, Safari, Edge)
-- No server or backend required!
+- Node.js and npm installed
+- Firebase project set up
 
 ### Installation
 
-1. **Download the files**
-   - `index.html` - Main application file
-   - `styles.css` - Styling and responsive design
-   - `script.js` - All functionality and data management
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd plotsure
+```
 
-2. **Open the application**
-   - Simply open `index.html` in your web browser
-   - Or serve the files using any local server
+2. Install dependencies:
+```bash
+npm install
+```
 
-3. **Default Admin Login**
-   - Email: `admin@plotsure.com`
-   - Password: `admin123`
+3. Start the development server:
+```bash
+npm start
+```
 
-## 📱 How to Use
+4. Open your browser and navigate to `http://localhost:8080`
 
-### For Land Brokers (Admins)
+### Firebase Configuration
 
-1. **Login**: Use the default admin credentials or create a new account
-2. **Add Listings**: Click "Add New Listing" in the admin dashboard
-3. **Upload Information**: 
-   - Land plot image
-   - Land title document
-   - Location details
-   - Price and size information
-   - Landowner contact details
-4. **Manage Listings**: Edit or delete existing listings
-5. **View Inquiries**: Check messages from potential buyers
+The application is already configured with Firebase. The configuration is in `firebase-config.js`:
 
-### For Buyers
-
-1. **Browse Listings**: View all available land plots
-2. **Search & Filter**: Use the search bar and filters to find specific properties
-3. **View Details**: Click on any listing to see complete information
-4. **Contact Owners**: Submit inquiries to landowners directly
-5. **Contact Support**: Use the contact form for general inquiries
-
-## 🏗️ Technical Architecture
-
-### Frontend Only
-- **HTML5**: Semantic markup and structure
-- **CSS3**: Modern styling with CSS Grid, Flexbox, and custom properties
-- **Vanilla JavaScript**: No frameworks, pure ES6+ JavaScript
-- **LocalStorage**: Client-side data persistence
-- **File API**: Image and document upload handling
-
-### Data Storage
-All data is stored locally in the browser using localStorage:
-- **Listings**: Land plot information and images
-- **Users**: Admin and user accounts
-- **Inquiries**: Messages from potential buyers
-
-### Key Features
-- **Responsive Design**: Mobile-first approach
-- **Progressive Enhancement**: Works without JavaScript
-- **Accessibility**: WCAG compliant
-- **Performance**: Optimized for fast loading
-- **Security**: Client-side validation and sanitization
-
-## 📊 Data Structure
-
-### Listing Object
 ```javascript
-{
-    id: 1,
-    title: "Beautiful Residential Plot",
-    description: "Prime residential land...",
-    location: "Nyamata, Bugesera District",
-    price: 15000000,
-    plot_size: 500,
-    plot_size_unit: "sqm",
-    land_type: "residential",
-    landowner_name: "Jean Pierre Uwimana",
-    landowner_phone: "+250 791 234 567",
-    image: "base64_image_data",
-    document: "Land Title Document",
-    status: "available",
-    verified: true,
-    views: 45,
-    created_at: "2024-01-15T10:30:00Z",
-    user_id: 1
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyB6z38uXcdDtX8p6oSj9KRU0obGGnbOX-0",
+  authDomain: "plotsure-3973d.firebaseapp.com",
+  projectId: "plotsure-3973d",
+  storageBucket: "plotsure-3973d.firebasestorage.app",
+  messagingSenderId: "769491442731",
+  appId: "1:769491442731:web:9864d999fe675ea418de6e",
+  measurementId: "G-Y141XCBNVJ"
+};
 ```
 
-### User Object
+## Usage
+
+### For Users
+
+1. **Sign Up**: Create a new account with your email and password
+2. **Browse Listings**: View available land properties
+3. **Search**: Filter listings by location, price, and land type
+4. **Contact**: Send inquiries to property owners
+5. **View Details**: See comprehensive property information
+
+### For Admins
+
+1. **Login**: Use admin credentials (admin@plotsure.com / admin123)
+2. **Add Listings**: Create new land listings with images and documents
+3. **Manage Listings**: Edit or delete existing listings
+4. **View Inquiries**: Monitor and respond to user inquiries
+5. **User Management**: Manage user accounts and permissions
+
+## Firebase Services Used
+
+### Authentication Service (`authService`)
 ```javascript
-{
-    id: 1,
-    name: "Admin User",
-    email: "admin@plotsure.com",
-    password: "admin123",
-    phone: "+250 791 845 708",
-    role: "admin",
-    is_active: true,
-    verified: true,
-    created_at: "2024-01-01T00:00:00Z"
+// Sign up
+await authService.signUp(email, password, userData);
+
+// Sign in
+await authService.signIn(email, password);
+
+// Sign out
+await authService.signOut();
+
+// Get current user
+const user = authService.getCurrentUser();
+```
+
+### Database Service (`dbService`)
+```javascript
+// Users
+await dbService.users.get(userId);
+await dbService.users.update(userId, userData);
+
+// Listings
+await dbService.listings.create(listingData);
+await dbService.listings.search(filters);
+await dbService.listings.update(listingId, data);
+
+// Inquiries
+await dbService.inquiries.create(inquiryData);
+await dbService.inquiries.getAll();
+```
+
+### Storage Service (`storageService`)
+```javascript
+// Upload files
+const imageUrl = await storageService.uploadListingImage(file, listingId);
+const documentUrl = await storageService.uploadDocument(file, listingId);
+```
+
+## Testing
+
+To test the Firebase connection, open `test-firebase.html` in your browser. This will verify:
+
+- Firebase initialization
+- Firestore database connection
+- Authentication service
+- Storage service availability
+
+## Security Rules
+
+Make sure your Firebase project has appropriate security rules for:
+
+### Firestore Rules
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Anyone can read listings
+    match /listings/{listingId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Users can create inquiries
+    match /inquiries/{inquiryId} {
+      allow read, write: if request.auth != null;
+    }
+  }
 }
 ```
 
-## 🎨 Design Features
-
-### Modern UI/UX
-- **Clean Design**: Minimalist, professional appearance
-- **Color Scheme**: Green theme representing growth and nature
-- **Typography**: Inter font for excellent readability
-- **Animations**: Smooth transitions and hover effects
-- **Icons**: Emoji icons for easy recognition
-
-### Responsive Layout
-- **Mobile First**: Optimized for mobile devices
-- **Grid System**: CSS Grid for flexible layouts
-- **Flexbox**: Modern layout techniques
-- **Breakpoints**: Responsive design at all screen sizes
-
-## 🔧 Customization
-
-### Adding New Features
-1. **New Listing Fields**: Modify the listing object structure
-2. **Additional Filters**: Add new filter options in the search
-3. **Custom Styling**: Update CSS variables for theming
-4. **Enhanced Admin**: Add new admin dashboard features
-
-### Styling Customization
-```css
-:root {
-    --primary: #27ae60;        /* Main brand color */
-    --primary-dark: #219150;   /* Darker shade */
-    --secondary: #a3e635;      /* Accent color */
-    --dark: #0f172a;          /* Text color */
-    --gray: #64748b;          /* Secondary text */
-    --light: #f8fafc;         /* Background color */
-    --white: #ffffff;         /* White */
+### Storage Rules
+```javascript
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow authenticated users to upload files
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
 }
 ```
 
-## 📱 Browser Support
+## Troubleshooting
 
-### Fully Supported
-- ✅ **Google Chrome** (v80+)
-- ✅ **Mozilla Firefox** (v75+)
-- ✅ **Microsoft Edge** (v80+)
-- ✅ **Safari** (v13+)
+### Common Issues
 
-### Mobile Support
-- ✅ **iOS Safari** (v13+)
-- ✅ **Android Chrome** (v80+)
-- ✅ **Samsung Internet** (v10+)
+1. **Module Import Errors**: Make sure you're serving files from a web server (not file://)
+2. **CORS Errors**: Firebase requires HTTPS in production
+3. **Authentication Errors**: Check Firebase Auth settings in console
+4. **Storage Upload Failures**: Verify storage rules and file size limits
 
-## 🚀 Deployment
+### Debug Mode
 
-### Local Development
-1. Download all files to a folder
-2. Open `index.html` in your browser
-3. Start developing!
+Open browser developer tools and check the console for detailed error messages. The application includes comprehensive error handling and logging.
 
-### Web Hosting
-1. Upload all files to your web server
-2. Ensure `index.html` is in the root directory
-3. Access via your domain name
+## Deployment
 
-### GitHub Pages
-1. Push code to a GitHub repository
-2. Enable GitHub Pages in repository settings
-3. Your site will be available at `username.github.io/repository-name`
+To deploy to production:
 
-## 🔒 Security Considerations
+1. Build the application
+2. Upload to Firebase Hosting
+3. Configure custom domain (optional)
+4. Set up SSL certificate
 
-### Client-Side Security
-- **Input Validation**: All user inputs are validated
-- **XSS Prevention**: Content is properly escaped
-- **Data Sanitization**: User data is cleaned before storage
-
-### Data Privacy
-- **Local Storage**: All data stays in the user's browser
-- **No External APIs**: No data sent to external servers
-- **User Control**: Users can clear their data anytime
-
-## 📈 Performance
-
-### Optimization Features
-- **Lazy Loading**: Images load as needed
-- **Minimal Dependencies**: No external libraries
-- **Efficient Storage**: Optimized localStorage usage
-- **Fast Rendering**: Optimized DOM manipulation
-
-### Loading Times
-- **Initial Load**: < 1 second
-- **Search/Filter**: Instant results
-- **Image Loading**: Progressive loading
-- **Modal Opening**: < 100ms
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -239,37 +228,10 @@ All data is stored locally in the browser using localStorage:
 4. Test thoroughly
 5. Submit a pull request
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
-## 📞 Support
+## Support
 
-- **Email**: plotsureconnect@gmail.com
-- **Phone**: +250 791 845 708
-- **Location**: Nyamata, Bugesera District, Rwanda
-
-## 🎯 Future Enhancements
-
-### Planned Features
-- [ ] **Offline Support**: Service Worker for offline functionality
-- [ ] **Advanced Search**: Map-based location search
-- [ ] **Image Gallery**: Multiple images per listing
-- [ ] **Export Data**: Download listings as PDF/CSV
-- [ ] **Multi-language**: Kinyarwanda language support
-- [ ] **Push Notifications**: Browser notifications for new listings
-- [ ] **Social Sharing**: Share listings on social media
-- [ ] **Advanced Analytics**: User behavior tracking
-
-### Technical Improvements
-- [ ] **PWA Features**: Install as mobile app
-- [ ] **IndexedDB**: Better data storage for large datasets
-- [ ] **Web Workers**: Background processing
-- [ ] **Service Workers**: Caching and offline support
-- [ ] **WebAssembly**: Performance-critical operations
-
----
-
-**Built with ❤️ for Rwanda's land market transparency**
-
-*This version eliminates the need for a backend server while maintaining all core functionality. Perfect for deployment on any static hosting service!*
+For support and questions, please contact the development team or create an issue in the repository.

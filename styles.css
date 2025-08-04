@@ -329,13 +329,46 @@ nav.scrolled {
     min-height: 100vh;
     display: flex;
     align-items: center;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    background: 
+        /* Overlay for better text readability */
+        linear-gradient(
+            rgba(0, 0, 0, 0.3) 0%,
+            rgba(0, 0, 0, 0.2) 50%,
+            rgba(0, 0, 0, 0.4) 100%
+        ),
+        /* Your beautiful landscape image */
+        url('https://static.vecteezy.com/system/resources/previews/007/669/303/non_2x/landscape-green-rice-field-and-cloudy-sky-rice-farm-with-tropical-tree-agriculture-land-plot-for-sale-farm-land-rice-plantation-organic-rice-farm-country-view-carbon-credit-concept-rural-area-free-photo.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     padding: 120px 2rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Optional: Add a subtle overlay for better text readability */
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        rgba(0, 0, 0, 0.1) 0%,
+        transparent 50%,
+        rgba(0, 0, 0, 0.2) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
 }
 
 .hero-content {
     flex: 1;
     max-width: 600px;
+    position: relative;
+    z-index: 2;
 }
 
 .hero-content h1 {
@@ -343,12 +376,15 @@ nav.scrolled {
     font-weight: 800;
     margin-bottom: 1.5rem;
     line-height: 1.2;
+    color: var(--white);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .hero-content p {
     font-size: 1.2rem;
-    color: var(--gray);
+    color: var(--white);
     margin-bottom: 2rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .hero-buttons {
@@ -362,6 +398,8 @@ nav.scrolled {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+    z-index: 2;
 }
 
 .hero-card {
@@ -1050,7 +1088,7 @@ html {
 
 /* Inquiry Modal Styles */
 .inquiry-listing-info {
-    background: var(--light-bg);
+    background: var(--light);
     padding: 1rem;
     border-radius: 8px;
     margin-bottom: 1.5rem;
@@ -1059,13 +1097,13 @@ html {
 
 .inquiry-listing-info h4 {
     margin: 0 0 0.5rem 0;
-    color: var(--text-primary);
+    color: var(--dark);
     font-size: 1.1rem;
 }
 
 .inquiry-listing-info p {
     margin: 0.25rem 0;
-    color: var(--text-secondary);
+    color: var(--gray);
 }
 
 .inquiry-form {
@@ -1082,7 +1120,7 @@ html {
     justify-content: flex-end;
     margin-top: 1.5rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid #e2e8f0;
 }
 
 @media (max-width: 768px) {
@@ -1095,7 +1133,7 @@ html {
 .no-listings-message {
     text-align: center;
     padding: 4rem 2rem;
-    background: var(--light-bg);
+    background: var(--light);
     border-radius: 12px;
     margin: 2rem 0;
 }
@@ -1106,13 +1144,13 @@ html {
 }
 
 .no-listings-message h3 {
-    color: var(--text-primary);
+    color: var(--dark);
     margin-bottom: 1rem;
     font-size: 1.5rem;
 }
 
 .no-listings-message p {
-    color: var(--text-secondary);
+    color: var(--gray);
     margin-bottom: 0.5rem;
     line-height: 1.6;
 }
@@ -1122,7 +1160,7 @@ html {
     padding: 1.5rem;
     background: white;
     border-radius: 8px;
-    border: 1px solid var(--border-color);
+    border: 1px solid #e2e8f0;
 }
 
 .contact-info p {
@@ -1130,70 +1168,46 @@ html {
 }
 
 .contact-info strong {
-    color: var(--text-primary);
-}
-
-/* Document Link Styles */
-.document-link {
-    color: var(--primary);
-    text-decoration: none;
-    font-weight: 500;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: inherit;
-}
-
-.document-link:hover {
-    background: rgba(59, 130, 246, 0.15);
-    border-color: var(--primary);
-    text-decoration: none;
-    color: var(--primary-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-}
-
-.document-link:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
+    color: var(--dark);
 }
 
 /* Document Viewer Styles */
 .document-viewer {
-    margin-bottom: 1rem;
-    border: 1px solid var(--border-color);
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--light);
     border-radius: 8px;
-    overflow: hidden;
+    border: 1px solid #e2e8f0;
 }
 
-.document-viewer iframe {
-    display: block;
-    width: 100%;
-    min-height: 600px;
-    border: none;
-}
-
-.document-actions {
+.document-viewer button {
     display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
 }
 
-@media (max-width: 768px) {
-    .document-actions {
-        flex-direction: column;
-    }
-    
-    .document-viewer iframe {
-        min-height: 400px;
-    }
+.document-viewer button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
 }
+
+.listing-documents {
+    margin-bottom: 1.5rem;
+}
+
+.listing-documents h4 {
+    margin-bottom: 0.75rem;
+    color: var(--dark);
+    font-weight: 600;
+}
+
+.listing-documents p {
+    margin-bottom: 0.5rem;
+    color: var(--gray);
+}
+
+.listing-documents em {
+    color: #9ca3af;
+    font-style: italic;
+} 
