@@ -73,22 +73,6 @@ npm start
 
 4. Open your browser and navigate to `http://localhost:8080`
 
-### Firebase Configuration
-
-The application is already configured with Firebase. The configuration is in `firebase-config.js`:
-
-```javascript
-const firebaseConfig = {
-  apiKey: "AIzaSyB6z38uXcdDtX8p6oSj9KRU0obGGnbOX-0",
-  authDomain: "plotsure-3973d.firebaseapp.com",
-  projectId: "plotsure-3973d",
-  storageBucket: "plotsure-3973d.firebasestorage.app",
-  messagingSenderId: "769491442731",
-  appId: "1:769491442731:web:9864d999fe675ea418de6e",
-  measurementId: "G-Y141XCBNVJ"
-};
-```
-
 ## Usage
 
 ### For Users
